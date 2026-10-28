@@ -1,0 +1,163 @@
+{
+  "_aide": "Nom de la plateforme dans ta Base de jeux → nom (ou identifiant) sur MobyGames et sur IGDB. null = n'existe pas sur ce service. Les noms ne tiennent pas compte des majuscules ni des accents.",
+  "Game & Watch": {
+    "moby": null,
+    "igdb": "Game & Watch"
+  },
+  "Nintendo Entertainment System": {
+    "moby": "NES",
+    "igdb": "Nintendo Entertainment System"
+  },
+  "Super Nintendo Entertainment System": {
+    "moby": "SNES",
+    "igdb": "Super Nintendo Entertainment System"
+  },
+  "Game Boy": {
+    "moby": "Game Boy",
+    "igdb": "Game Boy"
+  },
+  "Nintendo 64": {
+    "moby": "Nintendo 64",
+    "igdb": "Nintendo 64"
+  },
+  "Game Boy Color": {
+    "moby": "Game Boy Color",
+    "igdb": "Game Boy Color"
+  },
+  "Game Boy Advance": {
+    "moby": "Game Boy Advance",
+    "igdb": "Game Boy Advance"
+  },
+  "GameCube": {
+    "moby": "GameCube",
+    "igdb": "Nintendo GameCube"
+  },
+  "Nintendo DS": {
+    "moby": "Nintendo DS",
+    "igdb": "Nintendo DS"
+  },
+  "Wii": {
+    "moby": "Wii",
+    "igdb": "Wii"
+  },
+  "Nintendo DSi": {
+    "moby": "Nintendo DSi",
+    "igdb": "Nintendo DSi"
+  },
+  "Nintendo 3DS": {
+    "moby": "Nintendo 3DS",
+    "igdb": "Nintendo 3DS"
+  },
+  "Wii U": {
+    "moby": "Wii U",
+    "igdb": "Wii U"
+  },
+  "New Nintendo 3DS": {
+    "moby": "New Nintendo 3DS",
+    "igdb": "New Nintendo 3DS"
+  },
+  "Nintendo Switch": {
+    "moby": "Nintendo Switch",
+    "igdb": "Nintendo Switch"
+  },
+  "Nintendo Switch 2": {
+    "moby": "Nintendo Switch 2",
+    "igdb": "Nintendo Switch 2"
+  },
+  "PlayStation": {
+    "moby": "PlayStation",
+    "igdb": "PlayStation"
+  },
+  "PlayStation 2": {
+    "moby": "PlayStation 2",
+    "igdb": "PlayStation 2"
+  },
+  "PlayStation 3": {
+    "moby": "PlayStation 3",
+    "igdb": "PlayStation 3"
+  },
+  "PlayStation 4": {
+    "moby": "PlayStation 4",
+    "igdb": "PlayStation 4"
+  },
+  "PlayStation 5": {
+    "moby": "PlayStation 5",
+    "igdb": "PlayStation 5"
+  },
+  "PSP": {
+    "moby": "PSP",
+    "igdb": "PlayStation Portable"
+  },
+  "PSP Go": {
+    "moby": "PSP",
+    "igdb": "PlayStation Portable"
+  },
+  "Ps Vita": {
+    "moby": "PS Vita",
+    "igdb": "PlayStation Vita"
+  },
+  "Xbox": {
+    "moby": "Xbox",
+    "igdb": "Xbox"
+  },
+  "Xbox 360": {
+    "moby": "Xbox 360",
+    "igdb": "Xbox 360"
+  },
+  "Xbox One": {
+    "moby": "Xbox One",
+    "igdb": "Xbox One"
+  },
+  "Xbox Series": {
+    "moby": "Xbox Series",
+    "igdb": "Xbox Series X|S"
+  },
+  "Sega Master System": {
+    "moby": "SEGA Master System",
+    "igdb": "Sega Master System/Mark III"
+  },
+  "Sega Mega Drive": {
+    "moby": "Genesis",
+    "igdb": "Sega Mega Drive/Genesis"
+  },
+  "Sega Game Gear": {
+    "moby": "Game Gear",
+    "igdb": "Sega Game Gear"
+  },
+  "Sega Saturn": {
+    "moby": "SEGA Saturn",
+    "igdb": "Sega Saturn"
+  },
+  "Sega Dreamcast": {
+    "moby": "Dreamcast",
+    "igdb": "Dreamcast"
+  },
+  "Atari 2600": {
+    "moby": "Atari 2600",
+    "igdb": "Atari 2600"
+  },
+  "Atari 7800": {
+    "moby": "Atari 7800",
+    "igdb": "Atari 7800"
+  },
+  "Neo Geo": {
+    "moby": "Neo Geo",
+    "igdb": "Neo Geo AES"
+  },
+  "Neo Geo Pocket": {
+    "moby": "Neo Geo Pocket",
+    "igdb": "Neo Geo Pocket"
+  },
+  "Neo Geo Pocket Color": {
+    "moby": "Neo Geo Pocket Color",
+    "igdb": "Neo Geo Pocket Color"
+  },
+  "Arcade": {
+    "moby": "Arcade",
+    "igdb": "Arcade"
+  },
+  "Evercade": {
+    "moby": "Evercade",
+    "igdb": "Evercade"
+  }
+}
