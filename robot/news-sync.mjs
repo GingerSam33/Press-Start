@@ -113,7 +113,9 @@ try {
   log(`${conferences.length} conférences à venir`);
 
   const day = new Intl.DateTimeFormat('fr-CA', {timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit'}).format(new Date());
-  const edition = {day, updatedAt: Date.now(), headline: articles[0] || null, articles, releases, conferences, sources: report.feeds.filter(f => f.items).map(f => f.name), robot: true};
+  const used = report.feeds.filter(f => f.items).map(f => f.name);
+  const sourceLinks = (cfg.sources || []).filter(x => used.includes(x.name)).map(x => { let u = ''; try { u = new URL(x.url).origin; } catch {} return {name: x.name, url: u}; });
+  const edition = {day, updatedAt: Date.now(), headline: articles[0] || null, articles, releases, conferences, sources: used, sourceLinks, robot: true};
   await upsert([{col: 'news_editions', id: day, data: edition}, {col: 'news', id: 'edition', data: edition}]);
   report.day = day; report.articles = articles.length; report.releases = releases.length; report.conferences = conferences.length;
   log(`Édition du ${day} ${DRY ? '(essai, rien enregistré)' : 'enregistrée'}`);
