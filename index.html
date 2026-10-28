@@ -2833,6 +2833,18 @@ dialog.shot-lb::backdrop{background:rgba(5,4,14,.92)}
 .ccd-row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
 .ccd-row small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
 .ccd-r{cursor:default}.ccd-a{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+/* fiche : langue + nouvelle recherche ; actus : jours et plateformes */
+.gi-lang{margin-left:auto;margin-right:8px}
+.gi-lang button{min-height:30px;padding:0 12px;font-size:12px}
+.gi-refetch{flex-wrap:wrap}
+.nupd{font-size:12px;font-weight:600;color:var(--soft);padding:4px 10px;border-radius:999px;background:var(--sunken)}
+.ns-dh b{font-size:14px !important;font-weight:800 !important;color:var(--text) !important;letter-spacing:.01em}
+.ns-day.today .ns-dh b{color:var(--accent-text) !important}
+.ns-dh{padding:8px 10px !important;border-radius:12px;background:var(--sunken)}
+.ns-day.today .ns-dh{background:color-mix(in srgb,var(--accent) 16%,var(--card));box-shadow:inset 0 0 0 1.5px var(--accent)}
+.nr-pl{display:flex !important;flex-wrap:wrap;gap:3px;margin-top:4px}
+.nptag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:6px;font-size:10px;font-weight:700;line-height:1.6;color:#FFFFFF;white-space:nowrap}
+.np-n{background:#E60012}.np-x{background:#107C10}.np-ps{background:#1F5FD6}.np-pc{background:#7B4FE0}.np-o{background:#6A6480}
 </style>
 </head>
 <body>
@@ -5550,7 +5562,7 @@ function viewDiscover(){
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
   return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? '' : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
-    return '<article class="card disc is-click" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><span class="d-cov"><img src="' + esc(d.cvu && d.cvu !== 'none' ? d.cvu : GENERIC_COVER) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span><h3>' + esc(d.title) + '</h3>' + (when ? '<span class="d-when">' + when + '</span>' : '')
+    return '<article class="card disc is-click" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><span class="d-cov"><img src="' + esc(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span><h3>' + esc(d.title) + '</h3>' + (when ? '<span class="d-when">' + when + '</span>' : '')
       + (list(d.platforms).length ? '<div class="tags">' + list(d.platforms).map(function(x){ return '<span class="tag t-lav">' + esc(x) + '</span>'; }).join('') + '</div>' : '')
       + '<div class="d-acts"><a class="btn small ghost" href="' + esc(nRelUrl(d)) + '" target="_blank" rel="noopener">Voir sur internet ↗</a>'
       + (S.readOnly ? '' : '<button type="button" class="btn small" data-ndwish="' + esc(d.id) + '">' + ICON_HEART + ' Wishlist</button><span class="spacer"></span><button type="button" class="iconbtn" data-ndrm="' + esc(d.id) + '" aria-label="Retirer ' + esc(d.title) + '" title="Retirer de la liste"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>')
@@ -5590,7 +5602,7 @@ function viewNews(){
     + '</div>'
     + (N ? '<span>' + (N.sources || []).length + ' sources croisées · ' + nAgo(N.updatedAt) + '</span>' : '<span>Aucune édition pour l\u2019instant</span>')
     + (!isLatest ? '<button type="button" class="link" data-nday="' + latest.id + '">Revenir à la dernière édition</button>' : '')
-    + '<button type="button" class="link" data-act="newsUpdate">↻ Mettre à jour</button></div></header>';
+    + (N && N.updatedAt ? '<span class="nupd">Mis à jour le ' + new Date(N.updatedAt).toLocaleDateString('fr-FR', {day:'numeric', month:'long'}) + ' à ' + new Date(N.updatedAt).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) + '</span>' : '') + '</div></header>';
   if (!N) return h + '<div class="card empty"><strong>Pas encore d\u2019actus</strong><span>Clique sur « Mettre à jour » : la demande est copiée, colle-la dans une conversation avec Claude. Il cherche les actus du jour sur au moins 10 sources et les enregistre ici.</span></div>';
   var arts = (N.articles || []), hl = N.headline || arts[0], rest = arts.filter(function(a){ return a !== hl; });
   var f = S.newsCat || '';
@@ -5613,7 +5625,7 @@ function viewNews(){
   return h;
 }
 /* sorties de la semaine en bandeau horizontal, du premier au dernier jour */
-function nrelC(r){ return '<button type="button" class="nrel nrc" data-nrel="' + NREL_LIST.indexOf(r) + '" aria-haspopup="dialog" title="' + esc(r.title) + ' — options"><span class="nr-t"><b>' + esc(r.title) + '</b><span>' + esc(list(r.platforms).join(' · ')) + '</span></span></button>'; }
+function nrelC(r){ return '<button type="button" class="nrel nrc" data-nrel="' + NREL_LIST.indexOf(r) + '" aria-haspopup="dialog" title="' + esc(r.title) + ' — options"><span class="nr-t"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nPlatTag).join('') + '</span></span></button>'; }
 function nrelsStrip(N, ref){
   var all = N.releases || [], r0 = new Date(ref), d0 = new Date(r0.getFullYear(), r0.getMonth(), r0.getDate()), t0 = d0.getTime();
   var kOf = function(d){ return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); }, days = [];
@@ -5624,7 +5636,7 @@ function nrelsStrip(N, ref){
   if (week.length) h += '<div class="nplats" role="group" aria-label="Filtrer par plateforme"><button type="button" data-nplat="" aria-pressed="' + !S.nplat + '">Toutes</button>' + NPLATS.filter(function(p){ return week.some(function(r){ return nPlatMatch(r, p); }); }).map(function(p){ return '<button type="button" data-nplat="' + p[0] + '" aria-pressed="' + (S.nplat === p[0]) + '">' + p[0] + '</button>'; }).join('') + '</div>';
   h += '<button type="button" class="link" data-act="newsCal">' + (S.newsCalOpen ? 'Masquer le calendrier' : 'Voir le calendrier →') + '</button></div><div class="ns-row">';
   days.forEach(function(d){ var k = kOf(d), items = f.filter(function(r){ return kOf(new Date(r.date)) === k; }), n = items.length, lim = open[k] ? n : LIM;
-    h += '<div class="ns-day' + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (k === today ? 'Auj.' : d.toLocaleDateString('fr-FR', {weekday:'short'}).replace('.', '')) + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'short'}).replace('.', '') + '</span><small>' + n + '</small></div>'
+    h += '<div class="ns-day' + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'short'}).replace('.', '') + '</span><small>' + n + '</small></div>'
       + (n ? items.slice(0, lim).map(nrelC).join('') : '<p class="ns-none">Aucune sortie</p>')
       + (n > LIM ? '<button type="button" class="nr-more" data-nrelmore="' + k + '" aria-expanded="' + !!open[k] + '">' + (open[k] ? 'Réduire' : '+ ' + (n - LIM) + ' autre' + (n - LIM > 1 ? 's' : '')) + '</button>' : '') + '</div>'; });
   return h + '</div></section>';
@@ -5718,7 +5730,7 @@ function catLoad(p, key){
   }).catch(function(){ CAT_LOADING[key] = false; CAT_CACHE[key] = []; if (S.view === 'catalog') render(); });
 }
 function catRows(){ var p = S.catP && catPlat(S.catP); return p ? CAT_CACHE[p.id + '@' + (p.updatedAt || 0)] || [] : []; }
-function catCv(r, has){ if (!has) return ''; var ok = /^data:image\/(webp|png|jpeg|gif);base64,/.test(r.cv); if (!ok && /^https:\/\/images\.igdb\.com\/|^https:\/\/cdn\.mobygames\.com\//.test(r.cvu || '')) return '<img class="cr-cv" src="' + esc(r.cvu) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" title="Jaquette">'; return ok ? '<img class="cr-cv" src="' + r.cv + '" alt="" loading="lazy" decoding="async" title="' + esc('Jaquette' + (r.cpf ? ' (' + r.cpf + ')' : '') + ' \u00b7 MobyGames') + '">' : r.cvNone ? '<img class="cr-cv cr-gen" src="' + GENERIC_COVER + '" alt="" title="Aucune jaquette trouvée">' : '<span class="cr-cv cr-cv0" aria-hidden="true" data-cvi="' + r.i + '"></span>'; }
+function catCv(r, has){ if (!has) return ''; var ok = /^data:image\/(webp|png|jpeg|gif);base64,/.test(r.cv); if (!ok && /^https:\/\/images\.igdb\.com\/|^https:\/\/cdn\.mobygames\.com\//.test(r.cvu || '')) return '<img class="cr-cv" src="' + esc(r.cvu) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" title="Jaquette">'; return ok ? '<img class="cr-cv" src="' + r.cv + '" alt="" loading="lazy" decoding="async" title="' + esc('Jaquette' + (r.cpf ? ' (' + r.cpf + ')' : '') + ' \u00b7 MobyGames') + '">' : r.cvNone ? '<img class="cr-cv cr-gen" src="' + genCover(r.t) + '" alt="" title="Jaquette générée (aucune trouvée)">' : '<span class="cr-cv cr-cv0" aria-hidden="true" data-cvi="' + r.i + '"></span>'; }
 var CAT_CV = {};
 function catCvLoad(p, key, vis){
   if (!db) return; var need = {};
@@ -6211,7 +6223,7 @@ function discHue(t){ var h = 0; String(t || '').split('').forEach(function(c){ h
 function discCover(d, cls){ var hu = discHue(d.title); return '<span class="dc-cov ' + (cls || '') + '" style="background:linear-gradient(160deg,hsl(' + hu + ' 60% 46%),hsl(' + ((hu + 40) % 360) + ' 55% 28%))"><b>' + esc(initials(d.title)) + '</b></span>'; }
 function discWhen(d){ var t = Date.parse(d.date); if (isNaN(t)) return ''; return (t > Date.now() ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'short', year:'numeric'}); }
 function discPicks(){ var key = nDayKey(new Date()), pool = DISC.slice().sort(function(a, b){ return String(a.id).localeCompare(String(b.id)); }); return nSeedShuffle(pool, 'disc-' + key).slice(0, 10); }
-function dcCov(d, cls){ var u = d.cvu && d.cvu !== 'none' ? d.cvu : (d.cvu === 'none' || d.pid ? GENERIC_COVER : ''); return u ? '<span class="dc-cov ' + (cls || '') + ' has-img"><img src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' : discCover(d, cls); }
+function dcCov(d, cls){ var u = d.cvu && d.cvu !== 'none' ? d.cvu : (d.cvu === 'none' || d.pid ? genCover(d.title, d.platform) : ''); return u ? '<span class="dc-cov ' + (cls || '') + ' has-img"><img src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' : discCover(d, cls); }
 function discCard(){
   var t = crtTheme(), style = '--crt-bg:' + t.bg + ';--crt-glow:' + t.glow + ';--crt-kick:' + t.kick + ';--crt-lab:' + t.lab + ';--crt-blink:' + t.blink + ';--crt-frame:' + t.frame + (t.font ? ';--crt-font:' + t.font : '');
   var off = S.dpOff || 0, day = dailyDay(off), dd = DAILY[day], daily = !!dd;
@@ -6601,10 +6613,12 @@ function giOpen(info){
   openDlg('<div class="dlg gi-dlg" id="giDlg">' + giHtml() + '</div>');
   if (!window.PS_SB) return;
   var body = info.ig ? {action:'game', id:+info.ig} : {action:'search', name:info.title, platform:info.platform || ''};
-  window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ if (!GI || GI.info !== info) return; GI.loading = false; if (r.error || !r.data || r.data.error) GI.err = 'Les infos détaillées ne sont pas disponibles pour ce jeu.'; else GI.data = r.data.game || null; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); }).catch(function(){ if (!GI) return; GI.loading = false; GI.err = 'Les infos détaillées ne sont pas disponibles pour le moment.'; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); });
+  window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ if (!GI || GI.info !== info) return; GI.loading = false; if (r.error || !r.data || r.data.error) GI.err = 'Les infos détaillées ne sont pas disponibles pour ce jeu.'; else GI.data = r.data.game || null;
+    var dg = GI.data; if (dg && !giRealCover(info)) { var u = dg.cover ? giImg(dg.cover.image_id, 't_cover_big') : dg.screenshots && dg.screenshots[0] ? giImg(dg.screenshots[0].image_id, 't_screenshot_med') : ''; if (u) giSaveCover(info, u, dg.id); }
+    var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); if (S.giLang === 'fr') giTranslate(); }).catch(function(){ if (!GI) return; GI.loading = false; GI.err = 'Les infos détaillées ne sont pas disponibles pour le moment.'; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); });
 }
 function giHtml(){
-  var i = GI.info, d = GI.data || {}, cover = (d.cover && giImg(d.cover.image_id, 't_cover_big_2x')) || (i.cvu && i.cvu !== 'none' ? i.cvu : '') || i.cv || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_screenshot_med')) || (GI.loading ? '' : GENERIC_COVER), art = (d.artworks && d.artworks[0] && giImg(d.artworks[0].image_id, 't_1080p')) || i.art || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_1080p')) || '';
+  var i = GI.info, d = GI.data || {}, cover = (d.cover && giImg(d.cover.image_id, 't_cover_big_2x')) || (i.cvu && i.cvu !== 'none' ? i.cvu : '') || i.cv || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_screenshot_med')) || (GI.loading ? '' : genCover(i.title, i.platform)), art = (d.artworks && d.artworks[0] && giImg(d.artworks[0].image_id, 't_1080p')) || i.art || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_1080p')) || '';
   var y = i.year || (d.first_release_date ? String(new Date(d.first_release_date * 1000).getUTCFullYear()) : '');
   var comp = function(f){ return (d.involved_companies || []).filter(function(c){ return c[f]; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean).join(', '); };
   var devs = i.dev || comp('developer'), pubs = i.pub || comp('publisher');
@@ -6623,16 +6637,19 @@ function giHtml(){
     + fact('Titre français', i.fr && i.fr !== i.title ? esc(i.fr) : '') + fact('Titre japonais', i.jp && i.jp !== i.title ? esc(i.jp) : '')
     + (i.cf && i.cf.y ? fact('Désaccord d’année', 'MobyGames ' + esc(i.cf.y.moby) + ' · IGDB ' + esc(i.cf.y.igdb)) : '');
   var sec = function(t, c){ return '<section class="gi-sec"><h4>' + t + '</h4>' + c + '</section>'; };
-  return '<header><h2 class="sr">' + esc(i.title) + '</h2><span></span><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
+  var trd = GITR[String(d.id || i.title)], fr = S.giLang === 'fr', sumTxt = fr && trd && trd.summary ? trd.summary : d.summary, stoTxt = fr && trd && trd.storyline ? trd.storyline : d.storyline;
+  return '<header><h2 class="sr">' + esc(i.title) + '</h2>' + ((d.summary || d.storyline) ? '<div class="ch-switch gi-lang" role="group" aria-label="Langue"><button type="button" data-gilang="fr" aria-pressed="' + fr + '">FR</button><button type="button" data-gilang="en" aria-pressed="' + !fr + '">EN</button></div>' : '<span></span>') + '<button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
     + '<div class="body gi-body">'
     + '<div class="gi-hero"' + (art ? ' style="--gi-art:url(\'' + esc(art) + '\')"' : '') + '>' + (cover ? '<img class="gi-cover" src="' + esc(cover) + '" alt="Jaquette de ' + esc(i.title) + '" referrerpolicy="no-referrer">' : '<span class="gi-cover gi-cover0">' + esc(initials(i.title)) + '</span>')
     + '<div class="gi-hd"><span class="gi-plat">' + esc(plats.length ? plats.slice(0, 4).join(' · ') + (plats.length > 4 ? ' +' + (plats.length - 4) : '') : (i.platform || '')) + '</span><h3 class="gi-title">' + esc(i.title) + '</h3><span class="gi-sub">' + esc([y, genres.split(', ')[0]].filter(Boolean).join(' · ')) + '</span>' + (rating ? '<span class="gi-rate"><b>' + rating[0] + '</b>/100 · ' + rating[1] + '</span>' : '') + '</div></div>'
     + (GI.loading ? '<p class="gi-load"><span class="nimp-spin"></span> Chargement des infos détaillées…</p>' : '')
     + (GI.err ? '<p class="gi-note">' + esc(GI.err) + '</p>' : '')
+    + (!GI.loading && window.PS_SB && !giRealCover(i) && !(d.cover || (d.screenshots || []).length) ? '<p class="gi-note gi-refetch">Aucune jaquette trouvée pour l\u2019instant. <button type="button" class="btn ghost small" data-girefetch="1">↻ Rechercher à nouveau sur IGDB</button></p>' : '')
     + (!window.PS_SB ? '<p class="gi-note">Résumé, captures et vidéos disponibles sur ton site hébergé.</p>' : '')
     + (facts ? '<div class="gi-facts">' + facts + '</div>' : '')
-    + (d.summary ? sec('Résumé', '<p class="gi-txt">' + esc(d.summary) + '</p>') : '')
-    + (d.storyline ? sec('Histoire', '<p class="gi-txt">' + esc(d.storyline) + '</p>') : '')
+    + (GI.tr && fr ? '<p class="gi-load"><span class="nimp-spin"></span> Traduction en français…</p>' : '')
+    + (sumTxt ? sec('Résumé', '<p class="gi-txt">' + esc(sumTxt) + '</p>') : '')
+    + (stoTxt ? sec('Histoire', '<p class="gi-txt">' + esc(stoTxt) + '</p>') : '')
     + (shots.length ? sec('Captures d’écran', '<div class="gi-shots">' + shots.map(function(x){ return '<a href="' + giImg(x.image_id, 't_1080p') + '" data-shot="' + giImg(x.image_id, 't_1080p') + '"><img src="' + giImg(x.image_id, 't_screenshot_med') + '" alt="Capture d’écran" loading="lazy" referrerpolicy="no-referrer"></a>'; }).join('') + '</div>') : '')
     + (vids.length ? sec('Vidéos', '<div class="gi-vids">' + vids.map(function(v){ return '<a class="gi-vid" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.video_id) + '" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/' + encodeURIComponent(v.video_id) + '/mqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"><span>▶ ' + esc(v.name || 'Vidéo') + '</span></a>'; }).join('') + '</div>') : '')
     + ((d.similar_games || []).length ? sec('Jeux similaires', '<div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>') : '')
@@ -6646,8 +6663,8 @@ document.addEventListener('click', function(e){
   if (t.hasAttribute('data-catinfo') || t.hasAttribute('data-dinfo') || t.hasAttribute('data-lginfo')) { var inner = e.target.closest('button,a,select,input,label'); if (inner && inner !== t && !inner.hasAttribute('data-catinfo') && !inner.hasAttribute('data-dinfo')) return; }
   if (t.hasAttribute('data-lginfo')) { var lp = t.getAttribute('data-lginfo').split('|'); giOpen({title:lp[0], platform:lp[1] || '', pname:lp[1] || '', year:lp[2] || ''}); return; }
   if (t.hasAttribute('data-catch')) { S.catF.ch = t.getAttribute('data-catch'); S.catLim = 100; render(); return; }
-  if (t.hasAttribute('data-catinfo')) { var p = catPlat(S.catP), r = catRows()[+t.getAttribute('data-catinfo')]; if (!r || !p) return; giOpen({title:r.t, platform:p.name, pname:catConsoleName(p), year:r.y, dev:r.d, pub:r.p, regions:r.r, fr:r.fr, jp:r.jp, genre:r.gn, url:r.u, ig:r.ig, cvu:r.cvu, cv:/^data:image\//.test(r.cv) ? r.cv : '', art:r.art, cf:r.cf}); return; }
-  if (t.hasAttribute('data-dinfo')) { var dd = DISC.filter(function(x){ return x.id === t.getAttribute('data-dinfo'); })[0]; if (dd) giOpen({title:dd.title, platform:list(dd.platforms)[0] || '', pname:list(dd.platforms)[0] || '', url:safeUrl(dd.url) || ''}); return; }
+  if (t.hasAttribute('data-catinfo')) { var p = catPlat(S.catP), r = catRows()[+t.getAttribute('data-catinfo')]; if (!r || !p) return; giOpen({title:r.t, platform:p.name, pname:catConsoleName(p), year:r.y, dev:r.d, pub:r.p, regions:r.r, fr:r.fr, jp:r.jp, genre:r.gn, url:r.u, ig:r.ig, cvu:r.cvu, cv:/^data:image\//.test(r.cv) ? r.cv : '', art:r.art, cf:r.cf, ctx:{t:'cat', pid:p.id, key:p.id + '@' + (p.updatedAt || 0), i:r.i}}); return; }
+  if (t.hasAttribute('data-dinfo')) { var dd = DISC.filter(function(x){ return x.id === t.getAttribute('data-dinfo'); })[0]; if (dd) giOpen({title:dd.title, platform:list(dd.platforms)[0] || '', pname:list(dd.platforms)[0] || '', url:safeUrl(dd.url) || '', ig:dd.ig || '', cvu:dd.cvu || '', ctx:{t:'disc', id:dd.id}}); return; }
   if (t.hasAttribute('data-catdel')) { var pp = catPlat(S.catP); if (!pp) return; openDlg('<div class="dlg"><header><h2>Supprimer « ' + esc(pp.name) + ' » ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body"><p style="margin:0;font-size:14px;line-height:1.6">La plateforme et ses ' + Number(pp.count || 0).toLocaleString('fr-FR') + ' jeux de la Base de jeux seront supprimés. Les jeux de ta collection ne sont pas touchés.</p></div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn danger" data-catdelok="' + esc(pp.id) + '">Supprimer</button></footer></div>'); return; }
   if (t.hasAttribute('data-catdelok')) { var pid = t.getAttribute('data-catdelok'); t.disabled = true; t.textContent = 'Suppression…'; (async function(){ try { var cs = await db.collection('catalog/' + pid + '/chunks').get(); for (var k = 0; k < cs.docs.length; k++) { var ck = cs.docs[k].id, vs = await db.collection('catalog/' + pid + '/cv-' + ck).get(); for (var v = 0; v < vs.docs.length; v++) await db.collection('catalog/' + pid + '/cv-' + ck).doc(vs.docs[v].id).delete(); await db.collection('catalog/' + pid + '/chunks').doc(ck).delete(); } await db.collection('catalog').doc(pid).delete(); closeDlg(); S.catP = null; S.catF = null; render(); toast('Plateforme supprimée'); } catch (x) { toast(failMsg(x)); closeDlg(); } })(); return; }
   if (t.hasAttribute('data-giact') && GI) { var a = t.getAttribute('data-giact'), i = GI.info, cons = i.pname ? [i.pname] : [];
@@ -6717,7 +6734,7 @@ document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-dpinfo],[data-dpwish],[data-dpday]'); if (!t) return;
   if (t.hasAttribute('data-dpday')) { S.dpOff = Math.min(0, (S.dpOff || 0) + (+t.getAttribute('data-dpday'))); S.discSel = 0; render(); return; }
   var dd = DAILY[dailyDay(S.dpOff || 0)], p = dd && dd.picks[+(t.getAttribute('data-dpinfo') || t.getAttribute('data-dpwish'))]; if (!p) return;
-  if (t.hasAttribute('data-dpinfo')) giOpen(p); else gameForm({kind:'wish', status:'Pas commencé', name:p.title, consoles:p.pname ? [p.pname] : [], year:p.year || '', developer:p.dev ? [p.dev] : [], publisher:p.pub ? [p.pub] : []});
+  if (t.hasAttribute('data-dpinfo')) giOpen(Object.assign({}, p, {ctx:{t:'daily', day:dailyDay(S.dpOff || 0), k:+t.getAttribute('data-dpinfo')}})); else gameForm({kind:'wish', status:'Pas commencé', name:p.title, consoles:p.pname ? [p.pname] : [], year:p.year || '', developer:p.dev ? [p.dev] : [], publisher:p.pub ? [p.pub] : []});
 });
 
 /* ---------- Rapprochement des noms de jeux (accents, ponctuation, articles, chiffres romains) ---------- */
@@ -6875,6 +6892,60 @@ document.addEventListener('click', async function(e){
   } catch (x) { LSG.loading = false; LSG.err = 'Claude n’a pas pu faire la recherche pour le moment.'; }
   lsgRender();
 });
+
+/* ---------- Jaquettes générées au nom du jeu (quand aucune image n'existe) ---------- */
+var GENC = {};
+function genWrap(t, max){ var w = String(t || '').split(/\s+/), lines = [], cur = ''; w.forEach(function(x){ if ((cur + ' ' + x).trim().length > max && cur) { lines.push(cur); cur = x; } else cur = (cur + ' ' + x).trim(); }); if (cur) lines.push(cur); if (lines.length > 4) { lines = lines.slice(0, 4); lines[3] = lines[3].replace(/.{0,2}$/, '…'); } return lines; }
+function genCover(title, plat){
+  var k = (title || '') + '|' + (plat || ''); if (GENC[k]) return GENC[k];
+  var hsh = 0; String(title || '').split('').forEach(function(c){ hsh = (hsh * 31 + c.charCodeAt(0)) >>> 0; });
+  var tpl = hsh % 5, hu = hsh % 360, x = function(s){ return String(s).replace(/[<&>"]/g, function(c){ return {'<':'&lt;', '&':'&amp;', '>':'&gt;', '"':'&quot;'}[c]; }); };
+  var lines = genWrap(title || 'Jeu vidéo', 13), fs = lines.length > 3 ? 30 : lines.length > 2 ? 34 : 40, P = x(String(plat || '').toUpperCase().slice(0, 26));
+  var txt = function(y0, fill, extra, ff){ return lines.map(function(l, i){ return '<text x="150" y="' + (y0 + i * (fs + 6)) + '" text-anchor="middle" font-family="' + (ff || 'Arial Black, Arial, sans-serif') + '" font-weight="900" font-size="' + fs + '" fill="' + fill + '" ' + (extra || '') + '>' + x(l) + '</text>'; }).join(''); };
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420">';
+  if (tpl === 0) svg += '<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140B30"/><stop offset=".55" stop-color="#6B1E7A"/><stop offset="1" stop-color="#FF3EA5"/></linearGradient></defs><rect width="300" height="420" fill="url(#s)"/><circle cx="150" cy="250" r="70" fill="#FFB347"/>' + [0, 1, 2, 3, 4].map(function(i){ return '<rect x="70" y="' + (258 + i * 12) + '" width="160" height="' + (3 + i) + '" fill="#6B1E7A"/>'; }).join('') + '<rect y="300" width="300" height="120" fill="#140B30"/>' + [0, 1, 2, 3, 4, 5].map(function(i){ return '<line x1="0" y1="' + (310 + i * i * 4) + '" x2="300" y2="' + (310 + i * i * 4) + '" stroke="#FF3EA5" stroke-opacity=".6"/>'; }).join('') + [-3, -2, -1, 0, 1, 2, 3].map(function(i){ return '<line x1="' + (150 + i * 14) + '" y1="300" x2="' + (150 + i * 90) + '" y2="420" stroke="#FF3EA5" stroke-opacity=".6"/>'; }).join('') + txt(90, '#FFFFFF', 'stroke="#FF3EA5" stroke-width="1.2"');
+  else if (tpl === 1) svg += '<rect width="300" height="420" fill="#111"/>' + Array.from({length:40}, function(_, i){ return '<line x1="0" y1="' + (i * 11) + '" x2="300" y2="' + (i * 11) + '" stroke="#2A2A2A"/>'; }).join('') + '<rect x="0" y="0" width="18" height="420" fill="hsl(' + hu + ',70%,45%)"/><rect x="34" y="60" width="250" height="250" fill="hsl(' + hu + ',55%,32%)"/><rect x="34" y="60" width="250" height="250" fill="none" stroke="#DDD" stroke-width="3"/>' + txt(150, '#FFFFFF') + '<rect x="34" y="360" width="250" height="34" fill="#C2302B"/>';
+  else if (tpl === 2) svg += '<rect width="300" height="420" fill="#8FD3FF"/><rect y="300" width="300" height="120" fill="#5FB34A"/>' + Array.from({length:10}, function(_, i){ return '<rect x="' + (i * 30) + '" y="384" width="30" height="36" fill="#A0582E" stroke="#6E3A1C" stroke-width="2"/>'; }).join('') + '<rect x="40" y="60" width="60" height="16" fill="#fff"/><rect x="50" y="50" width="40" height="12" fill="#fff"/><rect x="200" y="110" width="60" height="16" fill="#fff"/><rect x="128" y="250" width="30" height="30" fill="#FFC21F" stroke="#C27A00" stroke-width="3"/>' + txt(140, '#FFFFFF', 'stroke="#1A1A1A" stroke-width="2.5" paint-order="stroke"', 'Courier New, monospace');
+  else if (tpl === 3) svg += '<rect width="300" height="420" fill="#0B0624"/>' + Array.from({length:60}, function(_, i){ var a = (hsh * (i + 7)) % 300, b = (hsh * (i + 13)) % 420; return '<rect x="' + a + '" y="' + b + '" width="2" height="2" fill="#fff" opacity="' + (0.3 + (i % 7) / 10) + '"/>'; }).join('') + '<circle cx="230" cy="330" r="80" fill="hsl(' + hu + ',60%,50%)"/><ellipse cx="230" cy="330" rx="120" ry="20" fill="none" stroke="#9EE7FF" stroke-width="3" opacity=".7"/>' + txt(110, '#9EF6FF', 'stroke="#2EF2FF" stroke-width=".8"');
+  else svg += '<image href="' + GENERIC_COVER + '" width="300" height="420" preserveAspectRatio="xMidYMid slice"/><rect y="130" width="300" height="' + (lines.length * (fs + 6) + 40) + '" fill="#000" opacity=".72"/>' + txt(170, '#FFFFFF');
+  if (P) svg += '<rect width="300" height="30" fill="#000" opacity=".6"/><text x="150" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="13" letter-spacing="2" fill="#fff">' + P + '</text>';
+  svg += '</svg>';
+  return (GENC[k] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+}
+
+/* ---------- Fiche : récupération auto de la jaquette manquante + bouton de nouvelle recherche ---------- */
+function giSaveCover(info, url, igId){
+  var c = info.ctx; if (!c || !url || S.readOnly) return;
+  info.cvu = url;
+  if (c.t === 'cat') { var rows = CAT_CACHE[c.key], r = rows && rows[c.i]; if (!r) return; r.cvu = url; r.cvNone = 0; if (igId && !r.ig) r.ig = String(igId); var raw = (CAT_RAW[c.key] || {})[r.ck]; if (raw && raw[r.ci]) { raw[r.ci][13] = url; if (r.ig) raw[r.ci][12] = r.ig; db.collection('catalog/' + c.pid + '/chunks').doc(r.ck).update({g:raw}).catch(function(){}); } var el = document.querySelector('.cat-row[data-catinfo="' + r.i + '"] .cr-cv'); if (el) el.outerHTML = catCv(r, true); }
+  else if (c.t === 'disc') db.collection('discover').doc(c.id).update({cvu:url, ig:igId ? String(igId) : ''}).catch(function(){});
+  else if (c.t === 'daily') { var dd = DAILY[c.day]; if (!dd || !dd.picks[c.k]) return; dd.picks[c.k].cvu = url; if (igId) dd.picks[c.k].ig = String(igId); db.collection('daily').doc(c.day).update({picks:dd.picks}).catch(function(){}); }
+}
+function giRealCover(info){ return (info.cvu && info.cvu !== 'none') || /^data:image\/(webp|png|jpeg|gif)/.test(info.cv || ''); }
+
+/* ---------- Fiche : traduction français / anglais ---------- */
+var GITR = {};
+async function giTranslate(){
+  var d = GI && GI.data; if (!d || !(d.summary || d.storyline) || !sampleFn) return;
+  var id = String(d.id || GI.info.title); if (GITR[id] || GI.tr) return;
+  try { var c = await db.doc('translations/' + id).get(); if (c.exists) { GITR[id] = c.data(); giRedraw(); return; } } catch (x) {}
+  GI.tr = true; giRedraw();
+  try {
+    var r = await sampleFn.json('Traduis en français naturel, fidèlement et sans rien ajouter, ces textes de présentation d\u2019un jeu vidéo. Garde les noms propres et les titres de jeux tels quels. Réponds uniquement en JSON : {"summary":"…","storyline":"…"} (chaîne vide si le texte d\u2019origine est vide).\n\nsummary : ' + (d.summary || '') + '\n\nstoryline : ' + (d.storyline || ''), {modelTier:'fast'});
+    if (r && (r.summary || r.storyline)) { GITR[id] = {summary:r.summary || '', storyline:r.storyline || ''}; if (!S.readOnly) db.collection('translations').doc(id).set(GITR[id]).catch(function(){}); }
+  } catch (x) {}
+  GI.tr = false; giRedraw();
+}
+function giRedraw(){ var el = document.getElementById('giDlg'); if (el && GI) el.innerHTML = giHtml(); }
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-gilang],[data-girefetch]'); if (!t || !GI) return;
+  if (t.hasAttribute('data-gilang')) { S.giLang = t.getAttribute('data-gilang'); try { localStorage.setItem('ps-gilang', S.giLang); } catch (x) {} giRedraw(); if (S.giLang === 'fr') giTranslate(); return; }
+  var info = Object.assign({}, GI.info, {ig:''}); info.ctx = GI.info.ctx; giOpen(info);
+});
+S.giLang = (function(){ try { return localStorage.getItem('ps-gilang') || 'fr'; } catch (x) { return 'fr'; } })();
+
+/* ---------- Actus : couleur des plateformes ---------- */
+function nPlatTag(p){ var s = String(p || ''), c = /switch|nintendo|wii|3ds|\bds\b|game ?boy/i.test(s) ? 'np-n' : /xbox/i.test(s) ? 'np-x' : /ps\d|ps vita|psp|playstation/i.test(s) ? 'np-ps' : /^(pc|mac|windows|linux|steam)/i.test(s) ? 'np-pc' : 'np-o'; return '<span class="nptag ' + c + '">' + esc(s) + '</span>'; }
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
