@@ -1,0 +1,35 @@
+name: Actus du jour (RSS + IGDB)
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+    - cron: '0 12 * * *'
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Test sans rien enregistrer (1 = oui)"
+        required: false
+        default: '0'
+
+concurrency:
+  group: news-sync
+  cancel-in-progress: false
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Mettre a jour les actus
+        run: node robot/news-sync.mjs
+        env:
+          SUPABASE_URL: https://qsdkfewldohenndiftkb.supabase.co
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
