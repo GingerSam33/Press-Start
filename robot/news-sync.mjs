@@ -84,9 +84,22 @@ try {
   const articles = clusters.map(c => {
     const srcs = [...new Set(c.items.map(i => i.source))];
     const main = c.items.find(i => i.lang === 'fr') || c.items[0];
-    return {title: main.title, summary: main.summary, url: main.url, source: main.source, category: category(c.items.map(i => i.title).join(' ')), confirmations: srcs.length, others: srcs.length > 1 ? srcs.length - 1 : 0, sources: srcs, date: main.date ? new Date(main.date).toISOString() : null};
+    return {title: main.title, summary: main.summary, lang: main.lang, url: main.url, source: main.source, category: category(c.items.map(i => i.title).join(' ')), confirmations: srcs.length, others: srcs.length > 1 ? srcs.length - 1 : 0, sources: srcs, date: main.date ? new Date(main.date).toISOString() : null};
   }).sort((a, b) => b.confirmations - a.confirmations || Date.parse(b.date || 0) - Date.parse(a.date || 0)).slice(0, 48);
   log(`${all.length} articles lus → ${articles.length} sujets`);
+  /* traduction en français des sujets anglophones (si la clé Anthropic est fournie) */
+  if (env.ANTHROPIC_API_KEY) {
+    const en = articles.map((a, i) => [i, a]).filter(([, a]) => a.lang !== 'fr');
+    if (en.length) {
+      try {
+        const r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers: {'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'}, body: JSON.stringify({model: env.ANTHROPIC_MODEL_FAST || 'claude-haiku-5-5', max_tokens: 8000, messages: [{role: 'user', content: 'Traduis en français naturel ces titres et résumés d\'articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement avec un JSON : [{"i":0,"title":"…","summary":"…"}].\n\n' + JSON.stringify(en.map(([i, a]) => ({i, title: a.title, summary: a.summary})))}]})});
+        const d = await r.json(), txt = (d.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+        const arr = JSON.parse(txt.slice(txt.indexOf('['), txt.lastIndexOf(']') + 1));
+        let n = 0; for (const t of arr) { const a = articles[t.i]; if (a && t.title) { a.titleEn = a.title; a.title = t.title; if (t.summary) { a.summaryEn = a.summary; a.summary = t.summary; } a.lang = 'fr'; n++; } }
+        log(`${n} sujets traduits en français`);
+      } catch (e) { log(`⚠ traduction : ${e.message}`); }
+    }
+  } else log('Traduction ignorée : secret ANTHROPIC_API_KEY absent');
 
   /* sorties : 60 prochains jours sur les plateformes suivies */
   const now = Math.floor(Date.now() / 1000), end = now + 60 * 86400, rel = new Map();
