@@ -2713,6 +2713,46 @@ html[data-bgfull^="arc-"] .side .navbtn[aria-current="page"],html[data-bgfull^="
   .dc-board{grid-template-columns:1fr}
   .dc-bfeat{flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px}
 }
+/* base de jeux : filtres alphabet + fiche détaillée */
+.cat-abc{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0 4px}
+.cat-abc button{min-width:30px;min-height:30px;padding:0 6px;border-radius:8px;border:1px solid var(--chip-border);background:var(--card);color:var(--soft);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.cat-abc button:disabled{opacity:.3;cursor:default}
+.cat-abc button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.cr-open,.d-open{padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.cr-open:hover b,.d-open:hover{text-decoration:underline;color:var(--accent-text)}
+#catGenre{max-width:220px}
+dialog .gi-dlg{width:min(860px,calc(100vw - 24px))}
+.gi-body{display:flex;flex-direction:column;gap:12px;max-height:70vh;overflow-y:auto}
+.gi-art{height:160px;margin:-4px -4px 0;border-radius:14px;background-size:cover;background-position:center;box-shadow:inset 0 -60px 60px -30px rgba(0,0,0,.45)}
+.gi-top{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.gi-cover{width:150px;flex:none;border-radius:10px;box-shadow:0 12px 24px -14px rgba(0,0,0,.6);aspect-ratio:3/4;object-fit:cover}
+.gi-cover0{display:flex;align-items:center;justify-content:center;background:var(--thumb);color:var(--thumb-fg);font-size:30px;font-weight:200}
+.gi-facts{flex:1;min-width:240px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 14px}
+.gi-f{display:flex;flex-direction:column;gap:2px}
+.gi-f span{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.gi-f b{font-size:13.5px;font-weight:600;color:var(--text)}
+.gi-body h3{margin:6px 0 0;font-size:14px;color:var(--text)}
+.gi-txt{margin:0;font-size:13.5px;line-height:1.6;color:var(--body)}
+.gi-note,.gi-load{margin:0;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.gi-shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.gi-shots img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;display:block;transition:transform .2s}
+.gi-shots a:hover img{transform:scale(1.03)}
+.gi-vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.gi-vid{position:relative;display:block;border-radius:10px;overflow:hidden;color:#fff;text-decoration:none}
+.gi-vid img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.gi-vid span{position:absolute;left:0;right:0;bottom:0;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,.75));font-size:12px;font-weight:600}
+.gi-links{display:flex;flex-wrap:wrap;gap:6px}
+.lsg-list{display:flex;flex-direction:column;gap:6px;max-height:55vh;overflow-y:auto}
+.lsg-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--sunken)}
+.lsg-t{display:flex;flex-direction:column}.lsg-t b{font-size:13.5px;color:var(--text)}.lsg-t small{font-size:11.5px;color:var(--muted)}
+.lsg-p{display:flex;flex-wrap:wrap;gap:4px}
+.lsg-a{display:flex;gap:6px}
+@media (max-width:640px){.lsg-row{grid-template-columns:1fr}}
+.dc-hist{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;font-weight:600;color:var(--soft)}
+.dc-hb{width:28px;height:28px;border-radius:8px;border:1px solid var(--card-border);background:var(--sunken);color:var(--text);cursor:pointer;font-size:11px}
+.dc-hb:disabled{opacity:.35;cursor:default}
+.dc-cov.has-img{padding:0;overflow:hidden}.dc-cov.has-img img{width:100%;height:100%;object-fit:cover;display:block}
+button.dc-start{border:0;font:inherit;cursor:pointer}
 </style>
 </head>
 <body>
@@ -5425,7 +5465,7 @@ function viewDiscover(){
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
   return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? '' : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
-    return '<article class="card disc" style="--i:' + i + '"><h3>' + esc(d.title) + '</h3>' + (when ? '<span class="d-when">' + when + '</span>' : '')
+    return '<article class="card disc" style="--i:' + i + '"><h3><button type="button" class="d-open" data-dinfo="' + esc(d.id) + '" title="Voir la fiche du jeu">' + esc(d.title) + '</button></h3>' + (when ? '<span class="d-when">' + when + '</span>' : '')
       + (list(d.platforms).length ? '<div class="tags">' + list(d.platforms).map(function(x){ return '<span class="tag t-lav">' + esc(x) + '</span>'; }).join('') + '</div>' : '')
       + '<div class="d-acts"><a class="btn small ghost" href="' + esc(nRelUrl(d)) + '" target="_blank" rel="noopener">Voir sur internet ↗</a>'
       + (S.readOnly ? '' : '<button type="button" class="btn small" data-ndwish="' + esc(d.id) + '">' + ICON_HEART + ' Wishlist</button><span class="spacer"></span><button type="button" class="iconbtn" data-ndrm="' + esc(d.id) + '" aria-label="Retirer ' + esc(d.title) + '" title="Retirer de la liste"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>')
@@ -5585,7 +5625,7 @@ function catConsoleName(p){ var al = catAliases(p), c = S.consoles.filter(functi
 function catLoad(p, key){
   if (CAT_CACHE[key] || CAT_LOADING[key] || !db) return; CAT_LOADING[key] = true;
   db.collection('catalog/' + p.id + '/chunks').get().then(function(s){
-    var rows = []; snapList(s).sort(function(a, b){ return (a.n || 0) - (b.n || 0); }).forEach(function(c){ (c.g || []).forEach(function(x){ rows.push({i:rows.length, t:String(x[0] || ''), y:String(x[1] || ''), d:String(x[2] || ''), p:String(x[3] || ''), r:list(x[4]), fr:String(x[5] || ''), jp:String(x[6] || ''), gn:String(x[7] || ''), u:safeUrl(x[8] || ''), mid:String(x[9] || ''), ck:String(c.id || ''), cv:String(x[10] || ''), cpf:'', cvu:String(x[13] || ''), art:String(x[14] || '')}); }); });
+    var rows = []; snapList(s).sort(function(a, b){ return (a.n || 0) - (b.n || 0); }).forEach(function(c){ (c.g || []).forEach(function(x){ rows.push({i:rows.length, t:String(x[0] || ''), y:String(x[1] || ''), d:String(x[2] || ''), p:String(x[3] || ''), r:list(x[4]), fr:String(x[5] || ''), jp:String(x[6] || ''), gn:String(x[7] || ''), u:safeUrl(x[8] || ''), mid:String(x[9] || ''), ck:String(c.id || ''), cv:String(x[10] || ''), cpf:'', cvu:String(x[13] || ''), art:String(x[14] || ''), ig:String(x[12] || ''), cf:x[11] || null}); }); });
     CAT_CACHE[key] = rows; CAT_LOADING[key] = false; if (S.view === 'catalog') render();
   }).catch(function(){ CAT_LOADING[key] = false; CAT_CACHE[key] = []; if (S.view === 'catalog') render(); });
 }
@@ -5626,9 +5666,10 @@ function viewCatPlat(p){
   var isOwn = function(r){ return own[catKey(r.t)] || (r.fr && own[catKey(r.fr)]) || ''; };
   var h = crtPage({kick:'PLATEFORME · ' + String(p.maker || '').toUpperCase(), title:String(p.name).toUpperCase(), sub:(p.year ? 'Sortie en ' + p.year + ' · ' : '') + (p.count ? Number(p.count).toLocaleString('fr-FR') + ' jeux référencés' : 'Base à remplir') + (p.source ? ' · Source : ' + p.source : ''), blink:p.count ? 'PRESS START' : 'BASE À REMPLIR', sc:[['JEUX', crtPad(p.count || 0)], ['EUROPE', cnt(function(r){ return r.r.indexOf('EU') >= 0; })], ['AM. DU NORD', cnt(function(r){ return r.r.indexOf('NA') >= 0; })], ['JAPON', cnt(function(r){ return r.r.indexOf('JP') >= 0; })], ['DANS MA COLLECTION', cnt(function(r){ return isOwn(r) === 'own'; })]]});
   h += '<div class="cat-top"><button type="button" class="btn ghost small" data-catback>← Toutes les plateformes</button>' + tag(st[0], st[1], true) + (p.updatedAt ? '<span class="cat-upd">Mise à jour ' + nAgo(p.updatedAt) + '</span>' : '') + '<button type="button" class="btn small" data-catfill="' + esc(p.id) + '">' + (p.count ? '↻ Compléter cette plateforme' : '＋ Remplir cette plateforme') + '</button></div>';
-  if (!p.count) return h + '<div class="card empty"><strong>Cette plateforme est encore vide</strong><span>Clique sur « Remplir cette plateforme » : la demande est copiée, colle-la dans une conversation avec Claude. Il récupère la liste complète des jeux et l\u2019enregistre ici.</span></div>';
+  if (!p.count) return h + (S.readOnly ? '' : '<div class="lic-delzone"><button type="button" class="btn danger" data-catdel="1">' + ICON_TRASH + ' Supprimer cette plateforme</button></div>') + '<div class="card empty"><strong>Cette plateforme est encore vide</strong><span>Clique sur « Remplir cette plateforme » : la demande est copiée, colle-la dans une conversation avec Claude. Il récupère la liste complète des jeux et l\u2019enregistre ici.</span></div>';
   if (!rows) return h + '<div class="card empty" role="status"><strong>Chargement des jeux…</strong></div>';
-  var F = S.catF || (S.catF = {q:'', reg:'', own:'', sort:'az', y:''}), q = catKey(F.q), lim = S.catLim || 100;
+  var F = S.catF || (S.catF = {q:'', reg:'', own:'', sort:'az', y:'', gn:'', ch:''}), q = catKey(F.q), lim = S.catLim || 100;
+  var genresL = uniq(rows.map(function(r){ return r.gn; }).filter(Boolean)).sort(function(a, b){ return a.localeCompare(b, 'fr'); });
   var hasCv = !!p.covers || rows.some(function(x){ return x.cv || x.cvu; });
   var years = uniq(rows.map(function(r){ return r.y; }).filter(Boolean)).sort();
   var res = rows.filter(function(r){
@@ -5637,24 +5678,28 @@ function viewCatPlat(p){
     if (F.reg === 'JPO' && !(r.r.length === 1 && r.r[0] === 'JP')) return false;
     if (F.reg && F.reg !== 'WEST' && F.reg !== 'JPO' && r.r.indexOf(F.reg) < 0) return false;
     if (F.y && r.y !== F.y) return false;
+    if (F.gn && r.gn !== F.gn) return false;
+    if (F.ch && catFirst(r.t) !== F.ch) return false;
     var o = isOwn(r); if (F.own === 'own' && o !== 'own') return false; if (F.own === 'wish' && o !== 'wish') return false; if (F.own === 'not' && o) return false;
     return true;
   });
   res.sort(F.sort === 'za' ? function(a, b){ return b.t.localeCompare(a.t, 'fr'); } : F.sort === 'y' ? function(a, b){ return (a.y || '9999').localeCompare(b.y || '9999') || a.t.localeCompare(b.t, 'fr'); } : F.sort === 'yd' ? function(a, b){ return (b.y || '').localeCompare(a.y || '') || a.t.localeCompare(b.t, 'fr'); } : function(a, b){ return a.t.localeCompare(b.t, 'fr'); });
   h += '<section class="card cat-panel"><div class="cat-filters"><label class="search"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="catGQ" type="search" placeholder="Titre, développeur, éditeur…" aria-label="Rechercher un jeu" autocomplete="off" value="' + esc(F.q) + '"></label>'
     + '<select id="catYear" aria-label="Année"><option value="">Toutes les années</option>' + years.map(function(y){ return '<option' + (F.y === y ? ' selected' : '') + '>' + esc(y) + '</option>'; }).join('') + '</select>'
+    + '<select id="catGenre" aria-label="Type de jeu"><option value="">Tous les types</option>' + genresL.map(function(g){ return '<option' + (F.gn === g ? ' selected' : '') + '>' + esc(g) + '</option>'; }).join('') + '</select>'
     + '<select id="catSort" aria-label="Trier">' + [['az', 'Titre A → Z'], ['za', 'Titre Z → A'], ['y', 'Plus anciens'], ['yd', 'Plus récents']].map(function(o){ return '<option value="' + o[0] + '"' + (F.sort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>'
     + '<div class="cat-chips" role="group" aria-label="Région">' + CAT_REGF.map(function(o){ return '<button type="button" data-catreg="' + o[0] + '" aria-pressed="' + (F.reg === o[0]) + '">' + o[1] + '</button>'; }).join('') + '<span class="cat-sep"></span>' + [['', 'Tous'], ['own', 'Dans ma collection'], ['wish', 'Dans ma wishlist'], ['not', 'Pas encore'] ].map(function(o){ return '<button type="button" data-catown="' + o[0] + '" aria-pressed="' + (F.own === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'
+    + (function(){ var cnt = {}; rows.forEach(function(r){ var c = catFirst(r.t); cnt[c] = (cnt[c] || 0) + 1; }); var keys = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ★'.split(''); return '<div class="cat-abc" role="group" aria-label="Première lettre"><button type="button" data-catch="" aria-pressed="' + !F.ch + '">Tout</button>' + keys.filter(function(k){ return k !== '★' || cnt['★']; }).map(function(k){ return '<button type="button" data-catch="' + k + '" aria-pressed="' + (F.ch === k) + '"' + (cnt[k] ? '' : ' disabled') + ' title="' + (cnt[k] || 0) + ' jeu' + ((cnt[k] || 0) > 1 ? 'x' : '') + '">' + (k === '★' ? '…' : k) + '</button>'; }).join('') + '</div>'; })()
     + '<div class="cat-count">' + res.length.toLocaleString('fr-FR') + ' jeu' + (res.length > 1 ? 'x' : '') + (res.length !== rows.length ? ' sur ' + rows.length.toLocaleString('fr-FR') : '') + '</div>';
   if (!res.length) return h + '<div class="empty"><strong>Aucun jeu ne correspond</strong><button type="button" class="btn ghost small" data-catreset>Réinitialiser les filtres</button></div></section>';
   h += '<div class="cat-list" role="table" aria-label="Jeux ' + esc(p.name) + '"><div class="cat-row cat-head" role="row"><span role="columnheader">Jeu</span><span role="columnheader">Année</span><span role="columnheader">Développeur · Éditeur</span><span role="columnheader">Régions</span><span role="columnheader"><span class="sr">Actions</span></span></div>'
     + res.slice(0, lim).map(function(r){ var o = isOwn(r);
-      return '<div class="cat-row' + (o ? ' is-' + o : '') + '" role="row"><div class="cr-tw" role="cell">' + catCv(r, hasCv) + '<div class="cr-t"><b>' + esc(r.t) + '</b>' + (r.fr && r.fr !== r.t ? '<small>FR : ' + esc(r.fr) + '</small>' : '') + (r.jp && r.jp !== r.t ? '<small>JP : ' + esc(r.jp) + '</small>' : '') + (r.gn ? '<small class="cr-g">' + esc(r.gn) + '</small>' : '') + '</div></div><div class="cr-y" role="cell">' + esc(r.y || '—') + '</div><div class="cr-dp" role="cell"><span>' + esc(r.d || '—') + '</span>' + (r.p && r.p !== r.d ? '<small>' + esc(r.p) + '</small>' : '') + '</div><div class="cr-r" role="cell">' + catRegBadges(r.r) + '</div><div class="cr-a" role="cell">'
+      return '<div class="cat-row' + (o ? ' is-' + o : '') + '" role="row"><div class="cr-tw" role="cell">' + catCv(r, hasCv) + '<div class="cr-t"><button type="button" class="cr-open" data-catinfo="' + r.i + '" title="Voir la fiche du jeu"><b>' + esc(r.t) + '</b></button>' + (r.fr && r.fr !== r.t ? '<small>FR : ' + esc(r.fr) + '</small>' : '') + (r.jp && r.jp !== r.t ? '<small>JP : ' + esc(r.jp) + '</small>' : '') + (r.gn ? '<small class="cr-g">' + esc(r.gn) + '</small>' : '') + '</div></div><div class="cr-y" role="cell">' + esc(r.y || '—') + '</div><div class="cr-dp" role="cell"><span>' + esc(r.d || '—') + '</span>' + (r.p && r.p !== r.d ? '<small>' + esc(r.p) + '</small>' : '') + '</div><div class="cr-r" role="cell">' + catRegBadges(r.r) + '</div><div class="cr-a" role="cell">'
         + (o ? '<span class="tag ' + (o === 'own' ? 't-mint' : 't-rose') + '">' + (o === 'own' ? '✓ Collection' : '♥ Wishlist') + '</span>' : (S.readOnly ? '' : '<button type="button" data-catadd="' + r.i + '" title="Ajouter à ma collection" aria-label="Ajouter ' + esc(r.t) + ' à ma collection">＋</button><button type="button" data-catwish="' + r.i + '" title="Ajouter à ma wishlist" aria-label="Ajouter ' + esc(r.t) + ' à ma wishlist">♥</button>'))
         + (S.readOnly ? '' : '<button type="button" data-catdisc="' + r.i + '" title="Ajouter à Jeux à découvrir" aria-label="Ajouter ' + esc(r.t) + ' à Jeux à découvrir">☆</button>') + '<a href="' + esc(r.u || 'https://www.google.com/search?q=' + encodeURIComponent(r.t + ' ' + p.name)) + '" target="_blank" rel="noopener" title="' + (r.u ? 'Voir sur MobyGames' : 'Voir sur internet') + '" aria-label="Voir ' + esc(r.t) + ' sur internet">↗</a></div></div>'; }).join('') + '</div>';
   if (hasCv) setTimeout(function(){ catCvLoad(p, key, res.slice(0, lim)); }, 0);
   if (res.length > lim) h += '<button type="button" class="btn ghost cat-more" data-catmore>Afficher ' + Math.min(200, res.length - lim) + ' jeux de plus (' + (res.length - lim).toLocaleString('fr-FR') + ' restants)</button>';
-  return h + '</section>';
+  return h + '</section>' + (S.readOnly ? '' : '<div class="lic-delzone"><button type="button" class="btn danger" data-catdel="1">' + ICON_TRASH + ' Supprimer cette plateforme</button><span>Supprime la plateforme et sa liste de jeux de la Base de jeux. Ta collection n\u2019est pas touchée.</span></div>');
 }
 function catPrompt(p){ return 'Remplis la plateforme « ' + p.name + ' » (identifiant ' + p.id + ') de la page « Base de jeux » de ma plateforme Press Start : récupère la liste complète des jeux sortis sur cette plateforme (listes Wikipédia en anglais et en français, complétées par d\u2019autres sources fiables), avec pour chaque jeu le titre, le titre français s\u2019il diffère, l\u2019année de première sortie, le développeur, l\u2019éditeur et les régions de sortie (EU, NA, JP…). Garde tous les jeux, y compris ceux sortis uniquement au Japon, puis enregistre la liste dans la base de la page.'; }
 function catRefocus(id){ var el = document.getElementById(id); if (!el) return; el.focus(); var v = el.value; try { el.setSelectionRange(v.length, v.length); } catch (x) {} }
@@ -6078,24 +6123,33 @@ function discHue(t){ var h = 0; String(t || '').split('').forEach(function(c){ h
 function discCover(d, cls){ var hu = discHue(d.title); return '<span class="dc-cov ' + (cls || '') + '" style="background:linear-gradient(160deg,hsl(' + hu + ' 60% 46%),hsl(' + ((hu + 40) % 360) + ' 55% 28%))"><b>' + esc(initials(d.title)) + '</b></span>'; }
 function discWhen(d){ var t = Date.parse(d.date); if (isNaN(t)) return ''; return (t > Date.now() ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'short', year:'numeric'}); }
 function discPicks(){ var key = nDayKey(new Date()), pool = DISC.slice().sort(function(a, b){ return String(a.id).localeCompare(String(b.id)); }); return nSeedShuffle(pool, 'disc-' + key).slice(0, 10); }
+function dcCov(d, cls){ return d.cvu ? '<span class="dc-cov ' + (cls || '') + ' has-img"><img src="' + esc(d.cvu) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' : discCover(d, cls); }
 function discCard(){
   var t = crtTheme(), style = '--crt-bg:' + t.bg + ';--crt-glow:' + t.glow + ';--crt-kick:' + t.kick + ';--crt-lab:' + t.lab + ';--crt-blink:' + t.blink + ';--crt-frame:' + t.frame + (t.font ? ';--crt-font:' + t.font : '');
-  var picks = discPicks(), sel = Math.min(S.discSel || 0, Math.max(0, picks.length - 1)), f = picks[sel], v = S.discView === 'list' ? 'list' : 'screen';
+  var off = S.dpOff || 0, day = dailyDay(off), dd = DAILY[day], daily = !!dd;
+  var picks = daily ? dd.picks.map(function(p){ return Object.assign({platforms:[p.platform]}, p); }) : (off === 0 ? discPicks() : []);
+  var sel = Math.min(S.discSel || 0, Math.max(0, picks.length - 1)), f = picks[sel], v = S.discView === 'list' ? 'list' : 'screen';
+  var days = Object.keys(DAILY).sort(), hasPrev = days.some(function(k){ return k < day; });
+  var lab = off === 0 ? 'aujourd\u2019hui' : off === -1 ? 'hier' : off === -2 ? 'avant-hier' : 'le ' + nDayDate(day).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  var nav = '<span class="dc-hist"><button type="button" class="dc-hb" data-dpday="-1" aria-label="Jour précédent"' + (hasPrev ? '' : ' disabled') + '>◀</button><span>' + esc(lab.charAt(0).toUpperCase() + lab.slice(1)) + '</span><button type="button" class="dc-hb" data-dpday="1" aria-label="Jour suivant"' + (off < 0 ? '' : ' disabled') + '>▶</button></span>';
   var h = '<section class="dc-wrap" style="' + style + '" aria-label="Découverte du jour"><div class="dc-in"><div class="crt-scan" aria-hidden="true"></div>'
-    + '<div class="dc-head"><div><span class="crt-kick">PLAYER 1</span><h2 class="dc-title">DÉCOUVERTE DU JOUR</h2><span class="dc-sub">' + (picks.length ? picks.length + ' jeu' + (picks.length > 1 ? 'x' : '') + ' tiré' + (picks.length > 1 ? 's' : '') + ' pour aujourd\u2019hui · nouveau tirage demain' : 'Aucun jeu à découvrir pour l\u2019instant') + '</span></div>'
-    + '<div class="dc-tools"><div class="ch-switch dc-switch" role="group" aria-label="Affichage"><button type="button" data-discview="screen" aria-pressed="' + (v === 'screen') + '">▣ Vedette</button><button type="button" data-discview="list" aria-pressed="' + (v === 'list') + '">☰ Classement</button></div><button type="button" class="dc-link" data-nav="decouvrir">Tous les jeux →</button></div></div>';
-  if (!f) return h + '<div class="dc-empty">Ajoute des jeux depuis les <button type="button" class="dc-link" data-nav="news">Actus du jour</button> : 10 d\u2019entre eux seront tirés ici chaque jour.</div></div></section>';
-  var feat = '<span class="dc-k">★ JEU DU JOUR</span><b class="dc-name">' + esc(f.title) + '</b><span class="dc-meta">' + esc([list(f.platforms).slice(0, 3).join(', '), discWhen(f)].filter(Boolean).join(' · ')) + '</span>'
-    + '<div class="dc-acts"><a class="dc-start" href="' + esc(nRelUrl(f)) + '" target="_blank" rel="noopener">▶ APPUIE SUR START</a>' + (S.readOnly ? '' : '<button type="button" class="dc-wish" data-ndwish="' + esc(f.id) + '">' + ICON_HEART + ' Wishlist</button>') + '</div>';
+    + '<div class="dc-head"><div><span class="crt-kick">PLAYER 1</span><h2 class="dc-title">DÉCOUVERTE DU JOUR</h2><span class="dc-sub">' + (picks.length ? picks.length + ' jeu' + (picks.length > 1 ? 'x' : '') + ' tiré' + (picks.length > 1 ? 's' : '') + (daily ? ' dans toute la Base de jeux' : '') + ' · nouveau tirage chaque jour' : 'Aucun tirage pour ce jour') + '</span>' + nav + '</div>'
+    + '<div class="dc-tools"><div class="ch-switch dc-switch" role="group" aria-label="Affichage"><button type="button" data-discview="screen" aria-pressed="' + (v === 'screen') + '">▣ Vedette</button><button type="button" data-discview="list" aria-pressed="' + (v === 'list') + '">☰ Classement</button></div><button type="button" class="dc-link" data-nav="catalog">Base de jeux →</button></div></div>';
+  if (!f) return h + '<div class="dc-empty">' + (off < 0 ? 'Aucun jeu n\u2019a été tiré ce jour-là.' : 'Les jeux du jour apparaîtront dès que ta Base de jeux contiendra des jeux.') + '</div></div></section>';
+  var start = function(cls, txt){ return daily ? '<button type="button" class="dc-start' + (cls || '') + '" data-dpinfo="' + sel + '">' + txt + '</button>' : '<a class="dc-start' + (cls || '') + '" href="' + esc(nRelUrl(f)) + '" target="_blank" rel="noopener">' + txt + '</a>'; };
+  var meta = daily ? [f.platform, f.year, f.genre].filter(Boolean).join(' · ') : [list(f.platforms).slice(0, 3).join(', '), discWhen(f)].filter(Boolean).join(' · ');
+  var feat = '<span class="dc-k">★ JEU DU JOUR</span><b class="dc-name">' + esc(f.title) + '</b><span class="dc-meta">' + esc(meta) + '</span>'
+    + '<div class="dc-acts">' + start('', '▶ APPUIE SUR START') + (S.readOnly ? '' : '<button type="button" class="dc-wish" ' + (daily ? 'data-dpwish="' + sel + '"' : 'data-ndwish="' + esc(f.id) + '"') + '>' + ICON_HEART + ' Wishlist</button>') + '</div>';
   if (v === 'screen') {
-    h += '<div class="dc-feat">' + discCover(f, 'big') + '<div class="dc-fi">' + feat + '</div></div>'
-      + '<div class="dc-strip">' + picks.map(function(d, i){ return i === sel ? '' : '<button type="button" class="dc-mini" data-discsel="' + i + '" title="' + esc(d.title) + '">' + discCover(d) + '<span>' + esc(d.title) + '</span></button>'; }).join('') + '</div>';
+    h += '<div class="dc-feat">' + dcCov(f, 'big') + '<div class="dc-fi">' + feat + '</div></div>'
+      + '<div class="dc-strip">' + picks.map(function(d, i){ return i === sel ? '' : '<button type="button" class="dc-mini" data-discsel="' + i + '" title="' + esc(d.title) + '">' + dcCov(d) + '<span>' + esc(d.title) + '</span></button>'; }).join('') + '</div>';
   } else {
-    h += '<div class="dc-board"><div class="dc-bfeat">' + discCover(f, 'big') + '<span class="dc-k">01 · JEU DU JOUR</span><b class="dc-name sm">' + esc(f.title) + '</b><div class="dc-acts"><a class="dc-start sm" href="' + esc(nRelUrl(f)) + '" target="_blank" rel="noopener">▶ START</a></div></div><ol class="dc-rank">'
-      + picks.map(function(d, i){ if (i === sel) return ''; return '<li><button type="button" class="dc-row" data-discsel="' + i + '"><b>' + String(i + 1).padStart(2, '0') + '</b>' + discCover(d, 'xs') + '<span class="dc-rn">' + esc(d.title) + '</span><span class="dc-rp">' + esc(list(d.platforms)[0] || '') + '</span></button></li>'; }).join('') + '</ol></div>';
+    h += '<div class="dc-board"><div class="dc-bfeat">' + dcCov(f, 'big') + '<span class="dc-k">01 · JEU DU JOUR</span><b class="dc-name sm">' + esc(f.title) + '</b><div class="dc-acts">' + start(' sm', '▶ START') + '</div></div><ol class="dc-rank">'
+      + picks.map(function(d, i){ if (i === sel) return ''; return '<li><button type="button" class="dc-row" data-discsel="' + i + '"><b>' + String(i + 1).padStart(2, '0') + '</b>' + dcCov(d, 'xs') + '<span class="dc-rn">' + esc(d.title) + '</span><span class="dc-rp">' + esc(list(d.platforms)[0] || '') + '</span></button></li>'; }).join('') + '</ol></div>';
   }
   return h + '</div></section>';
 }
+
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-discview],[data-discsel]'); if (!t) return;
   if (t.hasAttribute('data-discview')) { S.discView = t.getAttribute('data-discview'); try { localStorage.setItem('ps-disc', S.discView); } catch (x) {} render(); return; }
@@ -6229,7 +6283,7 @@ function viewLicence(){
   var pct = total ? Math.round(ownedN / total * 100) : 0;
   var h = crtPage({kick:'SAGA', title:lic.toUpperCase(), sub:total ? ownedN + ' jeu' + (ownedN > 1 ? 'x' : '') + ' sur ' + total + ' · ' + pct + ' % de la saga' : 'Liste des jeux de la saga à compléter', blink:missN ? missN + ' JEU' + (missN > 1 ? 'X' : '') + ' À TROUVER' : 'SAGA COMPLÈTE ★', sc:[['POSSÉDÉS', crtPad(ownedN)], ['MANQUANTS', crtPad(missN)], ['WISHLIST', crtPad(wish.length)], ['TOTAL', crtPad(total)]]});
   var f = S.licF || 'all';
-  h += licDelBar() + '<div class="lic-bar"><button type="button" class="btn ghost small" data-nav="licences">← Toutes les licences</button>' + (S.readOnly ? '' : (S.licRen ? '<span class="lic-ren"><label class="sr" for="licRenIn">Nouveau nom de la licence</label><input id="licRenIn" type="text" value="' + esc(lic) + '" maxlength="80"><button type="button" class="btn small" data-licrenok="1">Renommer</button><button type="button" class="btn ghost small" data-licrenno="1">Annuler</button></span>' : '<button type="button" class="btn ghost small" data-licren="1">' + ICON_PEN + ' Renommer</button>')) + '<div class="lic-sorts" role="group" aria-label="Afficher">' + [['all', 'Tous'], ['own', 'Possédés'], ['miss', 'Manquants']].map(function(x){ return '<button type="button" data-licf="' + x[0] + '" aria-pressed="' + (f === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div></div>';
+  h += licDelBar() + '<div class="lic-bar"><button type="button" class="btn ghost small" data-nav="licences">← Toutes les licences</button>' + (S.readOnly ? '' : '<button type="button" class="btn small" data-lsgopen="1">🔎 Suggestions IGDB</button>' + (S.licRen ? '<span class="lic-ren"><label class="sr" for="licRenIn">Nouveau nom de la licence</label><input id="licRenIn" type="text" value="' + esc(lic) + '" maxlength="80"><button type="button" class="btn small" data-licrenok="1">Renommer</button><button type="button" class="btn ghost small" data-licrenno="1">Annuler</button></span>' : '<button type="button" class="btn ghost small" data-licren="1">' + ICON_PEN + ' Renommer</button>')) + '<div class="lic-sorts" role="group" aria-label="Afficher">' + [['all', 'Tous'], ['own', 'Possédés'], ['miss', 'Manquants']].map(function(x){ return '<button type="button" data-licf="' + x[0] + '" aria-pressed="' + (f === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div></div>';
   var delB = S.readOnly ? '' : '<div class="lic-delzone"><button type="button" class="btn danger" data-licdel="' + esc(lic) + '">' + ICON_TRASH + ' Supprimer cette collection</button><span>Les jeux restent dans ta collection, seule la licence leur est retirée.</span></div>';
   if (!L) return h + '<div class="card empty"><strong>La liste complète de cette saga n\u2019est pas encore chargée</strong><span>Demande à Claude de « charger tous les jeux ' + esc(lic) + ' » : la page affichera alors ceux que tu possèdes et ceux qui manquent.</span></div>' + (mine.length ? licGroup('Mes jeux de cette licence', mine.map(function(g){ return {e:{title:g.name, platform:list(g.consoles)[0], year:g.year}, g:g, owned:true}; }), lic) : '') + delB;
   var shown = rows.filter(function(r){ return f === 'all' || (f === 'own' ? r.owned : !r.owned); });
@@ -6450,6 +6504,127 @@ document.addEventListener('click', function(e){
   if (t.getAttribute('data-act') === 'expAll') { t.disabled = true; exportAll(); } else { EXP = null; render(); }
 });
 
+/* ---------- Fiche détaillée d'un jeu (Base de jeux, découvertes, jeux du jour) ---------- */
+var GI = null;
+function catFirst(t){ var c = norm(String(t || '').trim()).replace(/^(the|le|la|les|l')\s+/, '').charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : /[0-9]/.test(c) ? '#' : '★'; }
+function giImg(id, size){ return id ? 'https://images.igdb.com/igdb/image/upload/' + (size || 't_screenshot_big') + '/' + id + '.jpg' : ''; }
+function giOpen(info){
+  GI = {info:info, data:null, loading:!!window.PS_SB, err:''};
+  openDlg('<div class="dlg gi-dlg" id="giDlg">' + giHtml() + '</div>');
+  if (!window.PS_SB) return;
+  var body = info.ig ? {action:'game', id:+info.ig} : {action:'search', name:info.title, platform:info.platform || ''};
+  window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ if (!GI || GI.info !== info) return; GI.loading = false; if (r.error || !r.data || r.data.error) GI.err = 'Les infos détaillées ne sont pas disponibles pour ce jeu.'; else GI.data = r.data.game || null; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); }).catch(function(){ if (!GI) return; GI.loading = false; GI.err = 'Les infos détaillées ne sont pas disponibles pour le moment.'; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); });
+}
+function giHtml(){
+  var i = GI.info, d = GI.data || {}, cover = (d.cover && giImg(d.cover.image_id, 't_cover_big')) || i.cvu || i.cv || '', art = (d.artworks && d.artworks[0] && giImg(d.artworks[0].image_id, 't_1080p')) || i.art || '';
+  var row = function(l, v){ return v ? '<div class="gi-f"><span>' + l + '</span><b>' + v + '</b></div>' : ''; };
+  var y = i.year || (d.first_release_date ? String(new Date(d.first_release_date * 1000).getUTCFullYear()) : '');
+  var devs = i.dev || (d.involved_companies || []).filter(function(c){ return c.developer; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean).join(', ');
+  var pubs = i.pub || (d.involved_companies || []).filter(function(c){ return c.publisher; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean).join(', ');
+  var genres = (d.genres || []).map(function(g){ return g.name; }).join(', ') || i.genre || '';
+  var plats = (d.platforms || []).map(function(p){ return p.name; }).join(', ') || i.platform || '';
+  var shots = (d.screenshots || []).slice(0, 12), vids = (d.videos || []).slice(0, 6);
+  var links = [];
+  if (i.url) links.push(['MobyGames', i.url]);
+  if (d.url) links.push(['IGDB', d.url]);
+  (d.websites || []).forEach(function(w){ var u = safeUrl(w.url); if (!u) return; var n = /wikipedia/.test(u) ? 'Wikipédia' : /store\.steampowered/.test(u) ? 'Steam' : /nintendo\./.test(u) ? 'Nintendo' : /playstation\./.test(u) ? 'PlayStation Store' : /xbox\./.test(u) ? 'Xbox' : /youtube/.test(u) ? 'YouTube' : /twitter|x\.com/.test(u) ? 'X' : null; if (n && !links.some(function(l){ return l[0] === n; })) links.push([n, u]); });
+  links.push(['Recherche web', 'https://www.google.com/search?q=' + encodeURIComponent(i.title + ' ' + (i.platform || '') + ' jeu vidéo')]);
+  var h = '<header><h2>' + esc(i.title) + '</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body gi-body">'
+    + (art ? '<div class="gi-art" style="background-image:url(\'' + esc(art) + '\')"></div>' : '')
+    + '<div class="gi-top">' + (cover ? '<img class="gi-cover" src="' + esc(cover) + '" alt="Jaquette de ' + esc(i.title) + '" referrerpolicy="no-referrer">' : '<span class="gi-cover gi-cover0">' + esc(initials(i.title)) + '</span>')
+    + '<div class="gi-facts">' + row('Plateforme' + ((d.platforms || []).length > 1 ? 's' : ''), esc(plats)) + row('Sortie', esc(y)) + row('Développeur', esc(devs)) + row('Éditeur', esc(pubs)) + row('Genre', esc(genres))
+    + row('Régions', (i.regions || []).length ? catRegBadges(i.regions) : '') + row('Titre français', i.fr && i.fr !== i.title ? esc(i.fr) : '') + row('Titre japonais', i.jp && i.jp !== i.title ? esc(i.jp) : '')
+    + row('Note IGDB', d.aggregated_rating ? Math.round(d.aggregated_rating) + ' / 100 (presse)' : d.rating ? Math.round(d.rating) + ' / 100 (joueurs)' : '')
+    + row('Licence', (d.franchises || []).concat(d.collections || []).map(function(f){ return esc(f.name); }).filter(function(v, k, a){ return a.indexOf(v) === k; }).join(', '))
+    + (i.cf && i.cf.y ? row('Désaccord', 'Année : MobyGames ' + esc(i.cf.y.moby) + ' · IGDB ' + esc(i.cf.y.igdb)) : '') + '</div></div>'
+    + (GI.loading ? '<p class="gi-load"><span class="nimp-spin"></span> Chargement des infos détaillées…</p>' : '')
+    + (GI.err ? '<p class="gi-note">' + esc(GI.err) + '</p>' : '')
+    + (!window.PS_SB ? '<p class="gi-note">Résumé, captures et vidéos disponibles sur ton site hébergé.</p>' : '')
+    + (d.summary ? '<h3>Résumé</h3><p class="gi-txt">' + esc(d.summary) + '</p>' : '')
+    + (d.storyline ? '<h3>Histoire</h3><p class="gi-txt">' + esc(d.storyline) + '</p>' : '')
+    + (shots.length ? '<h3>Captures d’écran</h3><div class="gi-shots">' + shots.map(function(x){ return '<a href="' + giImg(x.image_id, 't_1080p') + '" target="_blank" rel="noopener"><img src="' + giImg(x.image_id, 't_screenshot_med') + '" alt="Capture d’écran" loading="lazy" referrerpolicy="no-referrer"></a>'; }).join('') + '</div>' : '')
+    + (vids.length ? '<h3>Vidéos</h3><div class="gi-vids">' + vids.map(function(v){ return '<a class="gi-vid" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.video_id) + '" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/' + encodeURIComponent(v.video_id) + '/mqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"><span>▶ ' + esc(v.name || 'Vidéo') + '</span></a>'; }).join('') + '</div>' : '')
+    + ((d.similar_games || []).length ? '<h3>Jeux similaires</h3><div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>' : '')
+    + '<h3>Liens</h3><div class="gi-links">' + links.map(function(l){ return '<a class="btn ghost small" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' ↗</a>'; }).join('') + '</div></div>'
+    + '<footer>' + (S.readOnly ? '' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ma collection</button>') + '</footer>';
+  return h;
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-giact],[data-catinfo],[data-catch],[data-catdel],[data-catdelok],[data-dinfo]'); if (!t) return;
+  if (t.hasAttribute('data-catch')) { S.catF.ch = t.getAttribute('data-catch'); S.catLim = 100; render(); return; }
+  if (t.hasAttribute('data-catinfo')) { var p = catPlat(S.catP), r = catRows()[+t.getAttribute('data-catinfo')]; if (!r || !p) return; giOpen({title:r.t, platform:p.name, pname:catConsoleName(p), year:r.y, dev:r.d, pub:r.p, regions:r.r, fr:r.fr, jp:r.jp, genre:r.gn, url:r.u, ig:r.ig, cvu:r.cvu, cv:/^data:image\//.test(r.cv) ? r.cv : '', art:r.art, cf:r.cf}); return; }
+  if (t.hasAttribute('data-dinfo')) { var dd = DISC.filter(function(x){ return x.id === t.getAttribute('data-dinfo'); })[0]; if (dd) giOpen({title:dd.title, platform:list(dd.platforms)[0] || '', pname:list(dd.platforms)[0] || '', url:safeUrl(dd.url) || ''}); return; }
+  if (t.hasAttribute('data-catdel')) { var pp = catPlat(S.catP); if (!pp) return; openDlg('<div class="dlg"><header><h2>Supprimer « ' + esc(pp.name) + ' » ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body"><p style="margin:0;font-size:14px;line-height:1.6">La plateforme et ses ' + Number(pp.count || 0).toLocaleString('fr-FR') + ' jeux de la Base de jeux seront supprimés. Les jeux de ta collection ne sont pas touchés.</p></div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn danger" data-catdelok="' + esc(pp.id) + '">Supprimer</button></footer></div>'); return; }
+  if (t.hasAttribute('data-catdelok')) { var pid = t.getAttribute('data-catdelok'); t.disabled = true; t.textContent = 'Suppression…'; (async function(){ try { var cs = await db.collection('catalog/' + pid + '/chunks').get(); for (var k = 0; k < cs.docs.length; k++) { var ck = cs.docs[k].id, vs = await db.collection('catalog/' + pid + '/cv-' + ck).get(); for (var v = 0; v < vs.docs.length; v++) await db.collection('catalog/' + pid + '/cv-' + ck).doc(vs.docs[v].id).delete(); await db.collection('catalog/' + pid + '/chunks').doc(ck).delete(); } await db.collection('catalog').doc(pid).delete(); closeDlg(); S.catP = null; S.catF = null; render(); toast('Plateforme supprimée'); } catch (x) { toast(failMsg(x)); closeDlg(); } })(); return; }
+  if (t.hasAttribute('data-giact') && GI) { var a = t.getAttribute('data-giact'), i = GI.info, cons = i.pname ? [i.pname] : [];
+    if (a === 'disc') { if (discHas(i.fr || i.title)) { toast('Déjà dans Jeux à découvrir'); return; } discAdd({title:i.fr || i.title, platforms:i.platform ? [i.platform] : [], date:'', url:i.url || ''}); return; }
+    closeDlg(); gameForm({kind:a === 'wish' ? 'wish' : 'physique', status:'Pas commencé', name:i.fr || i.title, consoles:cons, year:i.year || '', developer:i.dev ? [i.dev] : [], publisher:i.pub ? [i.pub] : []}); }
+});
+document.addEventListener('change', function(e){ if (e.target.id === 'catGenre' && S.catF) { S.catF.gn = e.target.value; S.catLim = 100; render(); } });
+
+/* ---------- Licences : suggestions IGDB à valider une par une ---------- */
+var LSG = null;
+function lsgType(g){ var c = g.game_type != null ? g.game_type : g.category; return c === 8 || c === 9 || c === 10 || c === 11 ? 'Remake' : c === 0 || c == null ? 'Principal' : 'Spin-off'; }
+function lsgHtml(){
+  var p = LSG, h = '<header><h2>Suggestions pour « ' + esc(p.lic) + ' »</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">';
+  if (p.loading) return h + '<p class="gi-load"><span class="nimp-spin"></span> Recherche des jeux de la licence sur IGDB…</p></div>';
+  if (p.err) return h + '<p class="gi-note">' + esc(p.err) + '</p></div><footer><button type="button" class="btn ghost" data-act="close">Fermer</button></footer>';
+  var left = p.items.filter(function(x){ return !x.done; });
+  h += '<p class="gi-note">' + p.items.length + ' jeux trouvés sur IGDB, absents de ta liste. Ajoute ou ignore chaque proposition : seuls les jeux ajoutés rejoignent la collection.</p>';
+  h += left.length ? '<div class="lsg-list">' + left.map(function(x){ return '<div class="lsg-row"><span class="lsg-t"><b>' + esc(x.name) + '</b><small>' + esc([x.year, x.type].filter(Boolean).join(' · ')) + '</small></span><span class="lsg-p">' + x.platforms.map(function(pl){ return '<span class="tag t-sky">' + esc(pl) + '</span>'; }).join('') + '</span><span class="lsg-a"><button type="button" class="btn small" data-lsgadd="' + x.k + '">✓ Ajouter</button><button type="button" class="btn ghost small" data-lsgno="' + x.k + '">✕ Ignorer</button></span></div>'; }).join('') + '</div>' : '<p class="nimp-sum ok">✓ Toutes les propositions ont été traitées.</p>';
+  return h + '</div><footer><span class="gi-note">' + p.added + ' ajouté' + (p.added > 1 ? 's' : '') + '</span><button type="button" class="btn ghost" data-act="close">Terminer</button></footer>';
+}
+function lsgRender(){ var el = document.getElementById('lsgDlg'); if (el) el.innerHTML = lsgHtml(); }
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-lsgopen],[data-lsgadd],[data-lsgno]'); if (!t || S.readOnly) return;
+  if (t.hasAttribute('data-lsgopen')) {
+    var lic = S.licOpen; LSG = {lic:lic, loading:true, items:[], added:0};
+    openDlg('<div class="dlg gi-dlg" id="lsgDlg">' + lsgHtml() + '</div>');
+    if (!window.PS_SB) { LSG.loading = false; LSG.err = 'Les suggestions IGDB sont disponibles sur ton site hébergé.'; lsgRender(); return; }
+    try {
+      var r = await window.PS_SB.functions.invoke('igdb', {body:{action:'franchise', name:lic}}); if (r.error || !r.data || r.data.error) throw new Error('igdb');
+      var L = LICDB[licKey(lic)], have = {}; (L && L.games || []).forEach(function(g){ have[licStrip(g.title, lic)] = 1; });
+      S.games.filter(function(g){ return (g.licence || '').trim() === lic; }).forEach(function(g){ have[licStrip(g.name, lic)] = 1; });
+      LSG.items = (r.data.games || []).filter(function(g){ return !have[licStrip(g.name, lic)]; }).map(function(g, k){ return {k:k, name:g.name, year:g.first_release_date ? String(new Date(g.first_release_date * 1000).getUTCFullYear()) : '', platforms:(g.platforms || []).map(function(pl){ return pl.name; }), type:lsgType(g)}; }).sort(function(a, b){ return (a.year || '9999').localeCompare(b.year || '9999'); });
+      LSG.loading = false; if (!LSG.items.length) LSG.err = 'IGDB ne propose aucun jeu supplémentaire pour cette licence.';
+    } catch (x) { LSG.loading = false; LSG.err = 'Impossible d’interroger IGDB pour le moment.'; }
+    lsgRender(); return;
+  }
+  var k = +(t.getAttribute('data-lsgadd') || t.getAttribute('data-lsgno')), it = LSG && LSG.items.filter(function(x){ return x.k === k; })[0]; if (!it) return;
+  if (t.hasAttribute('data-lsgadd')) {
+    t.disabled = true; var lk = licKey(LSG.lic), cur = LICDB[lk] || {name:LSG.lic, games:[]}, games = (cur.games || []).slice();
+    (it.platforms.length ? it.platforms : ['']).forEach(function(pl){ games.push({title:it.name, platform:pl, year:it.year ? +it.year : '', lang:'', type:it.type}); });
+    try { await db.collection('licences').doc(lk).set(Object.assign({}, cur, {name:LSG.lic, games:games, updatedAt:Date.now()})); LSG.added++; } catch (x) { toast(failMsg(x)); t.disabled = false; return; }
+  }
+  it.done = true; lsgRender();
+});
+
+/* ---------- Jeux du jour : tirés dans toute la Base de jeux, avec historique ---------- */
+var DAILY = {}, DAILY_BUSY = false;
+function dailyDay(off){ var d = new Date(); d.setDate(d.getDate() + (off || 0)); return nDayKey(d); }
+async function dailyEnsure(){
+  if (DAILY_BUSY || !db || S.readOnly) return; var day = dailyDay(0); if (DAILY[day] || !CAT.some(function(p){ return p.count; })) return;
+  DAILY_BUSY = true;
+  try {
+    var plats = CAT.filter(function(p){ return p.count; }), tot = plats.reduce(function(s, p){ return s + p.count; }, 0), picks = [], seen = {}, chunks = {};
+    for (var n = 0; n < 40 && picks.length < 10; n++) {
+      var x = Math.random() * tot, p = plats[0]; for (var k = 0; k < plats.length; k++) { x -= plats[k].count; if (x <= 0) { p = plats[k]; break; } }
+      if (!chunks[p.id]) { var cs = await db.collection('catalog/' + p.id + '/chunks').get(); chunks[p.id] = cs.docs.map(function(d){ return d.data(); }).filter(function(c){ return (c.g || []).length; }); }
+      var cl = chunks[p.id]; if (!cl.length) continue; var c = cl[Math.floor(Math.random() * cl.length)], g = c.g[Math.floor(Math.random() * c.g.length)]; if (!g || !g[0]) continue;
+      var key = catKey(g[0]); if (seen[key]) continue; seen[key] = 1;
+      picks.push({title:String(g[5] || g[0]), t:String(g[0]), platform:p.name, pname:catConsoleName(p), pid:p.id, year:String(g[1] || ''), dev:String(g[2] || ''), pub:String(g[3] || ''), regions:list(g[4]), genre:String(g[7] || ''), url:String(g[8] || ''), ig:String(g[12] || ''), cvu:String(g[13] || ''), art:String(g[14] || '')});
+    }
+    if (picks.length) await db.collection('daily').doc(day).set({day:day, picks:picks, createdAt:Date.now()});
+  } catch (x) {}
+  DAILY_BUSY = false;
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-dpinfo],[data-dpwish],[data-dpday]'); if (!t) return;
+  if (t.hasAttribute('data-dpday')) { S.dpOff = Math.min(0, (S.dpOff || 0) + (+t.getAttribute('data-dpday'))); S.discSel = 0; render(); return; }
+  var dd = DAILY[dailyDay(S.dpOff || 0)], p = dd && dd.picks[+(t.getAttribute('data-dpinfo') || t.getAttribute('data-dpwish'))]; if (!p) return;
+  if (t.hasAttribute('data-dpinfo')) giOpen(p); else gameForm({kind:'wish', status:'Pas commencé', name:p.title, consoles:p.pname ? [p.pname] : [], year:p.year || '', developer:p.dev ? [p.dev] : [], publisher:p.pub ? [p.pub] : []});
+});
+
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
 function importCard(){
@@ -6626,7 +6801,8 @@ async function init(){
   db.collection('discover').onSnapshot(function(s){ DISC = snapList(s); if (NBUB) { var nb = NBUB.el.querySelector('[data-nadd]'); if (nb && discHas(NBUB.r.title)) { nb.disabled = true; nb.textContent = '✓ Déjà dans Jeux à découvrir'; } } renderSoon(); }, function(){});
   db.doc('meta/home').onSnapshot(function(d){ HOME = d.exists ? Object.assign({}, d.data()) : null; renderSoon(); }, function(){});
   db.collection('home_bgs').onSnapshot(function(s){ HBGS = snapList(s); if (S.view === 'home' || S.view === 'data') renderSoon(); }, function(){});
-  db.collection('catalog').onSnapshot(function(s){ CAT = snapList(s); renderSoon(); }, function(){});
+  db.collection('catalog').onSnapshot(function(s){ CAT = snapList(s); renderSoon(); setTimeout(dailyEnsure, 400); }, function(){});
+  db.collection('daily').onSnapshot(function(s){ DAILY = {}; snapList(s).forEach(function(d){ if (d.picks) DAILY[d.id] = d; }); if (S.view === 'home') renderSoon(); setTimeout(dailyEnsure, 400); }, function(){});
   db.collection('licences').onSnapshot(function(snap){ LICDB = {}; snap.docs.forEach(function(d){ LICDB[d.id] = d.data(); }); if (S.view === 'licence' || S.view === 'licences') renderSoon(); }, function(){});
 db.doc('meta/options').onSnapshot(function(d){ META = d.exists ? Object.assign({}, d.data()) : {}; renderSoon(); }, function(){});
   db.collection('consoles').onSnapshot(function(s){ S.consoles = snapList(s); S.loaded.consoles = true; if (S.loaded.games) S.dbState = 'ok'; renderSoon(); }, onErr);
