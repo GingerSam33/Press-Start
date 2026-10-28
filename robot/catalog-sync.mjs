@@ -23,8 +23,11 @@ const key = s => norm(s).replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 
 /* ---------- Supabase (table docs : col, id, data) ---------- */
+// Nouvelles clés (sb_secret_…) : uniquement l'en-tête « apikey ». Anciennes clés service_role (JWT) : apikey + Authorization.
+const SB_AUTH = String(SBK).startsWith('sb_') ? {apikey: SBK} : {apikey: SBK, Authorization: `Bearer ${SBK}`};
+if (String(SBK).startsWith('sb_publishable_')) { console.error('SUPABASE_SECRET_KEY contient la clé publishable : il faut la Secret key (sb_secret_…).'); process.exit(1); }
 async function sb(path, opts = {}) {
-  const r = await fetch(`${SB}/rest/v1/${path}`, {...opts, headers: {apikey: SBK, Authorization: `Bearer ${SBK}`, 'Content-Type': 'application/json', Prefer: 'return=minimal,resolution=merge-duplicates', ...(opts.headers || {})}});
+  const r = await fetch(`${SB}/rest/v1/${path}`, {...opts, headers: {...SB_AUTH, 'Content-Type': 'application/json', Prefer: 'return=minimal,resolution=merge-duplicates', ...(opts.headers || {})}});
   if (!r.ok) throw new Error(`Supabase ${r.status} : ${await r.text()}`);
   return r.status === 204 ? null : r.json().catch(() => null);
 }
@@ -80,9 +83,33 @@ async function igdb(endpoint, body) {
 const IGDB_REGION = {1: 'EU', 2: 'NA', 3: 'EU', 4: 'EU', 5: 'JP', 8: 'WW'};
 
 /* ---------- Correspondance des plateformes ---------- */
-function bestMatch(names, list, getNames) {
+// 1) table de correspondance robot/platform-map.json (prioritaire), 2) nom exact, 3) nom approchant
+import {readFileSync} from 'node:fs';
+let MAP = {};
+try { MAP = JSON.parse(readFileSync(new URL('./platform-map.json', import.meta.url), 'utf8')); } catch { MAP = {}; }
+const MAPK = Object.fromEntries(Object.entries(MAP).map(([k, v]) => [key(k), v]));
+function bestMatch(names, list, getNames, forced) {
+  if (forced === null) return null;                       // « null » = n'existe pas sur ce service
+  if (forced != null) {
+    const f = list.find(p => String(p.id ?? p.platform_id) === String(forced) || getNames(p).some(n => key(n) === key(forced)));
+    if (f) return f;
+  }
   const keys = names.map(key).filter(Boolean);
-  return list.find(p => getNames(p).some(n => keys.includes(key(n)))) || null;
+  const exact = list.find(p => getNames(p).some(n => keys.includes(key(n))));
+  if (exact) return exact;
+  let best = null, score = 0;
+  for (const p of list) for (const n of getNames(p)) {
+    const k = key(n); if (!k) continue;
+    for (const t of keys) {
+      if (t.length < 3 || k.length < 3) continue;
+      if (k.includes(t) || t.includes(k)) { const sc = Math.min(k.length, t.length) / Math.max(k.length, t.length); if (sc > score && sc >= 0.6) { score = sc; best = p; } }
+    }
+  }
+  return best;
+}
+function suggest(names, list, getNames) {
+  const t = key(names[0]);
+  return list.map(p => getNames(p)[0]).filter(Boolean).map(n => [n, [...key(n)].filter(c => t.includes(c)).length / Math.max(key(n).length, t.length)]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0]);
 }
 
 /* ---------- Jaquettes et illustrations de MES jeux (copiées dans le stockage Supabase) ---------- */
@@ -92,7 +119,7 @@ async function storeImage(url) {
   const type = r.headers.get('content-type') || 'image/jpeg', buf = Buffer.from(await r.arrayBuffer());
   const id = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
   if (DRY) return id;
-  const u = await fetch(`${SB}/storage/v1/object/assets/${id}`, {method: 'POST', headers: {apikey: SBK, Authorization: `Bearer ${SBK}`, 'Content-Type': type, 'x-upsert': 'true', 'cache-control': 'max-age=31536000'}, body: buf});
+  const u = await fetch(`${SB}/storage/v1/object/assets/${id}`, {method: 'POST', headers: {...SB_AUTH, 'Content-Type': type, 'x-upsert': 'true', 'cache-control': 'max-age=31536000'}, body: buf});
   if (!u.ok) throw new Error(`stockage ${u.status} : ${await u.text()}`);
   return id;
 }
@@ -136,8 +163,11 @@ try {
 
   for (const p of targets) {
     const names = [p.name, ...(p.aliases || [])];
-    const mp = bestMatch(names, mobyPlats, x => [x.platform_name]);
-    const ip = bestMatch(names, igdbPlats, x => [x.name, x.abbreviation, x.alternative_name].filter(Boolean));
+    const mk = names.map(key).find(k => MAPK[k]) ; const forced = mk ? MAPK[mk] : {};
+    const mp = bestMatch(names, mobyPlats, x => [x.platform_name], forced.moby);
+    const ip = bestMatch(names, igdbPlats, x => [x.name, x.abbreviation, x.alternative_name].filter(Boolean), forced.igdb);
+    if (!mp && forced.moby !== null) log(`  MobyGames : « ${p.name} » introuvable. Noms proches : ${suggest(names, mobyPlats, x => [x.platform_name]).join(' · ')}`);
+    if (!ip && forced.igdb !== null) log(`  IGDB : « ${p.name} » introuvable. Noms proches : ${suggest(names, igdbPlats, x => [x.name]).join(' · ')}`);
     const pr = {platform: p.name, moby: mp ? mp.platform_name : null, igdb: ip ? ip.name : null, added: 0, enriched: 0, conflicts: 0, complete: false};
     report.platforms.push(pr);
     if (!mp && !ip) { log(`⚠ ${p.name} : introuvable sur MobyGames et IGDB`); continue; }
