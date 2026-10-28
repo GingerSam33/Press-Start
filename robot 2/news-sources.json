@@ -1,0 +1,21 @@
+{
+  "_aide": "Flux RSS lus chaque matin par le robot des actus. Ajoute, retire ou corrige une ligne librement : nom affiché, adresse du flux, langue.",
+  "sources": [
+    {"name": "JeuxVideo.com", "url": "https://www.jeuxvideo.com/rss/rss.xml", "lang": "fr"},
+    {"name": "Gameblog", "url": "https://www.gameblog.fr/rss.php", "lang": "fr"},
+    {"name": "ActuGaming", "url": "https://www.actugaming.net/feed/", "lang": "fr"},
+    {"name": "Millenium", "url": "https://www.millenium.org/rss", "lang": "fr"},
+    {"name": "Journal du Geek", "url": "https://www.journaldugeek.com/feed/", "lang": "fr"},
+    {"name": "Gamekult", "url": "https://www.gamekult.com/feed.xml", "lang": "fr"},
+    {"name": "IGN", "url": "https://feeds.feedburner.com/ign/all", "lang": "en"},
+    {"name": "GameSpot", "url": "https://www.gamespot.com/feeds/mashup/", "lang": "en"},
+    {"name": "Game Informer", "url": "https://www.gameinformer.com/news.xml", "lang": "en"},
+    {"name": "VGC", "url": "https://www.videogameschronicle.com/feed/", "lang": "en"},
+    {"name": "Eurogamer", "url": "https://www.eurogamer.net/feed", "lang": "en"},
+    {"name": "Kotaku", "url": "https://kotaku.com/rss", "lang": "en"},
+    {"name": "Nintendo Life", "url": "https://www.nintendolife.com/feeds/latest", "lang": "en"},
+    {"name": "Push Square", "url": "https://www.pushsquare.com/feeds/latest", "lang": "en"},
+    {"name": "Pure Xbox", "url": "https://www.purexbox.com/feeds/latest", "lang": "en"},
+    {"name": "Gematsu", "url": "https://www.gematsu.com/feed", "lang": "en"}
+  ]
+}
