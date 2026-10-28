@@ -5002,7 +5002,7 @@ var DB_KEYS = ['consoles', 'format', 'etat', 'types', 'licence', 'developer', 'p
 var DB_DESC = {consoles:'Les plateformes de mes jeux', format:'Comment mes jeux sont conservés', etat:'L\u2019état de mes exemplaires', types:'Les genres de jeux', licence:'Les séries et franchises', developer:'Les studios de développement', publisher:'Les éditeurs', langue:'Les langues de mes jeux', brand:'Les fabricants de consoles', status:'Où j\u2019en suis (liste fixe)'};
 function metaBanners(){ return Array.isArray(META.banners) ? META.banners.filter(function(x){ return !!safeId(x); }) : []; }
 function randomBanner(except){ var b = metaBanners().filter(function(x){ return x !== except; }); if (!b.length) b = metaBanners(); return b.length ? b[Math.floor(Math.random() * b.length)] : ''; }
-function gameBanner(g){ return g.bannerId && metaBanners().indexOf(g.bannerId) >= 0 ? blob(g.bannerId) : ''; }
+function gameBanner(g){ if (g.artId && g.useArt !== false) return blob(g.artId); return g.bannerId && metaBanners().indexOf(g.bannerId) >= 0 ? blob(g.bannerId) : ''; }
 function viewData(){
   var bs = metaBanners(), noBanner = S.games.filter(function(g){ return !gameBanner(g); }).length;
   var h = crtPage({kick:'SYSTEM', title:'BASE DE DONNÉES', sub:'Mes menus déroulants, les fonds de fiches et l\u2019habillage du site', blink:'CHARGEMENT TERMINÉ', sc:[['JEUX', crtPad(S.games.length)], ['CONSOLES', crtPad(S.consoles.length)], ['LISTES', crtPad(DB_KEYS.length)], ['VALEURS', crtPad(DB_KEYS.reduce(function(s, k){ return s + optValues(k).length; }, 0))], ['FONDS', crtPad(bs.length)]]}) + hbSection();
@@ -5096,9 +5096,10 @@ document.addEventListener('click', async function(e){
   }
   if (t.getAttribute('data-act') === 'shuffleBanner') {
     var g = S.games.find(function(x){ return x.id === t.getAttribute('data-id'); }); if (!g) return;
+    if (g.artId && g.useArt === false) { g.useArt = true; render(); try { await withRetry(function(){ return db.collection('games').doc(g.id).update({useArt:true}); }); } catch (x) { toast(failMsg(x)); } return; }
     var nb = randomBanner(g.bannerId); if (!nb) { toast('Ajoute d\u2019abord des fonds dans la base de données.'); return; }
-    g.bannerId = nb; render();
-    try { await withRetry(function(){ return db.collection('games').doc(g.id).update({bannerId:nb}); }); } catch (x) { toast(failMsg(x)); }
+    g.bannerId = nb; var patchB = {bannerId:nb}; if (g.artId) { g.useArt = false; patchB.useArt = false; } render();
+    try { await withRetry(function(){ return db.collection('games').doc(g.id).update(patchB); }); } catch (x) { toast(failMsg(x)); }
   }
 });
 document.addEventListener('keydown', function(e){
@@ -5584,12 +5585,12 @@ function catConsoleName(p){ var al = catAliases(p), c = S.consoles.filter(functi
 function catLoad(p, key){
   if (CAT_CACHE[key] || CAT_LOADING[key] || !db) return; CAT_LOADING[key] = true;
   db.collection('catalog/' + p.id + '/chunks').get().then(function(s){
-    var rows = []; snapList(s).sort(function(a, b){ return (a.n || 0) - (b.n || 0); }).forEach(function(c){ (c.g || []).forEach(function(x){ rows.push({i:rows.length, t:String(x[0] || ''), y:String(x[1] || ''), d:String(x[2] || ''), p:String(x[3] || ''), r:list(x[4]), fr:String(x[5] || ''), jp:String(x[6] || ''), gn:String(x[7] || ''), u:safeUrl(x[8] || ''), mid:String(x[9] || ''), ck:String(c.id || ''), cv:String(x[10] || ''), cpf:''}); }); });
+    var rows = []; snapList(s).sort(function(a, b){ return (a.n || 0) - (b.n || 0); }).forEach(function(c){ (c.g || []).forEach(function(x){ rows.push({i:rows.length, t:String(x[0] || ''), y:String(x[1] || ''), d:String(x[2] || ''), p:String(x[3] || ''), r:list(x[4]), fr:String(x[5] || ''), jp:String(x[6] || ''), gn:String(x[7] || ''), u:safeUrl(x[8] || ''), mid:String(x[9] || ''), ck:String(c.id || ''), cv:String(x[10] || ''), cpf:'', cvu:String(x[13] || ''), art:String(x[14] || '')}); }); });
     CAT_CACHE[key] = rows; CAT_LOADING[key] = false; if (S.view === 'catalog') render();
   }).catch(function(){ CAT_LOADING[key] = false; CAT_CACHE[key] = []; if (S.view === 'catalog') render(); });
 }
 function catRows(){ var p = S.catP && catPlat(S.catP); return p ? CAT_CACHE[p.id + '@' + (p.updatedAt || 0)] || [] : []; }
-function catCv(r, has){ if (!has) return ''; var ok = /^data:image\/(webp|png|jpeg|gif);base64,/.test(r.cv); return ok ? '<img class="cr-cv" src="' + r.cv + '" alt="" loading="lazy" decoding="async" title="' + esc('Jaquette' + (r.cpf ? ' (' + r.cpf + ')' : '') + ' \u00b7 MobyGames') + '">' : '<span class="cr-cv cr-cv0" aria-hidden="true" data-cvi="' + r.i + '"></span>'; }
+function catCv(r, has){ if (!has) return ''; var ok = /^data:image\/(webp|png|jpeg|gif);base64,/.test(r.cv); if (!ok && /^https:\/\/images\.igdb\.com\/|^https:\/\/cdn\.mobygames\.com\//.test(r.cvu || '')) return '<img class="cr-cv" src="' + esc(r.cvu) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" title="Jaquette">'; return ok ? '<img class="cr-cv" src="' + r.cv + '" alt="" loading="lazy" decoding="async" title="' + esc('Jaquette' + (r.cpf ? ' (' + r.cpf + ')' : '') + ' \u00b7 MobyGames') + '">' : '<span class="cr-cv cr-cv0" aria-hidden="true" data-cvi="' + r.i + '"></span>'; }
 var CAT_CV = {};
 function catCvLoad(p, key, vis){
   if (!db) return; var need = {};
@@ -5628,7 +5629,7 @@ function viewCatPlat(p){
   if (!p.count) return h + '<div class="card empty"><strong>Cette plateforme est encore vide</strong><span>Clique sur « Remplir cette plateforme » : la demande est copiée, colle-la dans une conversation avec Claude. Il récupère la liste complète des jeux et l\u2019enregistre ici.</span></div>';
   if (!rows) return h + '<div class="card empty" role="status"><strong>Chargement des jeux…</strong></div>';
   var F = S.catF || (S.catF = {q:'', reg:'', own:'', sort:'az', y:''}), q = catKey(F.q), lim = S.catLim || 100;
-  var hasCv = !!p.covers || rows.some(function(x){ return x.cv; });
+  var hasCv = !!p.covers || rows.some(function(x){ return x.cv || x.cvu; });
   var years = uniq(rows.map(function(r){ return r.y; }).filter(Boolean)).sort();
   var res = rows.filter(function(r){
     if (q && catKey(r.t + ' ' + r.fr + ' ' + r.jp + ' ' + r.d + ' ' + r.p + ' ' + r.gn).indexOf(q) < 0) return false;
@@ -6413,6 +6414,14 @@ async function exportAll(){
     var JSZip = await loadJSZip(), out = {format:'press-start-export', version:1, exportedAt:new Date().toISOString(), collections:{}, docs:{}}, nDocs = 0;
     var cols = ['games', 'consoles', 'discover', 'licences', 'home_bgs', 'news_editions', 'news_images', 'catalog'];
     for (var i = 0; i < cols.length; i++) { var snap = await db.collection(cols[i]).get(); out.collections[cols[i]] = snap.docs.map(function(d){ nDocs++; return Object.assign({_id:d.id}, d.data()); }); }
+    var catDocs = out.collections.catalog || [];
+    EXP.msg = 'Lecture de la Base de jeux…'; EXP.max = catDocs.length; EXP.done = 0; render();
+    for (var ci = 0; ci < catDocs.length; ci++) {
+      var pid = catDocs[ci]._id, cpath = 'catalog/' + pid + '/chunks', csnap = await db.collection(cpath).get(), chunks = csnap.docs.map(function(d){ nDocs++; return Object.assign({_id:d.id}, d.data()); });
+      if (chunks.length) out.collections[cpath] = chunks;
+      for (var ck = 0; ck < chunks.length; ck++) { var vpath = 'catalog/' + pid + '/cv-' + chunks[ck]._id, vs = await db.collection(vpath).get(); if (vs.docs.length) out.collections[vpath] = vs.docs.map(function(d){ nDocs++; return Object.assign({_id:d.id}, d.data()); }); }
+      EXP.done = ci + 1; expProg();
+    }
     var paths = ['meta/options', 'meta/home', 'news/edition'];
     for (var j = 0; j < paths.length; j++) { var ds = await db.doc(paths[j]).get(); if (ds.exists) { out.docs[paths[j]] = ds.data(); nDocs++; } }
     var ids = {}, scan = function(v){ if (typeof v === 'string') { if (/^[0-9a-f]{32}$/.test(v)) ids[v] = 1; var m = v.match(/\/_blob\/([0-9a-f]{32})/g); if (m) m.forEach(function(x){ ids[x.slice(7)] = 1; }); } else if (Array.isArray(v)) v.forEach(scan); else if (v && typeof v === 'object') Object.keys(v).forEach(function(k){ scan(v[k]); }); };
