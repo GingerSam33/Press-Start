@@ -2994,6 +2994,58 @@ dialog:has(.gi-dlg){border-radius:26px;overflow:hidden;padding:0}
 /* fiche de mes jeux : les 3 encarts de droite se soulèvent au survol */
 .gh-side .gh-card{transition:transform .2s cubic-bezier(.3,1.5,.5,1),box-shadow .2s}
 .gh-side .gh-card:hover{transform:translateY(-2px);box-shadow:0 14px 26px -16px var(--accent)}
+/* base de jeux : menus déroulants comme les autres listes (coche discrète) */
+.cdd-pop{padding:8px;border-radius:20px;min-width:240px}
+.cdd-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:42px;padding:0 14px !important;border-radius:12px;background:transparent !important;color:var(--soft) !important;font-size:13.5px;font-weight:500;box-shadow:none !important}
+.cdd-opt .cdd-l{transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+.cdd-opt:hover,.cdd-opt:focus-visible{background:var(--sunken) !important;color:var(--text) !important;padding-left:14px !important}
+.cdd-opt:hover .cdd-l,.cdd-opt:focus-visible .cdd-l{transform:translateX(5px)}
+.cdd-opt[aria-selected="true"],.cdd-opt[aria-selected="true"]:hover{background:transparent !important;color:var(--text) !important;font-weight:600}
+.cdd-opt[aria-selected="true"]:hover{background:var(--sunken) !important}
+.cdd-ck{color:var(--accent-text);flex:none}
+/* actus : couleur par jour de la semaine */
+.ns-day{--wd:var(--accent)}
+.ns-day.wd1{--wd:#4F7BD4}.ns-day.wd2{--wd:#1FA59A}.ns-day.wd3{--wd:#4C9A5B}.ns-day.wd4{--wd:#D99A00}.ns-day.wd5{--wd:#E2702A}.ns-day.wd6{--wd:#D6467F}.ns-day.wd0{--wd:#8B5CF6}
+.ns-day .ns-dh{background:color-mix(in srgb,var(--wd) 14%,var(--card)) !important;box-shadow:inset 0 -3px 0 var(--wd) !important}
+.ns-day .ns-dh b{color:color-mix(in srgb,var(--wd) 75%,#000) !important}
+.ns-day.today .ns-dh{box-shadow:inset 0 0 0 2px var(--wd),inset 0 -3px 0 var(--wd) !important}
+html[data-tone-dark] .ns-day .ns-dh b{color:color-mix(in srgb,var(--wd) 55%,#fff) !important}
+.nrel{cursor:pointer}
+/* grande page des sorties du jour + historique des conférences */
+dialog.nrg-dlg{width:min(1100px,calc(100vw - 24px));max-height:calc(100vh - 40px);padding:0;border:0;border-radius:26px;background:var(--card);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)}
+dialog.nrg-dlg::backdrop{background:rgba(10,8,30,.6);backdrop-filter:blur(3px)}
+.nrg-in{display:flex;flex-direction:column;max-height:calc(100vh - 40px)}
+.nrg-in header{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--card-border)}
+.nrg-in header h2{margin:0;font-size:17px;color:var(--text);display:flex;align-items:center;gap:8px}
+.nrg-in header .spacer{flex:1}
+.nrg-in header .iconbtn{margin-left:auto}
+.nrg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;padding:18px 20px 22px;overflow-y:auto}
+.nrg-card{display:flex;flex-direction:column;gap:6px;padding:0 0 10px;border:1px solid var(--card-border);border-radius:16px;background:var(--card);overflow:hidden;text-align:left;font:inherit;cursor:pointer;transition:transform .2s cubic-bezier(.3,1.5,.5,1),box-shadow .2s}
+.nrg-card:hover{transform:translateY(-3px);box-shadow:0 16px 28px -18px var(--accent)}
+.nrg-cov{display:block;background:var(--thumb)}
+.nrg-cov img{display:block;width:100%;height:auto}
+.nrg-card b{padding:0 10px;font-size:13px;line-height:1.3;color:var(--text)}
+.nrg-card .nr-pl{padding:0 10px}
+.ncb-acts{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.ncb-hist{border:0;background:none;font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0}
+.nconf-empty{grid-template-columns:1fr auto !important}
+.cfy-body{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:18px;padding:18px 20px 22px;overflow-y:auto}
+.cfy-year{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.cfy-m b{display:block;margin-bottom:6px;font-size:13px;text-transform:capitalize;color:var(--text)}
+.cfy-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:11px;text-align:center}
+.cfy-g i{font-style:normal;font-weight:700;color:var(--muted);font-size:10px}
+.cfy-d{display:flex;align-items:center;justify-content:center;height:22px;border-radius:6px;color:var(--soft)}
+button.cfy-d{border:0;font:inherit;font-size:11px;font-weight:700;cursor:pointer;background:var(--accent);color:var(--accent-fg);box-shadow:0 4px 10px -6px var(--accent)}
+button.cfy-d:hover{transform:scale(1.15)}
+.cfy-det{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--sunken);align-self:start;position:sticky;top:0}
+.cfy-det h3{margin:0;font-size:18px;color:var(--text)}
+.cfy-det h4{margin:6px 0 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cfy-sum p{margin:4px 0;font-size:13.5px;line-height:1.6;color:var(--body)}
+.cfy-sum ul,.cfy-games,.cfy-list{margin:4px 0;padding-left:18px;font-size:13px;line-height:1.6;color:var(--body)}
+.cfy-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:4px}
+.cfy-list li{display:flex;justify-content:space-between;gap:8px}
+.cfy-list small{color:var(--muted)}
+@media (max-width:820px){.cfy-body{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -5781,8 +5833,8 @@ function viewNews(){
 function nrelC(r){ return '<button type="button" class="nrel nrc" data-nrel="' + NREL_LIST.indexOf(r) + '" aria-haspopup="dialog" title="' + esc(r.title) + ' — options"><span class="nr-t"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nPlatTag).join('') + '</span></span></button>'; }
 function nConfBanner(N, ref, isLatest){
   var confs = (N.conferences || []).filter(function(c){ return Date.parse(c.date) > ref - 3 * 3600e3; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
-  if (!confs[0]) return ''; var c0 = confs[0];
-  return '<section class="nconfcard nconf-banner"><div class="ncb-main"><span class="nc-k">Prochaine conférence</span><b>' + esc(c0.name) + '</b><span class="nc-d">' + new Date(c0.date).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'}) + '</span>' + (safeUrl(c0.url) ? '<a class="nlink light" href="' + esc(safeUrl(c0.url)) + '" target="_blank" rel="noopener">Infos ↗</a>' : '') + '</div>'
+  if (!confs[0]) return '<section class="nconfcard nconf-banner nconf-empty"><div class="ncb-main"><span class="nc-k">Conférences</span><b>Aucune conférence annoncée pour le moment</b></div><button type="button" class="nlink light ncb-hist" data-cfyopen="1">📅 Historique des conférences</button></section>'; var c0 = confs[0];
+  return '<section class="nconfcard nconf-banner"><div class="ncb-main"><span class="nc-k">Prochaine conférence</span><b>' + esc(c0.name) + '</b><span class="nc-d">' + new Date(c0.date).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'}) + '</span>' + '<span class="ncb-acts">' + (safeUrl(c0.url) ? '<a class="nlink light" href="' + esc(safeUrl(c0.url)) + '" target="_blank" rel="noopener">Infos ↗</a>' : '') + '<button type="button" class="nlink light ncb-hist" data-cfyopen="1">📅 Historique des conférences</button></span></div>'
     + (isLatest ? '<div class="ncount" data-countdown="' + esc(c0.date) + '">' + countdownHtml(c0.date) + '</div>' : '')
     + (confs.length > 1 ? '<ul class="nc-more">' + confs.slice(1, 5).map(function(c){ return '<li><b>' + esc(c.name) + '</b><span>' + new Date(c.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'}) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>';
 }
@@ -5796,7 +5848,7 @@ function nrelsStrip(N, ref){
   if (week.length) h += '<div class="nplats" role="group" aria-label="Filtrer par plateforme"><button type="button" data-nplat="" aria-pressed="' + !S.nplat + '">Toutes</button>' + NPLATS.filter(function(p){ return week.some(function(r){ return nPlatMatch(r, p); }); }).map(function(p){ return '<button type="button" data-nplat="' + p[0] + '" aria-pressed="' + (S.nplat === p[0]) + '">' + p[0] + '</button>'; }).join('') + '</div>';
   h += '<button type="button" class="link" data-act="newsCal">' + (S.newsCalOpen ? 'Masquer le calendrier' : 'Voir le calendrier →') + '</button></div><div class="ns-row">';
   days.forEach(function(d){ var k = kOf(d), items = f.filter(function(r){ return kOf(new Date(r.date)) === k; }).sort(function(a, b){ return String(a.title).localeCompare(String(b.title), 'fr'); }), n = items.length, lim = LIM; (S._nrelDay = S._nrelDay || {})[k] = items;
-    h += '<div class="ns-day' + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'long'}) + '</span><small>' + n + ' jeu' + (n > 1 ? 'x' : '') + '</small></div>'
+    h += '<div class="ns-day wd' + d.getDay() + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'long'}) + '</span><small>' + n + ' jeu' + (n > 1 ? 'x' : '') + '</small></div>'
       + (n ? items.slice(0, lim).map(nrelC).join('') : '<p class="ns-none">Aucune sortie</p>')
       + (n > LIM ? '<button type="button" class="nr-more" data-nrelpop="' + k + '" aria-haspopup="dialog">+ ' + (n - LIM) + ' autre' + (n - LIM > 1 ? 's' : '') + '</button>' : '') + '</div>'; });
   return h + '</div></section>';
@@ -7141,7 +7193,7 @@ async function giAsk(prompt){
 function cddHtml(field, label, opts, val){
   var cur = opts.filter(function(o){ return o[0] === (val || ''); })[0] || opts[0], open = S.cddOpen === field;
   return '<div class="cdd' + (open ? ' open' : '') + (val ? ' has' : '') + '"><button type="button" class="cdd-btn" data-cdd="' + field + '" aria-haspopup="listbox" aria-expanded="' + open + '"><small>' + esc(label) + '</small><b>' + esc(cur[1]) + '</b><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>'
-    + (open ? '<div class="cdd-pop" role="listbox">' + opts.map(function(o){ return '<button type="button" role="option" class="cdd-opt" data-cddv="' + esc(field) + '|' + esc(o[0]) + '" aria-selected="' + (o[0] === (val || '')) + '">' + esc(o[1]) + (o[2] != null ? '<span>' + o[2] + '</span>' : '') + '</button>'; }).join('') + '</div>' : '') + '</div>';
+    + (open ? '<div class="cdd-pop" role="listbox">' + opts.map(function(o){ return '<button type="button" role="option" class="cdd-opt" data-cddv="' + esc(field) + '|' + esc(o[0]) + '" aria-selected="' + (o[0] === (val || '')) + '"><span class="cdd-l">' + esc(o[1]) + '</span>' + (o[0] === (val || '') ? '<svg class="cdd-ck" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>' : '') + '</button>'; }).join('') + '</div>' : '') + '</div>';
 }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-cdd],[data-cddv]');
@@ -7189,6 +7241,82 @@ document.addEventListener('click', function(e){
   el.style.width = w + 'px'; el.style.left = Math.max(12, Math.min(r.left - hr.left, hr.width - w - 12)) + 'px'; el.style.top = (r.bottom - hr.top + 6) + 'px';
 }, true);
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && GIP) gipClose(); });
+
+/* ---------- Actus : fiche détaillée au clic sur une sortie + grande page « + X autres » ---------- */
+function nrelInfo(r){ var p = list(r.platforms)[0] || ''; return {title:r.title, platform:p, pname:p, year:r.date ? String(new Date(r.date).getFullYear()) : '', ig:r.ig || '', cvu:r.cvu || '', url:r.url || ''}; }
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('.nrel[data-nrel],.ncal-e.r[data-nrel],[data-nrgi]'); if (!t) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  var r = t.hasAttribute('data-nrgi') ? (NRG && NRG.items[+t.getAttribute('data-nrgi')]) : NREL_LIST[+t.getAttribute('data-nrel')]; if (!r) return;
+  if (typeof nrpClose === 'function') nrpClose();
+  giOpen(nrelInfo(r));
+}, true);
+var NRG = null;
+function nrgOpen(k){
+  var items = ((S._nrelDay || {})[k] || []).slice(); if (!items.length) return;
+  var p = k.split('-'), d = new Date(+p[0], +p[1], +p[2]), w = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  NRG = {k:k, items:items};
+  var dg = document.getElementById('nrelGrid'); if (!dg) { dg = document.createElement('dialog'); dg.id = 'nrelGrid'; dg.className = 'nrg-dlg'; document.body.appendChild(dg); dg.addEventListener('click', function(ev){ if (ev.target === dg) dg.close(); }); }
+  dg.innerHTML = '<div class="nrg-in"><header><h2>Sorties du ' + esc(w) + ' <span class="nr-cnt">' + items.length + '</span></h2><button type="button" class="iconbtn" data-nrgx="1" aria-label="Fermer">✕</button></header><div class="nrg-grid">' + items.map(function(r, i){ var u = r.cvu || genCover(r.title, list(r.platforms)[0]); return '<button type="button" class="nrg-card" data-nrgi="' + i + '"><span class="nrg-cov"><img src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nPlatTag).join('') + '</span></button>'; }).join('') + '</div></div>';
+  if (!dg.open) dg.showModal();
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-nrelpop],[data-nrgx]'); if (!t) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (t.hasAttribute('data-nrgx')) { var dg = document.getElementById('nrelGrid'); if (dg) dg.close(); return; }
+  setTimeout(function(){ if (typeof nrpClose === 'function') nrpClose(); }, 0);
+  nrgOpen(t.getAttribute('data-nrelpop'));
+}, true);
+
+/* ---------- Historique des conférences : calendrier de l'année + fiche avec résumé Claude ---------- */
+var CONFS = [], CFY = null;
+function confsLoad(){ if (!db || confsLoad.done) return; confsLoad.done = true; db.collection('conferences').onSnapshot(function(s){ CONFS = snapList(s).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); }); if (document.getElementById('confYear') && document.getElementById('confYear').open) cfyDraw(); }, function(){}); }
+function cfyOpen(){
+  confsLoad(); CFY = {y:new Date().getFullYear(), sel:null};
+  var dg = document.getElementById('confYear'); if (!dg) { dg = document.createElement('dialog'); dg.id = 'confYear'; dg.className = 'nrg-dlg'; document.body.appendChild(dg); dg.addEventListener('click', function(ev){ if (ev.target === dg) dg.close(); }); }
+  cfyDraw(); if (!dg.open) dg.showModal();
+}
+function cfyMd(t){ return esc(t).split(/\n/).map(function(l){ var m; if ((m = l.match(/^#{1,3}\s+(.*)/))) return '<h4>' + m[1] + '</h4>'; if ((m = l.match(/^\s*[-*•]\s+(.*)/))) return '<li>' + m[1].replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</li>'; return l.trim() ? '<p>' + l.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</p>' : ''; }).join('').replace(/(<li>[\s\S]*?<\/li>)(?!<li>)/g, '$1</ul>').replace(/(^|<\/p>|<\/h4>|<\/ul>)<li>/g, '$1<ul><li>'); }
+function cfyDraw(){
+  var dg = document.getElementById('confYear'); if (!dg) return; var y = CFY.y, byDay = {};
+  CONFS.forEach(function(c){ var d = new Date(c.date); if (d.getFullYear() !== y) return; var k = d.getMonth() + '-' + d.getDate(); (byDay[k] = byDay[k] || []).push(c); });
+  var months = '';
+  for (var m = 0; m < 12; m++) {
+    var first = new Date(y, m, 1), start = (first.getDay() + 6) % 7, nd = new Date(y, m + 1, 0).getDate(), cells = '';
+    for (var i = 0; i < start; i++) cells += '<span></span>';
+    for (var d2 = 1; d2 <= nd; d2++) { var ev = byDay[m + '-' + d2]; cells += ev ? '<button type="button" class="cfy-d on" data-cfyd="' + m + '-' + d2 + '" title="' + esc(ev.map(function(c){ return c.name; }).join(' · ')) + '">' + d2 + '</button>' : '<span class="cfy-d">' + d2 + '</span>'; }
+    months += '<div class="cfy-m"><b>' + first.toLocaleDateString('fr-FR', {month:'long'}) + '</b><div class="cfy-g">' + ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(function(x){ return '<i>' + x + '</i>'; }).join('') + cells + '</div></div>';
+  }
+  var sel = CFY.sel, det = '';
+  if (sel) {
+    var c = CONFS.filter(function(x){ return x.id === sel; })[0];
+    if (c) det = '<aside class="cfy-det"><span class="nc-k">Conférence</span><h3>' + esc(c.name) + '</h3><span class="nc-d">' + new Date(c.date).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'}) + '</span>'
+      + '<div class="gi-links">' + (c.videos || []).slice(0, 3).map(function(v){ return '<a class="gi-link" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.id) + '" target="_blank" rel="noopener">▶ ' + esc(v.name || 'Vidéo') + '</a>'; }).join('') + (safeUrl(c.url) ? '<a class="gi-link" href="' + esc(safeUrl(c.url)) + '" target="_blank" rel="noopener">Diffusion ↗</a>' : '') + (c.links || []).slice(0, 3).map(function(u){ return safeUrl(u) ? '<a class="gi-link" href="' + esc(safeUrl(u)) + '" target="_blank" rel="noopener">' + esc(String(u).replace(/^https?:\/\/(www\.)?/, '').split('/')[0]) + ' ↗</a>' : ''; }).join('') + '<a class="gi-link" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(c.name) + '" target="_blank" rel="noopener">Chercher sur YouTube ↗</a></div>'
+      + (c.summary ? '<div class="cfy-sum">' + cfyMd(c.summary) + '</div>' : (CFY.busy ? '<p class="gi-load"><span class="nimp-spin"></span> Claude prépare le résumé…</p>' : (S.readOnly ? '' : '<button type="button" class="btn" data-cfysum="' + esc(c.id) + '"' + (Date.parse(c.date) > Date.now() ? ' disabled title="Disponible après la conférence"' : '') + '>✦ Générer le résumé avec Claude</button>') + (CFY.err ? '<p class="gi-note">' + esc(CFY.err) + '</p>' : '')))
+      + ((c.games || []).length && !c.summary ? '<h4>Jeux présentés</h4><ul class="cfy-games">' + c.games.slice(0, 30).map(function(g){ return '<li>' + esc(g) + '</li>'; }).join('') + '</ul>' : '') + '</aside>';
+  }
+  var list2 = CONFS.filter(function(c){ return new Date(c.date).getFullYear() === y; });
+  dg.innerHTML = '<div class="nrg-in cfy"><header><button type="button" class="yp-nav" data-cfyy="-1" aria-label="Année précédente">‹</button><h2>Conférences ' + y + ' <span class="nr-cnt">' + list2.length + '</span></h2><button type="button" class="yp-nav" data-cfyy="1" aria-label="Année suivante">›</button><span class="spacer"></span><button type="button" class="iconbtn" data-cfyx="1" aria-label="Fermer">✕</button></header><div class="cfy-body"><div class="cfy-year">' + months + '</div>' + (det || '<aside class="cfy-det cfy-hint"><p>Clique sur un jour coloré pour voir la conférence, ses vidéos et son résumé.</p>' + (list2.length ? '<ul class="cfy-list">' + list2.slice().reverse().map(function(c){ return '<li><button type="button" class="link" data-cfyc="' + esc(c.id) + '">' + esc(c.name) + '</button><small>' + new Date(c.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'}) + '</small></li>'; }).join('') + '</ul>' : '<p class="gi-note">Aucune conférence enregistrée pour cette année.</p>') + '</aside>') + '</div></div>';
+}
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-cfyopen],[data-cfyy],[data-cfyx],[data-cfyd],[data-cfyc],[data-cfysum]'); if (!t) return;
+  e.preventDefault();
+  if (t.hasAttribute('data-cfyopen')) { cfyOpen(); return; }
+  if (t.hasAttribute('data-cfyx')) { var dg = document.getElementById('confYear'); if (dg) dg.close(); return; }
+  if (t.hasAttribute('data-cfyy')) { CFY.y += +t.getAttribute('data-cfyy'); CFY.sel = null; cfyDraw(); return; }
+  if (t.hasAttribute('data-cfyc')) { CFY.sel = t.getAttribute('data-cfyc'); CFY.err = ''; cfyDraw(); return; }
+  if (t.hasAttribute('data-cfyd')) { var p = t.getAttribute('data-cfyd').split('-'), c = CONFS.filter(function(x){ var d = new Date(x.date); return d.getFullYear() === CFY.y && d.getMonth() === +p[0] && d.getDate() === +p[1]; })[0]; if (c) { CFY.sel = c.id; CFY.err = ''; cfyDraw(); } return; }
+  var id = t.getAttribute('data-cfysum'), cf = CONFS.filter(function(x){ return x.id === id; })[0]; if (!cf) return;
+  if (!window.PS_SB) { CFY.err = 'Le résumé par Claude est disponible sur ton site hébergé.'; cfyDraw(); return; }
+  CFY.busy = true; CFY.err = ''; cfyDraw();
+  try {
+    var r = await window.PS_SB.functions.invoke('claude', {body:{web:true, prompt:'Recherche sur internet et rédige en français un résumé structuré de la conférence jeu vidéo « ' + cf.name + ' » du ' + new Date(cf.date).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'}) + '. Format attendu, en texte simple : une courte introduction de 2 phrases, puis « ## Annonces principales » avec une liste à puces (- ), puis « ## Sorties et dates annoncées » avec une liste à puces au format « - Titre du jeu (plateformes) : date de sortie », puis « ## À retenir » en 1 ou 2 phrases. N\u2019invente rien : n\u2019indique que ce qui est confirmé par des sources.' + ((cf.games || []).length ? ' Jeux référencés pour cet événement : ' + cf.games.slice(0, 40).join(', ') + '.' : '')}});
+    if (r.error) { var m = r.error.message; try { var j = await r.error.context.json(); m = (j && j.error) || m; } catch (x) {} throw new Error(m); }
+    var txt = String((r.data && r.data.text) || '').trim(); if (!txt) throw new Error('réponse vide');
+    await db.collection('conferences').doc(cf.id).update({summary:txt, summaryAt:Date.now()});
+  } catch (x) { CFY.err = 'Résumé indisponible pour le moment (' + (x && x.message || 'erreur') + ').'; }
+  CFY.busy = false; cfyDraw();
+});
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
