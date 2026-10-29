@@ -2911,6 +2911,58 @@ dialog.shot-lb::backdrop{background:rgba(5,4,14,.92)}
 .d-cov .bgi,.lg-cov .bgi{position:absolute;inset:-10%;width:120%;height:120%;object-fit:cover;filter:blur(14px) brightness(.75);transform:scale(1.05)}
 .d-cov .fgi,.lg-cov .fgi{position:relative;width:100%;height:100%;object-fit:contain;display:block}
 .card.disc:hover .d-cov .fgi{transform:scale(1.03)}
+/* fiche détaillée : coins arrondis en haut, barre de défilement intégrée */
+dialog:has(.gi-dlg){border-radius:26px;overflow:hidden;padding:0}
+.dlg.gi-dlg{border-radius:26px}
+.dlg .body.gi-body{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--muted) 55%,transparent) transparent}
+.dlg .body.gi-body::-webkit-scrollbar{width:8px}
+.dlg .body.gi-body::-webkit-scrollbar-track{background:transparent;margin:26px 0}
+.dlg .body.gi-body::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--muted) 55%,transparent);border:2px solid transparent;background-clip:padding-box}
+.gi-hero{border-radius:26px 26px 0 0;padding-bottom:56px !important;margin-bottom:0 !important}
+.gi-hero::before,.gi-hero::after{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 110px),transparent 100%) !important;mask-image:linear-gradient(to bottom,#000 calc(100% - 110px),transparent 100%) !important;border-radius:26px 26px 0 0}
+.gi-hero .gi-cover{width:180px;max-height:260px;margin-bottom:-86px;align-self:flex-end}
+.gi-hero .gi-hd{padding-bottom:4px}
+.gi-hero + *{padding-left:208px !important;min-height:56px}
+@media (max-width:620px){.gi-hero .gi-cover{width:130px;margin-bottom:-40px}.gi-hero + *{padding-left:0 !important}}
+.gi-f .tags{display:flex;flex-wrap:wrap;gap:4px}
+.gi-f b .tag,.gi-f .tag{font-size:11.5px}
+/* visionneuse : grandes zones précédent / suivant */
+.slb-zone{position:absolute;top:0;bottom:0;width:16%;min-width:70px;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;z-index:2}
+.slb-zone.prev{left:0;justify-content:flex-start;padding-left:16px}
+.slb-zone.next{right:0;justify-content:flex-end;padding-right:16px}
+.slb-zone span{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:32px;line-height:1;transition:background-color .2s,transform .2s}
+.slb-zone:hover span{background:rgba(255,255,255,.3);transform:scale(1.06)}
+.slb-close{z-index:3}
+/* cartes : jaquette entière, sans bandes */
+.d-cov,.lg-cov{aspect-ratio:auto !important;max-height:none !important;background:none !important;display:block}
+.d-cov .fgi,.lg-cov .fgi{width:100%;height:auto !important;object-fit:initial !important}
+.d-cov .bgi,.lg-cov .bgi{display:none}
+.lg-cov{border-radius:0}
+.d-cov{margin:-4px -4px 10px}
+/* actus : info-bulle « + X autres » et compte à rebours */
+.nrel-pop{position:absolute;z-index:400;display:flex;flex-direction:column;overflow:hidden;border-radius:18px;background:var(--card);border:1px solid var(--card-border);box-shadow:0 28px 56px -22px rgba(20,18,40,.55)}
+.nrp-h{display:flex;justify-content:space-between;align-items:center;padding:10px 12px 8px 16px;border-bottom:1px solid var(--card-border)}
+.nrp-h b{font-size:13px;color:var(--text)}
+.nrp-l{display:flex;flex-direction:column;gap:6px;padding:10px;overflow-y:auto}
+.nconf-banner .ncount{display:flex;gap:12px;justify-content:center}
+.nconf-banner .ncount span{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:92px;padding:14px 18px;border-radius:18px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.nconf-banner .ncount b{font-size:36px;line-height:1;font-weight:700;color:#FFFFFF}
+.nconf-banner .ncount small{margin-top:6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+/* base de jeux : menus déroulants */
+.cat-dds{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.cdd{position:relative}
+.cdd-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:14px;border:1px solid var(--card-border);background:var(--sunken);color:var(--text);font:inherit;cursor:pointer;transition:border-color .2s,background-color .2s}
+.cdd-btn small{font-size:11px;font-weight:600;color:var(--muted)}
+.cdd-btn b{font-size:13.5px;font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cdd-btn svg{color:var(--muted);transition:transform .2s}
+.cdd.open .cdd-btn{border-color:var(--accent);background:var(--card)}
+.cdd.open .cdd-btn svg{transform:rotate(180deg)}
+.cdd.has .cdd-btn{border-color:color-mix(in srgb,var(--accent) 60%,var(--card-border));background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+.cdd-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:60;min-width:220px;max-height:320px;overflow-y:auto;padding:6px;border-radius:16px;background:var(--card);border:1px solid var(--card-border);box-shadow:0 24px 48px -20px rgba(20,18,40,.5)}
+.cdd-opt{display:flex;justify-content:space-between;width:100%;min-height:36px;padding:0 12px;border:0;border-radius:10px;background:transparent;color:var(--soft);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.cdd-opt:hover{background:var(--sunken);color:var(--text)}
+.cdd-opt[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);font-weight:600}
+.cat-chips{display:none}
 </style>
 </head>
 <body>
@@ -5712,10 +5764,10 @@ function nrelsStrip(N, ref){
   var h = '<section class="card nstrip" aria-label="Sorties de la semaine"><div class="ns-head"><h2>Sorties de la semaine <span class="nr-cnt">' + f.length + '</span></h2>';
   if (week.length) h += '<div class="nplats" role="group" aria-label="Filtrer par plateforme"><button type="button" data-nplat="" aria-pressed="' + !S.nplat + '">Toutes</button>' + NPLATS.filter(function(p){ return week.some(function(r){ return nPlatMatch(r, p); }); }).map(function(p){ return '<button type="button" data-nplat="' + p[0] + '" aria-pressed="' + (S.nplat === p[0]) + '">' + p[0] + '</button>'; }).join('') + '</div>';
   h += '<button type="button" class="link" data-act="newsCal">' + (S.newsCalOpen ? 'Masquer le calendrier' : 'Voir le calendrier →') + '</button></div><div class="ns-row">';
-  days.forEach(function(d){ var k = kOf(d), items = f.filter(function(r){ return kOf(new Date(r.date)) === k; }), n = items.length, lim = open[k] ? n : LIM;
+  days.forEach(function(d){ var k = kOf(d), items = f.filter(function(r){ return kOf(new Date(r.date)) === k; }).sort(function(a, b){ return String(a.title).localeCompare(String(b.title), 'fr'); }), n = items.length, lim = LIM; (S._nrelDay = S._nrelDay || {})[k] = items;
     h += '<div class="ns-day' + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'long'}) + '</span><small>' + n + ' jeu' + (n > 1 ? 'x' : '') + '</small></div>'
       + (n ? items.slice(0, lim).map(nrelC).join('') : '<p class="ns-none">Aucune sortie</p>')
-      + (n > LIM ? '<button type="button" class="nr-more" data-nrelmore="' + k + '" aria-expanded="' + !!open[k] + '">' + (open[k] ? 'Réduire' : '+ ' + (n - LIM) + ' autre' + (n - LIM > 1 ? 's' : '')) + '</button>' : '') + '</div>'; });
+      + (n > LIM ? '<button type="button" class="nr-more" data-nrelpop="' + k + '" aria-haspopup="dialog">+ ' + (n - LIM) + ' autre' + (n - LIM > 1 ? 's' : '') + '</button>' : '') + '</div>'; });
   return h + '</div></section>';
 }
 document.addEventListener('click', function(e){ if (!S.newsArchOpen || S.view !== 'news') return; if (e.target.closest && e.target.closest('.nday-anchor')) return; S.newsArchOpen = false; render(); });
@@ -5745,6 +5797,7 @@ function newsCalendar(rels, confs, ref){
   var key = function(d){ return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); }, byDay = {};
   rels.filter(nPlatOk).forEach(function(r){ var d = new Date(r.date); (byDay[key(d)] = byDay[key(d)] || []).push({t:'r', x:r}); });
   confs.forEach(function(c){ var d = new Date(c.date); (byDay[key(d)] = byDay[key(d)] || []).push({t:'c', x:c}); });
+  Object.keys(byDay).forEach(function(k){ byDay[k].sort(function(a, b){ return a.t !== b.t ? (a.t === 'c' ? -1 : 1) : String(a.x.title || a.x.name).localeCompare(String(b.x.title || b.x.name), 'fr'); }); });
   var h = '<section class="card ncal"><div class="ncal-h"><button type="button" class="yp-nav" data-nmonth="-1" aria-label="Mois précédent">‹</button><h2>' + base.toLocaleDateString('fr-FR', {month:'long', year:'numeric'}) + '</h2><button type="button" class="yp-nav" data-nmonth="1" aria-label="Mois suivant">›</button><span class="ncal-leg">' + ncat('Sortie') + ncat('Conférence') + '</span></div><div class="ncal-g">'
     + ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(function(j){ return '<span class="ncal-wd">' + j + '</span>'; }).join('');
   for (var i = 0; i < start; i++) h += '<span></span>';
@@ -5862,10 +5915,13 @@ function viewCatPlat(p){
   });
   res.sort(F.sort === 'za' ? function(a, b){ return b.t.localeCompare(a.t, 'fr'); } : F.sort === 'y' ? function(a, b){ return (a.y || '9999').localeCompare(b.y || '9999') || a.t.localeCompare(b.t, 'fr'); } : F.sort === 'yd' ? function(a, b){ return (b.y || '').localeCompare(a.y || '') || a.t.localeCompare(b.t, 'fr'); } : function(a, b){ return a.t.localeCompare(b.t, 'fr'); });
   h += '<section class="card cat-panel"><div class="cat-filters"><label class="search"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="catGQ" type="search" placeholder="Titre, développeur, éditeur…" aria-label="Rechercher un jeu" autocomplete="off" value="' + esc(F.q) + '"></label>'
-    + '<select id="catYear" aria-label="Année"><option value="">Toutes les années</option>' + years.map(function(y){ return '<option' + (F.y === y ? ' selected' : '') + '>' + esc(y) + '</option>'; }).join('') + '</select>'
-    + '<select id="catGenre" aria-label="Type de jeu"><option value="">Tous les types</option>' + genresL.map(function(g){ return '<option' + (F.gn === g ? ' selected' : '') + '>' + esc(g) + '</option>'; }).join('') + '</select>'
-    + '<select id="catSort" aria-label="Trier">' + [['az', 'Titre A → Z'], ['za', 'Titre Z → A'], ['y', 'Plus anciens'], ['yd', 'Plus récents']].map(function(o){ return '<option value="' + o[0] + '"' + (F.sort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>'
-    + '<div class="cat-chips" role="group" aria-label="Région">' + CAT_REGF.map(function(o){ return '<button type="button" data-catreg="' + o[0] + '" aria-pressed="' + (F.reg === o[0]) + '">' + o[1] + '</button>'; }).join('') + '<span class="cat-sep"></span>' + [['', 'Tous'], ['own', 'Dans ma collection'], ['wish', 'Dans ma wishlist'], ['not', 'Pas encore'] ].map(function(o){ return '<button type="button" data-catown="' + o[0] + '" aria-pressed="' + (F.own === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'
+    + '</div><div class="cat-dds">'
+    + cddHtml('reg', 'Région', [['', 'Toutes']].concat(CAT_REGF.filter(function(o){ return o[0]; }).map(function(o){ return [o[0], o[1]]; })), F.reg)
+    + cddHtml('own', 'Ma collection', [['', 'Tous les jeux'], ['own', 'Dans ma collection'], ['wish', 'Dans ma wishlist'], ['not', 'Non possédé']], F.own)
+    + cddHtml('y', 'Année', [['', 'Toutes']].concat(years.map(function(y){ return [y, y]; })), F.y)
+    + cddHtml('gn', 'Type', [['', 'Tous']].concat(genresL.map(function(g){ return [g, g]; })), F.gn)
+    + cddHtml('sort', 'Trier', [['az', 'Titre A → Z'], ['za', 'Titre Z → A'], ['y', 'Plus anciens'], ['yd', 'Plus récents']], F.sort || 'az')
+    + '</div>'
     + (function(){ var cnt = {}; rows.forEach(function(r){ var c = catFirst(r.t); cnt[c] = (cnt[c] || 0) + 1; }); var keys = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ★'.split(''); return '<div class="cat-abc" role="group" aria-label="Première lettre"><button type="button" data-catch="" aria-pressed="' + !F.ch + '">Tout</button>' + keys.filter(function(k){ return k !== '★' || cnt['★']; }).map(function(k){ return '<button type="button" data-catch="' + k + '" aria-pressed="' + (F.ch === k) + '"' + (cnt[k] ? '' : ' disabled') + ' title="' + (cnt[k] || 0) + ' jeu' + ((cnt[k] || 0) > 1 ? 'x' : '') + '">' + (k === '★' ? '…' : k) + '</button>'; }).join('') + '</div>'; })()
     + '<div class="cat-count">' + res.length.toLocaleString('fr-FR') + ' jeu' + (res.length > 1 ? 'x' : '') + (res.length !== rows.length ? ' sur ' + rows.length.toLocaleString('fr-FR') : '') + '</div>';
   if (!res.length) return h + '<div class="empty"><strong>Aucun jeu ne correspond</strong><button type="button" class="btn ghost small" data-catreset>Réinitialiser les filtres</button></div></section>';
@@ -6473,7 +6529,7 @@ function licGroup(title, rs, lic){
     var e = r.e, g = r.g, cv = g && g.coverId ? blob(g.coverId) : '', short = e.title.replace(new RegExp('^' + lic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*[:\\-–]?\\s*', 'i'), '') || e.title;
     var lang = e.lang === 'EN' ? '<span class="tag t-gray" title="Pas d\u2019édition française">' + licFlag('GB') + ' EN</span>' : e.lang === 'FR' ? '<span class="tag t-gray">' + licFlag('FR') + ' FR</span>' : '';
     var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">✓ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
-    return '<article class="lg-card is-click' + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + (cv ? '<img class="bgi" src="' + cv + '" alt="" aria-hidden="true"><img class="fgi" src="' + cv + '" alt="">' : '<span>' + esc(initials(short)) + '</span>') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
+    return '<article class="lg-card is-click' + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + (cv ? '<img class="fgi" src="' + cv + '" alt="">' : '<span>' + esc(initials(short)) + '</span>') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
   }).join('') + '</div></section>';
 }
 function licFlag(c){ try { var k = String(c).toLowerCase(); return typeof FLAGS !== 'undefined' && (FLAGS[k] || (k === 'gb' && (FLAGS.en || FLAGS.uk))) || ''; } catch (x) { return ''; } }
@@ -6686,13 +6742,13 @@ var GI = null;
 function catFirst(t){ var c = norm(String(t || '').trim()).replace(/^(the|le|la|les|l')\s+/, '').charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : /[0-9]/.test(c) ? '#' : '★'; }
 function giImg(id, size){ return id ? 'https://images.igdb.com/igdb/image/upload/' + (size || 't_screenshot_big') + '/' + id + '.jpg' : ''; }
 function giOpen(info){
-  GI = {info:info, data:null, loading:!!window.PS_SB, err:''};
+  GI = {info:info, data:null, loading:!!window.PS_SB, err:'', lang:'en'};
   openDlg('<div class="dlg gi-dlg" id="giDlg">' + giHtml() + '</div>');
   if (!window.PS_SB) return;
   var body = info.ig ? {action:'game', id:+info.ig} : {action:'search', name:info.title, platform:info.platform || ''};
   window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ if (!GI || GI.info !== info) return; GI.loading = false; if (r.error || !r.data || r.data.error) GI.err = 'Les infos détaillées ne sont pas disponibles pour ce jeu.'; else GI.data = r.data.game || null;
     var dg = GI.data; if (dg && !giRealCover(info)) { var u = dg.cover ? giImg(dg.cover.image_id, 't_cover_big') : dg.screenshots && dg.screenshots[0] ? giImg(dg.screenshots[0].image_id, 't_screenshot_med') : ''; if (u) giSaveCover(info, u, dg.id); }
-    var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); if (S.giLang === 'fr') giTranslate(); }).catch(function(){ if (!GI) return; GI.loading = false; GI.err = 'Les infos détaillées ne sont pas disponibles pour le moment.'; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); });
+    var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); }).catch(function(){ if (!GI) return; GI.loading = false; GI.err = 'Les infos détaillées ne sont pas disponibles pour le moment.'; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); });
 }
 function giHtml(){
   var i = GI.info, d = GI.data || {}, cover = (d.cover && giImg(d.cover.image_id, 't_cover_big_2x')) || (i.cvu && i.cvu !== 'none' ? i.cvu : '') || i.cv || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_screenshot_med')) || (GI.loading ? '' : genCover(i.title, i.platform)), art = (d.artworks && d.artworks[0] && giImg(d.artworks[0].image_id, 't_1080p')) || i.art || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_1080p')) || '';
@@ -6709,12 +6765,13 @@ function giHtml(){
   (d.websites || []).forEach(function(w){ var u = safeUrl(w.url); if (!u) return; var n = /wikipedia/.test(u) ? 'Wikipédia' : /store\.steampowered/.test(u) ? 'Steam' : /nintendo\./.test(u) ? 'Nintendo' : /playstation\./.test(u) ? 'PlayStation Store' : /xbox\./.test(u) ? 'Xbox' : null; if (n && !links.some(function(l){ return l[0] === n; })) links.push([n, u]); });
   links.push(['Recherche web', 'https://www.google.com/search?q=' + encodeURIComponent(i.title + ' ' + (i.platform || '') + ' jeu vidéo')]);
   var fact = function(l, v){ return v ? '<div class="gi-f"><span>' + l + '</span><b>' + v + '</b></div>' : ''; };
-  var facts = fact('Développeur', esc(devs)) + fact('Éditeur', esc(pubs)) + fact('Genre', esc(genres)) + fact('Sortie', esc(y))
-    + fact('Régions', (i.regions || []).length ? catRegBadges(i.regions) : '') + fact('Licence', esc(lic.join(', ')))
+  var tags = function(str, color){ return String(str || '').split(/,\s*/).filter(Boolean).map(function(v){ return tag(v, color || hashColor(v)); }).join(''); };
+  var facts = fact('Développeur', devs ? '<span class="tags">' + tags(devs, 'gray') + '</span>' : '') + fact('Éditeur', pubs ? '<span class="tags">' + tags(pubs, 'gray') + '</span>' : '') + fact('Genre', genres ? '<span class="tags">' + tags(genres) + '</span>' : '') + fact('Sortie', y ? tag(y, 'sky') : '')
+    + fact('Régions', (i.regions || []).length ? catRegBadges(i.regions) : '') + fact('Licence', lic.length ? '<span class="tags">' + lic.map(function(l){ return '<span class="tag t-gold">' + esc(l) + '</span>'; }).join('') + '</span>' : '')
     + fact('Titre français', i.fr && i.fr !== i.title ? esc(i.fr) : '') + fact('Titre japonais', i.jp && i.jp !== i.title ? esc(i.jp) : '')
     + (i.cf && i.cf.y ? fact('Désaccord d’année', 'MobyGames ' + esc(i.cf.y.moby) + ' · IGDB ' + esc(i.cf.y.igdb)) : '');
   var sec = function(t, c){ return '<section class="gi-sec"><h4>' + t + '</h4>' + c + '</section>'; };
-  var trd = GITR[String(d.id || i.title)], fr = S.giLang === 'fr', sumTxt = fr && trd && trd.summary ? trd.summary : d.summary, stoTxt = fr && trd && trd.storyline ? trd.storyline : d.storyline;
+  var trd = GITR[String(d.id || i.title)], fr = GI.lang === 'fr', sumTxt = fr && trd && trd.summary ? trd.summary : d.summary, stoTxt = fr && trd && trd.storyline ? trd.storyline : d.storyline;
   return '<header class="gi-head"><h2 class="sr">' + esc(i.title) + '</h2>' + ((d.summary || d.storyline) ? '<div class="ch-switch gi-lang" role="group" aria-label="Langue"><button type="button" data-gilang="fr" aria-pressed="' + fr + '">FR</button><button type="button" data-gilang="en" aria-pressed="' + !fr + '">EN</button></div>' : '<span></span>') + '<button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
     + '<div class="body gi-body">'
     + '<div class="gi-hero"' + (art ? ' style="--gi-art:url(\'' + esc(art) + '\')"' : '') + '>' + (cover ? '<img class="gi-cover" src="' + esc(cover) + '" alt="Jaquette de ' + esc(i.title) + '" referrerpolicy="no-referrer">' : '<span class="gi-cover gi-cover0">' + esc(initials(i.title)) + '</span>')
@@ -6919,10 +6976,10 @@ async function discEnsureCovers(){
 var SHOTS = {list:[], i:0};
 function shotOpen(list2, i){
   SHOTS = {list:list2, i:i}; var d = document.getElementById('shotLb');
-  if (!d) { d = document.createElement('dialog'); d.id = 'shotLb'; d.className = 'shot-lb'; document.body.appendChild(d); d.addEventListener('click', function(e){ if (e.target === d || e.target.classList.contains('slb-stage')) d.close(); }); d.addEventListener('keydown', function(e){ if (e.key === 'ArrowRight') { e.preventDefault(); shotGo(1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); shotGo(-1); } }); }
+  if (!d) { d = document.createElement('dialog'); d.id = 'shotLb'; d.className = 'shot-lb'; document.body.appendChild(d); d.addEventListener('click', function(e){ if (e.target.closest('[data-shotgo],[data-shotclose]') || e.target.tagName === 'IMG') return; if (e.target === d || e.target.classList.contains('slb-stage')) d.close(); }); d.addEventListener('keydown', function(e){ if (e.key === 'ArrowRight') { e.preventDefault(); shotGo(1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); shotGo(-1); } }); }
   shotDraw(); if (!d.open) d.showModal();
 }
-function shotDraw(){ var d = document.getElementById('shotLb'); if (!d) return; var n = SHOTS.list.length, u = SHOTS.list[SHOTS.i]; d.innerHTML = '<div class="slb-stage"><button type="button" class="slb-nav prev" data-shotgo="-1" aria-label="Capture précédente"' + (n > 1 ? '' : ' hidden') + '>‹</button><img src="' + esc(u) + '" alt="Capture d’écran ' + (SHOTS.i + 1) + ' sur ' + n + '" referrerpolicy="no-referrer"><button type="button" class="slb-nav next" data-shotgo="1" aria-label="Capture suivante"' + (n > 1 ? '' : ' hidden') + '>›</button></div><span class="slb-count">' + (SHOTS.i + 1) + ' / ' + n + '</span><button type="button" class="slb-close" data-shotclose="1" aria-label="Fermer">✕</button>'; }
+function shotDraw(){ var d = document.getElementById('shotLb'); if (!d) return; var n = SHOTS.list.length, u = SHOTS.list[SHOTS.i]; d.innerHTML = '<div class="slb-stage"><img src="' + esc(u) + '" alt="Capture d’écran ' + (SHOTS.i + 1) + ' sur ' + n + '" referrerpolicy="no-referrer"></div><button type="button" class="slb-zone prev" data-shotgo="-1" aria-label="Capture précédente"' + (n > 1 ? '' : ' hidden') + '><span>‹</span></button><button type="button" class="slb-zone next" data-shotgo="1" aria-label="Capture suivante"' + (n > 1 ? '' : ' hidden') + '><span>›</span></button><span class="slb-count">' + (SHOTS.i + 1) + ' / ' + n + '</span><button type="button" class="slb-close" data-shotclose="1" aria-label="Fermer">✕</button>'; }
 function shotGo(k){ var n = SHOTS.list.length; if (!n) return; SHOTS.i = (SHOTS.i + k + n) % n; shotDraw(); }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-shot],[data-shotgo],[data-shotclose]'); if (!t) return;
@@ -7020,7 +7077,7 @@ async function giTranslate(){
 function giRedraw(){ var el = document.getElementById('giDlg'); if (el && GI) el.innerHTML = giHtml(); }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-gilang],[data-girefetch]'); if (!t || !GI) return;
-  if (t.hasAttribute('data-gilang')) { S.giLang = t.getAttribute('data-gilang'); try { localStorage.setItem('ps-gilang', S.giLang); } catch (x) {} giRedraw(); if (S.giLang === 'fr') giTranslate(); return; }
+  if (t.hasAttribute('data-gilang')) { GI.lang = t.getAttribute('data-gilang'); giRedraw(); if (GI.lang === 'fr') giTranslate(); return; }
   var info = Object.assign({}, GI.info, {ig:''}); info.ctx = GI.info.ctx; giOpen(info);
 });
 S.giLang = (function(){ try { return localStorage.getItem('ps-gilang') || 'fr'; } catch (x) { return 'fr'; } })();
@@ -7048,19 +7105,54 @@ async function giAsk(prompt){
   return sampleFn.json(prompt, {modelTier:'fast'});
 }
 
+/* ---------- Base de jeux : menus déroulants des filtres (style plateforme) ---------- */
+function cddHtml(field, label, opts, val){
+  var cur = opts.filter(function(o){ return o[0] === (val || ''); })[0] || opts[0], open = S.cddOpen === field;
+  return '<div class="cdd' + (open ? ' open' : '') + (val ? ' has' : '') + '"><button type="button" class="cdd-btn" data-cdd="' + field + '" aria-haspopup="listbox" aria-expanded="' + open + '"><small>' + esc(label) + '</small><b>' + esc(cur[1]) + '</b><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>'
+    + (open ? '<div class="cdd-pop" role="listbox">' + opts.map(function(o){ return '<button type="button" role="option" class="cdd-opt" data-cddv="' + esc(field) + '|' + esc(o[0]) + '" aria-selected="' + (o[0] === (val || '')) + '">' + esc(o[1]) + (o[2] != null ? '<span>' + o[2] + '</span>' : '') + '</button>'; }).join('') + '</div>' : '') + '</div>';
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-cdd],[data-cddv]');
+  if (!t) { if (S.cddOpen && !(e.target.closest && e.target.closest('.cdd'))) { S.cddOpen = null; render(); } return; }
+  if (t.hasAttribute('data-cdd')) { var f = t.getAttribute('data-cdd'); S.cddOpen = S.cddOpen === f ? null : f; render(); return; }
+  var pv = t.getAttribute('data-cddv').split('|'); S.catF = S.catF || {}; S.catF[pv[0]] = pv.slice(1).join('|'); S.cddOpen = null; S.catLim = 100; render();
+});
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && S.cddOpen) { S.cddOpen = null; render(); } });
+
+/* ---------- Actus : liste des autres sorties du jour (info-bulle) ---------- */
+var NRP = null;
+function nrpClose(){ if (NRP) { NRP.remove(); NRP = null; } }
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-nrelpop]');
+  if (NRP && !NRP.contains(e.target) && !t) { nrpClose(); return; }
+  if (!t) return; e.preventDefault(); e.stopPropagation();
+  if (NRP && NRP._k === t.getAttribute('data-nrelpop')) { nrpClose(); return; }
+  nrpClose();
+  var k = t.getAttribute('data-nrelpop'), items = (S._nrelDay || {})[k] || [];
+  var el = document.createElement('div'); el.className = 'nrel-pop'; el._k = k; el.setAttribute('role', 'dialog');
+  el.innerHTML = '<div class="nrp-h"><b>' + items.length + ' sorties</b><button type="button" class="iconbtn" data-nrpx="1" aria-label="Fermer">✕</button></div><div class="nrp-l">' + items.map(nrelC).join('') + '</div>';
+  document.body.appendChild(el); NRP = el;
+  var r = t.getBoundingClientRect(), w = Math.min(340, window.innerWidth - 24), left = Math.max(12, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 12));
+  el.style.width = w + 'px'; el.style.left = (left + window.scrollX) + 'px';
+  var below = window.innerHeight - r.bottom; el.style.maxHeight = Math.max(220, Math.min(460, below > 260 ? below - 20 : r.top - 20)) + 'px';
+  el.style.top = (below > 260 ? r.bottom + 8 + window.scrollY : r.top - 8 + window.scrollY - el.offsetHeight) + 'px';
+}, true);
+document.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('[data-nrpx]')) nrpClose(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') nrpClose(); });
+
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
 function importCard(){
   if (!window.PS_HOSTED) return '';
   var p = IMPA, h = '<section class="card nimp"><div class="rowhead"><div><h2>Importer une archive Press Start</h2><div class="sub">Choisis le fichier .zip exporté depuis claude.ai : toutes tes fiches et toutes tes images sont copiées dans ta base. Les fiches déjà présentes avec le même identifiant sont remplacées.</div></div><button type="button" class="btn ghost small" onclick="PS_LOGOUT()">Se déconnecter</button></div>';
-  if (!p) h += '<div class="nimp-act"><label class="btn"><input type="file" accept=".zip,application/zip" id="impZip" hidden>⬆ Choisir l\u2019archive .zip</label></div>';
+  if (!p) h += '<div class="nimp-act"><label class="btn"><input type="file" accept=".zip,application/zip" id="impZip" hidden>⬆ Importer toute l\u2019archive</label><label class="btn ghost"><input type="file" accept=".zip,application/zip" id="impZipImg" hidden>🖼 Réimporter seulement les images manquantes</label></div><p class="nimp-note">« Images manquantes » ajoute uniquement les images absentes de ton stockage (jaquettes, photos, fonds des fiches…), sans toucher à tes fiches ni à tes réglages.</p>';
   else if (p.phase === 'busy') h += '<div class="nimp-prog"><span class="nimp-spin"></span>' + esc(p.msg) + (p.max ? ' <b id="impN">' + p.done + '</b> / ' + p.max : '') + '</div>' + (p.max ? '<div class="nimp-bar"><i id="impBar" style="width:' + Math.round(p.done / p.max * 100) + '%"></i></div>' : '');
   else if (p.phase === 'done') h += '<div class="nimp-sum ok">✓ Import terminé : ' + p.docs + ' fiches et ' + p.assets + ' images.' + (p.fail ? ' ' + p.fail + ' échec' + (p.fail > 1 ? 's' : '') + '.' : '') + ' Recharge la page pour tout afficher.</div><div class="nimp-act"><button type="button" class="btn" onclick="location.reload()">Recharger</button></div>';
   else if (p.phase === 'error') h += '<div class="nimp-sum err">' + esc(p.msg) + '</div><div class="nimp-act"><button type="button" class="btn ghost" data-act="impClose">Fermer</button></div>';
   return h + '</section>';
 }
 function impProg(){ var n = document.getElementById('impN'), b = document.getElementById('impBar'); if (n) n.textContent = IMPA.done; if (b && IMPA.max) b.style.width = Math.round(IMPA.done / IMPA.max * 100) + '%'; }
-async function importArchive(file){
+async function importArchive(file, imagesOnly){
   var sb = window.PS_SB; IMPA = {phase:'busy', msg:'Lecture de l\u2019archive…', done:0}; render();
   try {
     var zip = await JSZip.loadAsync(file), dj = zip.file('data.json'); if (!dj) throw new Error('Ce fichier n\u2019est pas une archive Press Start (data.json introuvable).');
@@ -7071,9 +7163,10 @@ async function importArchive(file){
     IMPA.msg = 'Envoi des images…'; IMPA.max = ids.length; IMPA.done = 0; render();
     for (var k = 0; k < ids.length; k++) {
       var a = data.assets[ids[k]], f = zip.file(a.file);
-      if (f) { var bl = await f.async('blob'), r = await sb.storage.from('assets').upload(ids[k], new Blob([bl], {type:a.type || 'application/octet-stream'}), {contentType:a.type || 'application/octet-stream', upsert:true, cacheControl:'31536000'}); if (r.error) fail++; } else fail++;
+      if (f) { var bl = await f.async('blob'), r = await sb.storage.from('assets').upload(ids[k], new Blob([bl], {type:a.type || 'application/octet-stream'}), {contentType:a.type || 'application/octet-stream', upsert:!imagesOnly, cacheControl:'31536000'}); if (r.error && !(imagesOnly && /exist|duplicate|409/i.test(String(r.error.message || r.error.statusCode || '')))) fail++; } else fail++;
       IMPA.done = k + 1; impProg();
     }
+    if (imagesOnly) { IMPA = {phase:'done', docs:0, assets:ids.length - fail, fail:fail}; render(); return; }
     IMPA.msg = 'Enregistrement des fiches…'; IMPA.max = rows.length; IMPA.done = 0; render();
     for (var j = 0; j < rows.length; j += 200) {
       var chunk = rows.slice(j, j + 200).map(function(x){ return Object.assign({updated_at:new Date().toISOString()}, x); }), res = await sb.from('docs').upsert(chunk);
@@ -7083,7 +7176,7 @@ async function importArchive(file){
     IMPA = {phase:'done', docs:rows.length, assets:ids.length - fail, fail:fail}; render();
   } catch (x) { IMPA = {phase:'error', msg:(x && x.message) || 'L\u2019import a échoué.'}; render(); }
 }
-document.addEventListener('change', function(e){ if (e.target.id === 'impZip' && e.target.files[0]) importArchive(e.target.files[0]); });
+document.addEventListener('change', function(e){ if (e.target.id === 'impZip' && e.target.files[0]) importArchive(e.target.files[0], false); if (e.target.id === 'impZipImg' && e.target.files[0]) importArchive(e.target.files[0], true); });
 document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-act="impClose"]'); if (t) { IMPA = null; render(); } });
 
 /* ---------- Events ---------- */
