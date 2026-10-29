@@ -2845,6 +2845,36 @@ dialog.shot-lb::backdrop{background:rgba(5,4,14,.92)}
 .nr-pl{display:flex !important;flex-wrap:wrap;gap:3px;margin-top:4px}
 .nptag{display:inline-flex;align-items:center;padding:1px 7px;border-radius:6px;font-size:10px;font-weight:700;line-height:1.6;color:#FFFFFF;white-space:nowrap}
 .np-n{background:#E60012}.np-x{background:#107C10}.np-ps{background:#1F5FD6}.np-pc{background:#7B4FE0}.np-o{background:#6A6480}
+/* fiche détaillée : illustration intégrée qui se fond vers le bas, jaquette entière */
+.gi-hero{display:block;min-height:0;padding:0;border-radius:0;overflow:visible;background:none !important;color:var(--text)}
+.gi-hero::before{content:'';position:absolute;left:-24px;right:-24px;top:-4px;height:300px;background:var(--gi-art,none) center 25%/cover no-repeat;-webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.75) 45%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.75) 45%,transparent 100%);opacity:.9;pointer-events:none;z-index:0}
+.gi-hero>*{position:relative;z-index:1}
+.gi-hero{display:flex !important;align-items:flex-end;gap:22px;padding-top:150px}
+.gi-hero:not([style])::before{display:none}
+.gi-hero:not([style]){padding-top:6px}
+.gi-hero .gi-cover{width:150px;height:auto;aspect-ratio:auto;max-height:230px;object-fit:contain;border:3px solid var(--card);background:var(--card);border-radius:10px;box-shadow:0 18px 30px -14px rgba(0,0,0,.7)}
+.gi-hero .gi-cover0{width:150px;aspect-ratio:3/4}
+.gi-hero .gi-hd{padding-bottom:6px}
+.gi-hero .gi-title{color:var(--text) !important;text-shadow:0 1px 0 var(--card),0 0 14px var(--card) !important}
+.gi-hero .gi-plat,.gi-hero .gi-sub{color:var(--soft) !important;text-shadow:0 0 10px var(--card)}
+.gi-hero .gi-rate{background:var(--sunken);color:var(--text);backdrop-filter:none}
+@media (max-width:620px){.gi-hero{flex-direction:column;align-items:flex-start;padding-top:110px}.gi-hero .gi-cover{width:120px}}
+/* actus : tags lisibles, compteur de jour, conférence sous les articles */
+.nr-pl .nptag{color:#FFFFFF !important;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+.np-n{background:#D65A62 !important}.np-x{background:#4C9A5B !important}.np-ps{background:#4F7BD4 !important}.np-pc{background:#8B73D1 !important}.np-o{background:#857F99 !important}
+.ns-dh{display:grid !important;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:8px;row-gap:1px}
+.ns-dh b{grid-column:1;grid-row:1;line-height:1.25}
+.ns-dh span{grid-column:1;grid-row:2;font-size:12.5px !important;font-weight:600;color:var(--soft) !important}
+.ns-dh small{grid-column:2;grid-row:1 / 3;align-self:center;margin:0 !important;padding:4px 10px !important;border-radius:999px;background:var(--card) !important;color:var(--text) !important;font-size:11.5px !important;font-weight:700 !important;white-space:nowrap;box-shadow:inset 0 0 0 1px var(--card-border)}
+.ns-day.today .ns-dh small{background:var(--accent) !important;color:var(--accent-fg) !important;box-shadow:none}
+.nlayout{grid-template-columns:minmax(0,1fr) !important}
+.nside:empty{display:none}
+.nside .nconfcard{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 18px;align-items:center}
+/* fiche de mon jeu : encadré jaquette décalé de la jaquette, recherche normale */
+.vsec,.covs{position:relative}
+.ghero + .covs,.ghero ~ .covs:first-of-type{margin-top:clamp(20px,9vw,120px)}
+.covs-q{flex:none !important;align-self:flex-start;width:min(420px,100%) !important;height:auto !important;min-height:44px;border-radius:999px}
+.covs-q input{min-height:42px}
 </style>
 </head>
 <body>
@@ -2950,7 +2980,7 @@ dialog.shot-lb::backdrop{background:rgba(5,4,14,.92)}
   };
   async function callClaude(prompt, opts, json){
     var r = await sb.functions.invoke('claude', {body:{prompt:String(prompt), json:!!json, tier:opts && opts.modelTier}});
-    if (r.error) { var e = new Error('sample_failed'); e.code = 'unavailable'; throw e; }
+    if (r.error) { var msg = 'sample_failed'; try { var j = await r.error.context.json(); msg = (j && j.error) || msg; } catch (x) {} var e = new Error(msg); e.code = 'unavailable'; throw e; }
     var t = (r.data && r.data.text) || '';
     if (!json) return t;
     var m = t.replace(/```json|```/g, '').trim(); try { return JSON.parse(m); } catch (x) { var a = m.indexOf('{'), b = m.lastIndexOf('}'); return JSON.parse(m.slice(a, b + 1)); }
@@ -3576,7 +3606,7 @@ function viewGame(){
     + fact('Langue', g.langue ? gotag('lang', g.langue, 'gray', 'en ' + g.langue, langFlag(g.langue) + esc(g.langue), ' ltag') : '')
     + fact('Wikipédia', w ? '<a class="tag t-lav gh-wiki" href="' + esc(w) + '" target="_blank" rel="noopener">Ouvrir ↗</a>' : '')
     + '</dl>';
-  var h = '<section class="ghero' + (gameBanner(g) ? ' has-banner' : '') + '"' + (gameBanner(g) ? ' style="background-image:url(' + gameBanner(g) + ')"' : '') + '><div class="gh-top"><button class="btn ghost gh-btn" data-nav="' + esc(S.prev) + '">← Retour</button><span class="gh-right">' + (metaBanners().length && !S.readOnly ? '<button class="btn ghost gh-btn" data-act="shuffleBanner" data-id="' + esc(g.id) + '" title="Choisir un autre fond au hasard">🎲 Changer le fond</button>' : '') + '<button class="btn ghost gh-btn" data-act="editGame" data-id="' + esc(g.id) + '"' + writeGuard() + '>Modifier les infos</button></span></div>'
+  var h = '<section class="ghero' + (gameBanner(g) ? ' has-banner' : '') + '"' + (gameBanner(g) ? ' style="background-image:url(' + gameBanner(g) + ')"' : '') + '><div class="gh-top"><button class="btn ghost gh-btn" data-nav="' + esc(S.prev) + '">← Retour</button><span class="gh-right">' + (S.readOnly ? '' : '<button class="btn ghost gh-btn" data-covopen="1" title="Chercher ou remplacer la jaquette et le fond">🖼 Jaquette</button>') + (metaBanners().length && !S.readOnly ? '<button class="btn ghost gh-btn" data-act="shuffleBanner" data-id="' + esc(g.id) + '" title="Choisir un autre fond au hasard">🎲 Changer le fond</button>' : '') + '<button class="btn ghost gh-btn" data-act="editGame" data-id="' + esc(g.id) + '"' + writeGuard() + '>Modifier les infos</button></span></div>'
     + '<div class="gh-body"><div class="gh-cover' + (cv ? ' has-img' : '') + '">' + (cv ? '<img src="' + cv + '" alt="Jaquette de ' + esc(g.name) + '">' : '<span>' + esc(g.name) + '</span>') + '</div>'
     + '<div class="gh-info"><h1>' + esc(g.name) + '</h1>' + meta + '</div>'
     + '<div class="gh-side"><div class="gh-card"><span>Statut</span>' + combo({key:'status', value:g.status || 'Pas commencé', save:g.id + '|status', id:'ghStatus', cell:true}) + '</div>'
@@ -5636,7 +5666,7 @@ function nrelsStrip(N, ref){
   if (week.length) h += '<div class="nplats" role="group" aria-label="Filtrer par plateforme"><button type="button" data-nplat="" aria-pressed="' + !S.nplat + '">Toutes</button>' + NPLATS.filter(function(p){ return week.some(function(r){ return nPlatMatch(r, p); }); }).map(function(p){ return '<button type="button" data-nplat="' + p[0] + '" aria-pressed="' + (S.nplat === p[0]) + '">' + p[0] + '</button>'; }).join('') + '</div>';
   h += '<button type="button" class="link" data-act="newsCal">' + (S.newsCalOpen ? 'Masquer le calendrier' : 'Voir le calendrier →') + '</button></div><div class="ns-row">';
   days.forEach(function(d){ var k = kOf(d), items = f.filter(function(r){ return kOf(new Date(r.date)) === k; }), n = items.length, lim = open[k] ? n : LIM;
-    h += '<div class="ns-day' + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'short'}).replace('.', '') + '</span><small>' + n + '</small></div>'
+    h += '<div class="ns-day' + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'long'}) + '</span><small>' + n + ' jeu' + (n > 1 ? 'x' : '') + '</small></div>'
       + (n ? items.slice(0, lim).map(nrelC).join('') : '<p class="ns-none">Aucune sortie</p>')
       + (n > LIM ? '<button type="button" class="nr-more" data-nrelmore="' + k + '" aria-expanded="' + !!open[k] + '">' + (open[k] ? 'Réduire' : '+ ' + (n - LIM) + ' autre' + (n - LIM > 1 ? 's' : '')) + '</button>' : '') + '</div>'; });
   return h + '</div></section>';
@@ -6648,6 +6678,7 @@ function giHtml(){
     + (!window.PS_SB ? '<p class="gi-note">Résumé, captures et vidéos disponibles sur ton site hébergé.</p>' : '')
     + (facts ? '<div class="gi-facts">' + facts + '</div>' : '')
     + (GI.tr && fr ? '<p class="gi-load"><span class="nimp-spin"></span> Traduction en français…</p>' : '')
+    + (fr && !GI.tr && GI.trErr && !trd ? '<p class="gi-note">' + esc(GI.trErr) + '</p>' : '')
     + (sumTxt ? sec('Résumé', '<p class="gi-txt">' + esc(sumTxt) + '</p>') : '')
     + (stoTxt ? sec('Histoire', '<p class="gi-txt">' + esc(stoTxt) + '</p>') : '')
     + (shots.length ? sec('Captures d’écran', '<div class="gi-shots">' + shots.map(function(x){ return '<a href="' + giImg(x.image_id, 't_1080p') + '" data-shot="' + giImg(x.image_id, 't_1080p') + '"><img src="' + giImg(x.image_id, 't_screenshot_med') + '" alt="Capture d’écran" loading="lazy" referrerpolicy="no-referrer"></a>'; }).join('') + '</div>') : '')
@@ -6750,16 +6781,17 @@ function dataUriBlob(u){ var m = String(u).match(/^data:([^;]+);base64,(.*)$/); 
 S.covSkip = S.covSkip || {}; var CS = {};
 function covPlatFor(g){ var cs = list(g.consoles).concat(getVersions(g).map(function(v){ return v.console; })).filter(Boolean); for (var i = 0; i < cs.length; i++) { var n = norm(canonConsole(cs[i])), full = norm(consoleFullName(cs[i]) || ''); var p = CAT.filter(function(c){ var al = [c.name].concat(list(c.aliases)).map(function(x){ return norm(canonConsole(x)); }).concat([norm(c.name)]); return al.indexOf(n) >= 0 || al.indexOf(full) >= 0 || norm(c.name) === full; })[0]; if (p && p.count) return p; } return null; }
 function covSuggestCard(g){
-  if (S.readOnly || g.coverId || S.covSkip[g.id]) return '';
-  var p = covPlatFor(g); if (!p) return '';
+  var forced = !!S.covOpen[g.id];
+  if (S.readOnly || ((g.coverId || S.covSkip[g.id]) && !forced)) return '';
+  var p = covPlatFor(g); if (!p) return forced ? '<section class="card covs"><b>Jaquette et fond</b><p class="gi-note">Aucune plateforme correspondante dans la Base de jeux pour ce jeu.</p><button type="button" class="link" data-covclose="1">Fermer</button></section>' : '';
   var key = p.id + '@' + (p.updatedAt || 0), rows = CAT_CACHE[key]; if (!rows) { catLoad(p, key); return ''; }
   var st = CS[g.id] || (CS[g.id] = {mode:'ask', q:''});
   var best = null, bs = 0; rows.forEach(function(r){ var s1 = Math.max(gmSim(g.name, r.t), r.fr ? gmSim(g.name, r.fr) : 0); if (s1 > bs && (r.cvu || /^data:image\//.test(r.cv))) { bs = s1; best = r; } });
   var usable = function(r){ return r.cvu || /^data:image\//.test(r.cv); };
   if (st.busy) return '<section class="card covs"><p class="gi-load"><span class="nimp-spin"></span> Ajout de la jaquette et de l’illustration…</p></section>';
-  if (st.mode === 'ask' && best && bs >= 0.72) return '<section class="card covs"><div class="covs-in">' + (best.cvu ? '<img src="' + esc(best.cvu) + '" alt="" referrerpolicy="no-referrer">' : '<img src="' + best.cv + '" alt="">') + '<div><b>Ce jeu n’a pas de jaquette.</b><p>Il ressemble à <b>« ' + esc(best.t) + ' »</b> dans la Base de jeux (' + esc(p.name) + (best.y ? ' · ' + esc(best.y) : '') + ', ' + Math.round(bs * 100) + ' % de ressemblance). Utiliser sa jaquette et son illustration ?</p><div class="covs-act"><button type="button" class="btn small" data-covok="' + best.i + '">✓ Oui</button><button type="button" class="btn ghost small" data-covno="1">✕ Non, chercher un autre jeu</button><button type="button" class="link" data-covskip="1">Ignorer</button></div></div></div></section>';
+  if (st.mode === 'ask' && !forced && best && bs >= 0.72) return '<section class="card covs"><div class="covs-in">' + (best.cvu ? '<img src="' + esc(best.cvu) + '" alt="" referrerpolicy="no-referrer">' : '<img src="' + best.cv + '" alt="">') + '<div><b>Ce jeu n’a pas de jaquette.</b><p>Il ressemble à <b>« ' + esc(best.t) + ' »</b> dans la Base de jeux (' + esc(p.name) + (best.y ? ' · ' + esc(best.y) : '') + ', ' + Math.round(bs * 100) + ' % de ressemblance). Utiliser sa jaquette et son illustration ?</p><div class="covs-act"><button type="button" class="btn small" data-covok="' + best.i + '">✓ Oui</button><button type="button" class="btn ghost small" data-covno="1">✕ Non, chercher un autre jeu</button><button type="button" class="link" data-covskip="1">Ignorer</button></div></div></div></section>';
   var q = st.q || g.name, res = rows.filter(usable).map(function(r){ return [r, Math.max(gmSim(q, r.t), r.fr ? gmSim(q, r.fr) : 0)]; }).filter(function(x){ return x[1] > 0.3; }).sort(function(a, b){ return b[1] - a[1]; }).slice(0, 8);
-  return '<section class="card covs"><b>Choisir le bon jeu dans la Base de jeux (' + esc(p.name) + ')</b><label class="search covs-q"><span class="sr">Rechercher</span><input id="covQ" type="search" value="' + esc(st.q || '') + '" placeholder="Rechercher un titre…" autocomplete="off"></label><div class="covs-res">' + (res.length ? res.map(function(x){ var r = x[0]; return '<button type="button" class="covs-r" data-covok="' + r.i + '">' + (r.cvu ? '<img src="' + esc(r.cvu) + '" alt="" referrerpolicy="no-referrer" loading="lazy">' : '<img src="' + r.cv + '" alt="">') + '<span><b>' + esc(r.t) + '</b><small>' + esc([r.y, r.d].filter(Boolean).join(' · ')) + '</small></span></button>'; }).join('') : '<p class="gi-note">Aucun jeu avec jaquette ne correspond.</p>') + '</div><button type="button" class="link" data-covskip="1">Ignorer pour ce jeu</button></section>';
+  return '<section class="card covs"><b>Choisir le bon jeu dans la Base de jeux (' + esc(p.name) + ')</b><label class="search covs-q"><span class="sr">Rechercher</span><input id="covQ" type="search" value="' + esc(st.q || '') + '" placeholder="Rechercher un titre…" autocomplete="off"></label><div class="covs-res">' + (res.length ? res.map(function(x){ var r = x[0]; return '<button type="button" class="covs-r" data-covok="' + r.i + '">' + (r.cvu ? '<img src="' + esc(r.cvu) + '" alt="" referrerpolicy="no-referrer" loading="lazy">' : '<img src="' + r.cv + '" alt="">') + '<span><b>' + esc(r.t) + '</b><small>' + esc([r.y, r.d].filter(Boolean).join(' · ')) + '</small></span></button>'; }).join('') : '<p class="gi-note">Aucun jeu avec jaquette ne correspond.</p>') + '</div><button type="button" class="link" data-covclose="1">Fermer</button></section>';
 }
 document.addEventListener('click', async function(e){
   var t = e.target.closest && e.target.closest('[data-covok],[data-covno],[data-covskip]'); if (!t) return;
@@ -6857,7 +6889,7 @@ document.addEventListener('click', function(e){
 /* ---------- Concordance de MES jeux avec IGDB (jaquette / illustration) ---------- */
 var CC = {};
 function concordCard(g){
-  if (S.readOnly || !window.PS_SB || !g.coverId || g.igdbId || S.covSkip[g.id]) return '';
+  if (S.readOnly || !window.PS_SB || !g.coverId || ((g.igdbId || S.covSkip[g.id]) && !S.covOpen[g.id])) return '';
   var st = CC[g.id];
   if (!st) return '<section class="card covs ccd"><div class="ccd-row"><span><b>Associer ce jeu à sa fiche IGDB ?</b><small>Pour vérifier que le nom correspond et proposer une jaquette ou une illustration officielles.</small></span><span class="covs-act"><button type="button" class="btn small" data-ccgo="1">🔎 Vérifier la concordance</button><button type="button" class="link" data-covskip="1">Plus tard</button></span></div></section>';
   if (st.busy) return '<section class="card covs ccd"><p class="gi-load"><span class="nimp-spin"></span> Recherche sur IGDB…</p></section>';
@@ -6933,7 +6965,8 @@ async function giTranslate(){
   try {
     var r = await sampleFn.json('Traduis en français naturel, fidèlement et sans rien ajouter, ces textes de présentation d\u2019un jeu vidéo. Garde les noms propres et les titres de jeux tels quels. Réponds uniquement en JSON : {"summary":"…","storyline":"…"} (chaîne vide si le texte d\u2019origine est vide).\n\nsummary : ' + (d.summary || '') + '\n\nstoryline : ' + (d.storyline || ''), {modelTier:'fast'});
     if (r && (r.summary || r.storyline)) { GITR[id] = {summary:r.summary || '', storyline:r.storyline || ''}; if (!S.readOnly) db.collection('translations').doc(id).set(GITR[id]).catch(function(){}); }
-  } catch (x) {}
+  } catch (x) { GI.trErr = 'Traduction indisponible pour le moment' + (x && x.message && x.message !== 'sample_failed' ? ' (' + x.message + ')' : '') + '.'; }
+  if (!GITR[id] && !GI.trErr) GI.trErr = 'La traduction n\u2019a rien renvoyé.';
   GI.tr = false; giRedraw();
 }
 function giRedraw(){ var el = document.getElementById('giDlg'); if (el && GI) el.innerHTML = giHtml(); }
@@ -6946,6 +6979,15 @@ S.giLang = (function(){ try { return localStorage.getItem('ps-gilang') || 'fr'; 
 
 /* ---------- Actus : couleur des plateformes ---------- */
 function nPlatTag(p){ var s = String(p || ''), c = /switch|nintendo|wii|3ds|\bds\b|game ?boy/i.test(s) ? 'np-n' : /xbox/i.test(s) ? 'np-x' : /ps\d|ps vita|psp|playstation/i.test(s) ? 'np-ps' : /^(pc|mac|windows|linux|steam)/i.test(s) ? 'np-pc' : 'np-o'; return '<span class="nptag ' + c + '">' + esc(s) + '</span>'; }
+
+/* ---------- Jaquette & concordance : toujours accessible depuis la fiche ---------- */
+S.covOpen = S.covOpen || {};
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-covopen],[data-covclose]'); if (!t) return;
+  var g = S.games.find(function(x){ return x.id === S.gameId; }); if (!g) return;
+  if (t.hasAttribute('data-covopen')) { S.covOpen[g.id] = true; delete S.covSkip[g.id]; CS[g.id] = {mode:'search', q:''}; render(); var el = document.querySelector('.covs'); if (el) el.scrollIntoView({block:'center', behavior:'smooth'}); }
+  else { S.covOpen[g.id] = false; S.covSkip[g.id] = true; render(); }
+});
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
