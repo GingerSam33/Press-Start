@@ -104,18 +104,45 @@ try {
   /* sorties : 60 prochains jours sur les plateformes suivies */
   const now = Math.floor(Date.now() / 1000), end = now + 60 * 86400, rel = new Map();
   for (let off = 0; off < 2000; off += 500) {
-    const rows = await igdb('release_dates', `fields date,game.name,game.url,platform.name,platform.abbreviation; where date >= ${now - 86400} & date <= ${end} & game.hypes > 0; sort date asc; limit 500; offset ${off};`);
+    const rows = await igdb('release_dates', `fields date,game.id,game.name,game.url,game.cover.image_id,game.genres.name,platform.name,platform.abbreviation; where date >= ${now - 86400} & date <= ${end} & game.hypes > 0; sort date asc; limit 500; offset ${off};`);
     for (const r of rows) {
       if (!r.game || !r.date) continue;
       const k = key(r.game.name) + '|' + new Date(r.date * 1000).toISOString().slice(0, 10);
-      const e = rel.get(k) || {title: r.game.name, date: new Date(r.date * 1000).toISOString(), platforms: [], url: r.game.url || ''};
+      const e = rel.get(k) || {title: r.game.name, date: new Date(r.date * 1000).toISOString(), platforms: [], url: r.game.url || '', _id: r.game.id, _cover: r.game.cover?.image_id || '', _genre: r.game.genres?.[0]?.name || '', _full: []};
       const pn = r.platform && (r.platform.abbreviation || r.platform.name); if (pn && !e.platforms.includes(pn)) e.platforms.push(pn);
+      if (r.platform && r.platform.name && !e._full.includes(r.platform.name)) e._full.push(r.platform.name);
       rel.set(k, e);
     }
     if (rows.length < 500) break;
   }
-  const releases = [...rel.values()];
+  const releasesRaw = [...rel.values()];
+  const releases = releasesRaw.map(({_id, _cover, _genre, _full, ...x}) => x);
   log(`${releases.length} sorties à venir`);
+  /* ajout des sorties à la Base de jeux, pour les plateformes que tu suis */
+  try {
+    let MAP = {}; try { MAP = JSON.parse(readFileSync(new URL('./platform-map.json', import.meta.url), 'utf8')); } catch {}
+    const cat = (await readCol('catalog')).map(r => ({id: r.id, ...r.data}));
+    const platKeys = cat.map(c => { const m = Object.entries(MAP).find(([k]) => key(k) === key(c.name)); return {c, keys: [c.name, ...(c.aliases || []), m && m[1] && m[1].igdb].filter(Boolean).map(key)}; });
+    const chunksCache = {}, changed = new Map(); let added = 0;
+    for (const r of releasesRaw) {
+      for (const pf of r._full) {
+        const pk = key(pf), hit = platKeys.find(x => x.keys.includes(pk)); if (!hit) continue;
+        const col = `catalog/${hit.c.id}/chunks`;
+        if (!chunksCache[col]) chunksCache[col] = (await readCol(col)).map(d => ({id: d.id, ...d.data})).sort((a, b) => (a.n || 0) - (b.n || 0));
+        const chunks = chunksCache[col];
+        if (chunks.some(c => (c.g || []).some(row => key(row[0]) === key(r.title)))) continue;
+        let last = chunks.filter(c => String(c.id).startsWith('auto-')).pop();
+        if (!last || (last.g || []).length >= 400) { const n = chunks.reduce((m, c) => Math.max(m, c.n || 0), 0) + 1; last = {id: `auto-${n}`, n, g: []}; chunks.push(last); }
+        last.g.push([r.title, r.date.slice(0, 4), '', '', [], '', '', r._genre, r.url, '', '', null, String(r._id || ''), r._cover ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${r._cover}.jpg` : '', '']);
+        changed.set(col + '|' + last.id, {col, c: last, pid: hit.c.id}); added++;
+      }
+    }
+    const rowsUp = [...changed.values()].map(x => ({col: x.col, id: x.c.id, data: {n: x.c.n, g: x.c.g}}));
+    const pidsTouched = [...new Set([...changed.values()].map(x => x.pid))];
+    const catUp = pidsTouched.map(pid => { const c = cat.find(x => x.id === pid), col = `catalog/${pid}/chunks`, total = (chunksCache[col] || []).reduce((s2, k2) => s2 + (k2.g || []).length, 0); const {id, ...rest} = c; return {col: 'catalog', id: pid, data: {...rest, count: total, updatedAt: Date.now()}}; });
+    if (rowsUp.length) { for (let i = 0; i < rowsUp.length; i += 50) await upsert(rowsUp.slice(i, i + 50)); await upsert(catUp); }
+    report.catalogAdded = added; log(`${added} sorties ajoutées à la Base de jeux`);
+  } catch (e) { log(`⚠ ajout à la Base de jeux : ${e.message}`); }
 
   /* conférences et événements */
   let conferences = [];
