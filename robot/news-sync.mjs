@@ -116,7 +116,7 @@ try {
     if (rows.length < 500) break;
   }
   const releasesRaw = [...rel.values()];
-  const releases = releasesRaw.map(({_id, _cover, _genre, _full, ...x}) => x);
+  const releases = releasesRaw.map(({_id, _cover, _genre, _full, ...x}) => ({...x, ig: _id ? String(_id) : '', cvu: _cover ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${_cover}.jpg` : ''}));
   log(`${releases.length} sorties à venir`);
   /* ajout des sorties à la Base de jeux, pour les plateformes que tu suis */
   try {
@@ -149,6 +149,12 @@ try {
   try {
     const ev = await igdb('events', `fields name,start_time,live_stream_url,event_networks.url; where start_time >= ${now - 6 * 3600}; sort start_time asc; limit 30;`);
     conferences = ev.filter(e => e.start_time).map(e => ({name: e.name, date: new Date(e.start_time * 1000).toISOString(), url: e.live_stream_url || (e.event_networks || [])[0]?.url || ''}));
+    /* archive des conférences (passées et à venir) pour l'historique */
+    const arch = await igdb('events', `fields id,name,description,start_time,end_time,live_stream_url,event_networks.url,videos.video_id,videos.name,games.name,event_logo.image_id; where start_time >= ${now - 400 * 86400} & start_time <= ${now + 200 * 86400}; sort start_time desc; limit 200;`);
+    const old = new Map(((await readCol('conferences')) || []).map(r => [r.id, r.data]));
+    const rowsC = arch.filter(e => e.start_time).map(e => { const id = 'ev-' + e.id, prev = old.get(id) || {}; return {col: 'conferences', id, data: {...prev, ig: e.id, name: e.name, date: new Date(e.start_time * 1000).toISOString(), end: e.end_time ? new Date(e.end_time * 1000).toISOString() : '', description: e.description || '', url: e.live_stream_url || (e.event_networks || [])[0]?.url || '', links: (e.event_networks || []).map(n => n.url).filter(Boolean), videos: (e.videos || []).map(v => ({id: v.video_id, name: v.name || ''})), games: (e.games || []).map(g => g.name).filter(Boolean).slice(0, 80), logo: e.event_logo?.image_id || ''}}; });
+    for (let i = 0; i < rowsC.length; i += 100) await upsert(rowsC.slice(i, i + 100));
+    log(`${rowsC.length} conférences archivées`);
   } catch (e) { log(`⚠ conférences : ${e.message}`); }
   log(`${conferences.length} conférences à venir`);
 
