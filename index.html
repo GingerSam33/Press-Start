@@ -2981,6 +2981,19 @@ dialog:has(.gi-dlg){border-radius:26px;overflow:hidden;padding:0}
 .cdd-opt{transition:background-color .18s,color .18s,padding-left .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s}
 .cdd-opt:hover{padding-left:18px;background:var(--sunken);color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
 .cdd-opt[aria-selected="true"]:hover{background:var(--accent);color:var(--accent-fg);box-shadow:none}
+/* fiche : bouton « + X » et info-bulle */
+.gi-more{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:999px;border:1.5px dashed color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 8%,var(--card));color:var(--accent-text);font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.gi-more:hover{background:color-mix(in srgb,var(--accent) 16%,var(--card));border-style:solid}
+.gi-pop{position:absolute;z-index:20;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--card-border);box-shadow:0 24px 48px -20px rgba(20,18,40,.55);animation:nbubIn .18s cubic-bezier(.2,.8,.2,1)}
+.gip-h b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.gi-pop .tags{display:flex;flex-wrap:wrap;gap:5px}
+.dlg.gi-dlg{position:relative}
+/* base de jeux : survol bien visible dans les menus */
+.cdd-opt:hover,.cdd-opt:focus-visible{padding-left:18px;background:color-mix(in srgb,var(--accent) 14%,var(--card)) !important;color:var(--accent-text) !important;box-shadow:none !important;outline:0}
+.cdd-opt[aria-selected="true"],.cdd-opt[aria-selected="true"]:hover{background:var(--accent) !important;color:var(--accent-fg) !important}
+/* fiche de mes jeux : les 3 encarts de droite se soulèvent au survol */
+.gh-side .gh-card{transition:transform .2s cubic-bezier(.3,1.5,.5,1),box-shadow .2s}
+.gh-side .gh-card:hover{transform:translateY(-2px);box-shadow:0 14px 26px -16px var(--accent)}
 </style>
 </head>
 <body>
@@ -6783,8 +6796,9 @@ function giHtml(){
   (d.websites || []).forEach(function(w){ var u = safeUrl(w.url); if (!u) return; var n = /wikipedia/.test(u) ? 'Wikipédia' : /store\.steampowered/.test(u) ? 'Steam' : /nintendo\./.test(u) ? 'Nintendo' : /playstation\./.test(u) ? 'PlayStation Store' : /xbox\./.test(u) ? 'Xbox' : null; if (n && !links.some(function(l){ return l[0] === n; })) links.push([n, u]); });
   links.push(['Recherche web', 'https://www.google.com/search?q=' + encodeURIComponent(i.title + ' ' + (i.platform || '') + ' jeu vidéo')]);
   var fact = function(l, v){ return v ? '<div class="gi-f"><span>' + l + '</span><b>' + v + '</b></div>' : ''; };
-  var tags = function(str, color){ return String(str || '').split(/,\s*/).filter(Boolean).map(function(v){ return tag(v, color || hashColor(v)); }).join(''); };
-  var facts = fact('Développeur', devs ? '<span class="tags">' + tags(devs, 'gray') + '</span>' : '') + fact('Éditeur', pubs ? '<span class="tags">' + tags(pubs, 'gray') + '</span>' : '') + fact('Genre', genres ? '<span class="tags">' + tags(genres) + '</span>' : '') + fact('Sortie', y ? tag(y, 'sky') : '')
+  GI.more = {};
+  var tags = function(str, color, label){ var a = String(str || '').split(/,(?!\s*(?:inc|ltd|llc|co|corp|s\.?a|gmbh)\b)\s*/i).map(function(v){ return v.trim(); }).filter(Boolean).filter(function(v, k, arr){ return arr.indexOf(v) === k; }); if (!a.length) return ''; var first = tag(a[0], color || hashColor(a[0])); if (a.length < 2) return first; GI.more[label] = a; return first + '<button type="button" class="gi-more" data-gimore="' + label + '" aria-haspopup="dialog">+ ' + (a.length - 1) + ' ' + label + (a.length - 1 > 1 ? 's' : '') + '</button>'; };
+  var facts = fact('Développeur', devs ? '<span class="tags">' + tags(devs, 'gray', 'développeur') + '</span>' : '') + fact('Éditeur', pubs ? '<span class="tags">' + tags(pubs, 'gray', 'éditeur') + '</span>' : '') + fact('Genre', genres ? '<span class="tags">' + tags(genres, null, 'genre') + '</span>' : '') + fact('Sortie', y ? tag(y, 'sky') : '')
     + fact('Régions', (i.regions || []).length ? catRegBadges(i.regions) : '') + fact('Licence', lic.length ? '<span class="tags">' + lic.map(function(l){ return '<span class="tag t-gold">' + esc(l) + '</span>'; }).join('') + '</span>' : '')
     + fact('Titre français', i.fr && i.fr !== i.title ? esc(i.fr) : '') + fact('Titre japonais', i.jp && i.jp !== i.title ? esc(i.jp) : '')
     + (i.cf && i.cf.y ? fact('Désaccord d’année', 'MobyGames ' + esc(i.cf.y.moby) + ' · IGDB ' + esc(i.cf.y.igdb)) : '');
@@ -7157,6 +7171,24 @@ document.addEventListener('click', function(e){
 }, true);
 document.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('[data-nrpx]')) nrpClose(); });
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') nrpClose(); });
+
+/* ---------- Fiche : « + X autres » pour les champs à plusieurs valeurs ---------- */
+var GIP = null;
+function gipClose(){ if (GIP) { GIP.remove(); GIP = null; } }
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-gimore]');
+  if (GIP && !GIP.contains(e.target) && !t) { gipClose(); }
+  if (!t || !GI || !GI.more) return;
+  e.preventDefault(); e.stopPropagation();
+  var k = t.getAttribute('data-gimore'); if (GIP && GIP._k === k) { gipClose(); return; } gipClose();
+  var vals = GI.more[k] || [], host = t.closest('.dlg') || document.body;
+  var el = document.createElement('div'); el.className = 'gi-pop'; el._k = k;
+  el.innerHTML = '<div class="gip-h"><b>' + vals.length + ' ' + esc(k) + (vals.length > 1 ? 's' : '') + '</b></div><div class="tags">' + vals.map(function(v){ return tag(v, k === 'genre' ? hashColor(v) : 'gray'); }).join('') + '</div>';
+  host.appendChild(el); GIP = el;
+  var hr = host.getBoundingClientRect(), r = t.getBoundingClientRect(), w = Math.min(320, hr.width - 24);
+  el.style.width = w + 'px'; el.style.left = Math.max(12, Math.min(r.left - hr.left, hr.width - w - 12)) + 'px'; el.style.top = (r.bottom - hr.top + 6) + 'px';
+}, true);
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && GIP) gipClose(); });
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
