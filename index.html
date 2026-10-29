@@ -2963,6 +2963,24 @@ dialog:has(.gi-dlg){border-radius:26px;overflow:hidden;padding:0}
 .cdd-opt:hover{background:var(--sunken);color:var(--text)}
 .cdd-opt[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);font-weight:600}
 .cat-chips{display:none}
+/* fiche détaillée : défilement discret, contenu qui ne se chevauche plus */
+.dlg .body.gi-body{scrollbar-width:none !important}
+.dlg .body.gi-body::-webkit-scrollbar{display:none !important;width:0 !important}
+.dlg .body.gi-body>*{flex-shrink:0}
+.gi-hero + *{min-height:70px}
+.gi-facts{align-items:start}
+/* cartes Jeux à découvrir au même format que les cartes de collection */
+.disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;align-items:start}
+.disc-card .lg-b{gap:10px}
+.disc-card .d-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:auto}
+.disc-card .d-acts .spacer{flex:1}
+.lg-cov .fgi{display:block;width:100%;height:auto}
+/* actus : info-bulle d'un jeu au-dessus de la liste « + X autres » */
+.nbub{z-index:450 !important}
+/* base de jeux : animation des options comme les autres menus */
+.cdd-opt{transition:background-color .18s,color .18s,padding-left .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s}
+.cdd-opt:hover{padding-left:18px;background:var(--sunken);color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
+.cdd-opt[aria-selected="true"]:hover{background:var(--accent);color:var(--accent-fg);box-shadow:none}
 </style>
 </head>
 <body>
@@ -5685,11 +5703,11 @@ function viewDiscover(){
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
   return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? '' : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
-    return '<article class="card disc is-click" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><span class="d-cov">' + (function(u){ return '<img class="bgi" src="' + esc(u) + '" alt="" aria-hidden="true" referrerpolicy="no-referrer"><img class="fgi" src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'; })(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '</span><h3>' + esc(d.title) + '</h3>' + (when ? '<span class="d-when">' + when + '</span>' : '')
-      + (list(d.platforms).length ? '<div class="tags">' + list(d.platforms).map(function(x){ return '<span class="tag t-lav">' + esc(x) + '</span>'; }).join('') + '</div>' : '')
+    return '<article class="lg-card is-click disc-card" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><div class="lg-cov"><img class="fgi" src="' + esc(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></div><div class="lg-b"><b class="lg-t">' + esc(d.title) + '</b>'
+      + '<div class="lg-m">' + list(d.platforms).map(function(x){ return ctag(x); }).join('') + (when ? '<span class="tag t-sky">' + esc(when) + '</span>' : '') + '</div>'
       + '<div class="d-acts"><a class="btn small ghost" href="' + esc(nRelUrl(d)) + '" target="_blank" rel="noopener">Voir sur internet ↗</a>'
       + (S.readOnly ? '' : '<button type="button" class="btn small" data-ndwish="' + esc(d.id) + '">' + ICON_HEART + ' Wishlist</button><span class="spacer"></span><button type="button" class="iconbtn" data-ndrm="' + esc(d.id) + '" aria-label="Retirer ' + esc(d.title) + '" title="Retirer de la liste"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>')
-      + '</div></article>'; }).join('') + '</div>';
+      + '</div></div></article>'; }).join('') + '</div>';
 }
 function nDayKey(d){ return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function nDayDate(k){ var p = String(k).split('-'); return new Date(+p[0], +p[1] - 1, +p[2], 12); }
@@ -6529,7 +6547,7 @@ function licGroup(title, rs, lic){
     var e = r.e, g = r.g, cv = g && g.coverId ? blob(g.coverId) : '', short = e.title.replace(new RegExp('^' + lic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*[:\\-–]?\\s*', 'i'), '') || e.title;
     var lang = e.lang === 'EN' ? '<span class="tag t-gray" title="Pas d\u2019édition française">' + licFlag('GB') + ' EN</span>' : e.lang === 'FR' ? '<span class="tag t-gray">' + licFlag('FR') + ' FR</span>' : '';
     var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">✓ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
-    return '<article class="lg-card is-click' + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + (cv ? '<img class="fgi" src="' + cv + '" alt="">' : '<span>' + esc(initials(short)) + '</span>') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
+    return '<article class="lg-card is-click' + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov"><img class="fgi" src="' + (cv || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + '" alt="">' + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
   }).join('') + '</div></section>';
 }
 function licFlag(c){ try { var k = String(c).toLowerCase(); return typeof FLAGS !== 'undefined' && (FLAGS[k] || (k === 'gb' && (FLAGS.en || FLAGS.uk))) || ''; } catch (x) { return ''; } }
