@@ -2875,6 +2875,42 @@ dialog.shot-lb::backdrop{background:rgba(5,4,14,.92)}
 .ghero + .covs,.ghero ~ .covs:first-of-type{margin-top:clamp(20px,9vw,120px)}
 .covs-q{flex:none !important;align-self:flex-start;width:min(420px,100%) !important;height:auto !important;min-height:44px;border-radius:999px}
 .covs-q input{min-height:42px}
+/* fiche détaillée : bandeau pleine largeur jusqu'aux bords, texte toujours lisible */
+.dlg.gi-dlg{overflow:hidden}
+.dlg.gi-dlg .gi-head{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:14px 16px;background:none;border:0}
+.dlg.gi-dlg .gi-head .iconbtn{background:rgba(10,8,30,.45);color:#FFFFFF;backdrop-filter:blur(6px)}
+.dlg.gi-dlg .gi-lang{background:rgba(10,8,30,.45);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.25)}
+.dlg.gi-dlg .gi-lang button{color:rgba(255,255,255,.85)}
+.dlg.gi-dlg .gi-lang button[aria-pressed="true"]{background:#FFFFFF;color:#1A1430}
+.dlg .body.gi-body{padding:0 0 20px !important;max-height:calc(100vh - 120px)}
+.dlg .body.gi-body>*:not(.gi-hero){margin-left:24px;margin-right:24px}
+.gi-hero{position:relative;display:flex !important;align-items:flex-end;gap:22px;margin:0 !important;padding:90px 28px 34px !important;min-height:260px;background:none !important;color:#FFFFFF}
+.gi-hero::before{content:'';position:absolute;inset:0;left:0;right:0;top:0;height:auto;background:var(--gi-art,linear-gradient(135deg,#2A1F5C,#0B0920)) center 25%/cover no-repeat;-webkit-mask-image:none;mask-image:none;opacity:1;z-index:0}
+.gi-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,20,.25) 0%,rgba(8,7,20,.55) 45%,rgba(8,7,20,.88) 100%),linear-gradient(90deg,rgba(8,7,20,.55),transparent 70%);z-index:0}
+.gi-hero:not([style])::before{display:block}
+.gi-hero:not([style]){padding-top:90px !important}
+.gi-hero>*{position:relative;z-index:1}
+.gi-hero .gi-cover{width:150px;height:auto;max-height:230px;object-fit:contain;border:3px solid rgba(255,255,255,.9);background:#000;border-radius:10px;box-shadow:0 18px 34px -12px rgba(0,0,0,.85)}
+.gi-hero .gi-title{color:#FFFFFF !important;text-shadow:0 2px 6px rgba(0,0,0,.85),0 0 20px rgba(0,0,0,.5) !important}
+.gi-hero .gi-plat,.gi-hero .gi-sub{color:rgba(255,255,255,.88) !important;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.gi-hero .gi-rate{background:rgba(255,255,255,.16);color:#FFFFFF;backdrop-filter:blur(6px)}
+@media (max-width:620px){.gi-hero{flex-direction:column;align-items:flex-start;padding-top:80px !important}.gi-hero .gi-cover{width:120px}}
+/* actus : bandeau conférence sous les sorties */
+.nconf-banner{display:grid !important;grid-template-columns:minmax(0,1.3fr) auto minmax(0,1fr);gap:12px 24px;align-items:center}
+.ncb-main{display:flex;flex-direction:column;gap:4px}
+.nconf-banner .nc-more{margin:0}
+@media (max-width:820px){.nconf-banner{grid-template-columns:1fr}}
+/* base de jeux : colonne Statut */
+.cat-row{grid-template-columns:minmax(200px,2.2fr) 56px minmax(140px,1.4fr) minmax(80px,.7fr) 112px 132px !important}
+.cr-st{display:flex;align-items:center}
+.cr-st .tag{white-space:nowrap;font-size:11px}
+.cr-sth{padding:0;border:0;background:none;font:inherit;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;cursor:pointer}
+.cr-sth:hover{color:var(--accent-text)}
+/* jaquettes entières (jeux à découvrir, page de licence) */
+.d-cov,.lg-cov{position:relative;overflow:hidden}
+.d-cov .bgi,.lg-cov .bgi{position:absolute;inset:-10%;width:120%;height:120%;object-fit:cover;filter:blur(14px) brightness(.75);transform:scale(1.05)}
+.d-cov .fgi,.lg-cov .fgi{position:relative;width:100%;height:100%;object-fit:contain;display:block}
+.card.disc:hover .d-cov .fgi{transform:scale(1.03)}
 </style>
 </head>
 <body>
@@ -3656,17 +3692,17 @@ function viewLicences(){
   S.games.forEach(function(g){ var l = (g.licence || '').trim(); if (!l) return; if (g.kind === 'wish') (wish[l] = wish[l] || []).push(g); else (groups[l] = groups[l] || []).push(g); });
   Object.keys(groups).forEach(function(k){ if (groups[k].length < 2 && !LICDB[licKey(k)]) delete groups[k]; });
   var T = META.licTotals || {}, info = Object.keys(groups).map(function(k){ var o = groups[k].length, LD = LICDB[licKey(k)], t = LD && LD.games ? LD.games.length : (+T[k] || 0); return {k:k, o:o, t:t, m:t ? Math.max(0, t - o) : null, p:t ? Math.min(1, o / t) : null, w:(wish[k] || []).length}; });
-  var q = norm(S.licQ || ''), srt = S.licSort || 'complete';
-  var list = info.filter(function(x){ return !q || norm(x.k).indexOf(q) >= 0; }).sort(function(a, b){
+  var q = norm(S.licQ || ''), srt = ['most', 'missing', 'almost', 'complete'].indexOf(S.licSort) >= 0 ? S.licSort : 'most';
+  var list = info.filter(function(x){ return (!q || norm(x.k).indexOf(q) >= 0) && (srt !== 'complete' || x.p === 1) && (srt !== 'almost' || x.p !== 1); }).sort(function(a, b){
     if (srt === 'missing') return (b.m == null ? -1 : b.m) - (a.m == null ? -1 : a.m) || a.k.localeCompare(b.k, 'fr');
-    if (srt === 'az') return a.k.localeCompare(b.k, 'fr');
-    if (srt === 'size') return Math.max(b.t, b.o) - Math.max(a.t, a.o) || a.k.localeCompare(b.k, 'fr');
-    return (b.p == null ? -1 : b.p) - (a.p == null ? -1 : a.p) || b.o - a.o || a.k.localeCompare(b.k, 'fr');
+    if (srt === 'almost') return (b.p == null ? -1 : b.p) - (a.p == null ? -1 : a.p) || (a.m || 0) - (b.m || 0) || a.k.localeCompare(b.k, 'fr');
+    if (srt === 'complete') return b.o - a.o || a.k.localeCompare(b.k, 'fr');
+    return b.o - a.o || a.k.localeCompare(b.k, 'fr');
   });
   var owned = info.reduce(function(s, x){ return s + x.o; }, 0), missing = info.reduce(function(s, x){ return s + (x.m || 0); }, 0), full = info.filter(function(x){ return x.p === 1; }).length;
   var h = crtPage({kick:'PLAYER 1', title:'LICENCES', sub:'Ma collection, saga par saga', blink:'CHOISIS TA SAGA', sc:[['LICENCES', crtPad(info.length)], ['POSSÉDÉS', crtPad(owned)], ['MANQUANTS', crtPad(missing)], ['COMPLÈTES', crtPad(full)]]});
   if (!info.length) return h + '<div class="card empty"><strong>Aucune licence renseignée</strong><span>Ajoute une licence (Zelda, Assassin\u2019s Creed…) dans la fiche d\u2019un jeu pour le regrouper ici.</span></div>';
-  h += '<div class="lic-bar"><div class="lic-sorts" role="group" aria-label="Trier"><span class="lic-sorts-lab">Trier par :</span>' + [['complete', 'Avancement'], ['missing', 'Manquants'], ['size', 'Taille'], ['az', 'A → Z']].map(function(s){ return '<button type="button" data-licsort="' + s[0] + '" aria-pressed="' + (srt === s[0]) + '">' + s[1] + '</button>'; }).join('') + '</div>'
+  h += '<div class="lic-bar"><div class="lic-sorts" role="group" aria-label="Trier"><span class="lic-sorts-lab">Trier par :</span>' + [['most', 'Le plus de jeux'], ['missing', 'Le plus de manquants'], ['almost', 'Presque complètes'], ['complete', 'Complètes']].map(function(s){ return '<button type="button" data-licsort="' + s[0] + '" aria-pressed="' + (srt === s[0]) + '">' + s[1] + '</button>'; }).join('') + '</div>'
     + (S.readOnly ? '' : '<div class="lic-selbar">' + (S.licSel ? '<button type="button" class="btn danger small" data-licdel="__sel"' + (S.licSel.length ? '' : ' disabled') + '>' + ICON_TRASH + ' Supprimer (' + S.licSel.length + ')</button><button type="button" class="btn ghost small" data-licselmode="1">Annuler</button>' : '<button type="button" class="btn ghost small" data-licselmode="1">☑ Sélectionner</button>') + '</div>')
     + '<label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher une licence</span><input id="licSearch" type="search" placeholder="Rechercher une licence…" value="' + esc(S.licQ || '') + '" autocomplete="off"></label></div>';
   if (!list.length) return h + '<div class="card empty"><strong>Aucune licence trouvée</strong><span>Essaie un autre nom.</span></div>';
@@ -4272,7 +4308,9 @@ function pick(v){
     S.home[hkey] = arr; S.home.swap = true; S.pending = true;
     setVal(cb, arr.filter(function(x){ return x !== '__autres__'; }));
     if (v === '') { closeCombo(); return; }
-    renderPop(); focusCombo(cb); return;
+    var cin = cb.querySelector('.combo-in'), cid = cin && cin.id; S.pending = false; closeCombo(); render();
+    var nin = cid && document.getElementById(cid), ncb = nin && nin.closest('.combo'); if (ncb) { openCombo(ncb); focusCombo(ncb); }
+    return;
   }
   if (f) { closeCombo(); if (f.indexOf('home:') === 0) { S.home[f.slice(5)] = v; S.home.swap = true; } else S.f[f] = v; render(); return; }
   if (multi) {
@@ -5262,9 +5300,12 @@ document.addEventListener('click', async function(e){
   }
   if (t.getAttribute('data-act') === 'shuffleBanner') {
     var g = S.games.find(function(x){ return x.id === t.getAttribute('data-id'); }); if (!g) return;
-    if (g.artId && g.useArt === false) { g.useArt = true; render(); try { await withRetry(function(){ return db.collection('games').doc(g.id).update({useArt:true}); }); } catch (x) { toast(failMsg(x)); } return; }
-    var nb = randomBanner(g.bannerId); if (!nb) { toast('Ajoute d\u2019abord des fonds dans la base de données.'); return; }
-    g.bannerId = nb; var patchB = {bannerId:nb}; if (g.artId) { g.useArt = false; patchB.useArt = false; } render();
+    var bl = metaBanners().slice(), cur = g.artId && g.useArt !== false ? '__art' : (bl.indexOf(g.bannerId) >= 0 ? g.bannerId : ''), seq = (g.artId ? ['__art'] : []).concat(bl);
+    if (!seq.length) { toast('Ajoute d\u2019abord des fonds dans la base de données.'); return; }
+    var nb = seq[(seq.indexOf(cur) + 1) % seq.length], patchB;
+    if (nb === '__art') { g.useArt = true; patchB = {useArt:true}; toast('Fond : illustration du jeu'); }
+    else { g.bannerId = nb; g.useArt = false; patchB = {bannerId:nb, useArt:false}; toast('Fond ' + (bl.indexOf(nb) + 1) + ' sur ' + bl.length); }
+    render();
     try { await withRetry(function(){ return db.collection('games').doc(g.id).update(patchB); }); } catch (x) { toast(failMsg(x)); }
   }
 });
@@ -5592,7 +5633,7 @@ function viewDiscover(){
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
   return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? '' : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
-    return '<article class="card disc is-click" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><span class="d-cov"><img src="' + esc(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span><h3>' + esc(d.title) + '</h3>' + (when ? '<span class="d-when">' + when + '</span>' : '')
+    return '<article class="card disc is-click" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><span class="d-cov">' + (function(u){ return '<img class="bgi" src="' + esc(u) + '" alt="" aria-hidden="true" referrerpolicy="no-referrer"><img class="fgi" src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'; })(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '</span><h3>' + esc(d.title) + '</h3>' + (when ? '<span class="d-when">' + when + '</span>' : '')
       + (list(d.platforms).length ? '<div class="tags">' + list(d.platforms).map(function(x){ return '<span class="tag t-lav">' + esc(x) + '</span>'; }).join('') + '</div>' : '')
       + '<div class="d-acts"><a class="btn small ghost" href="' + esc(nRelUrl(d)) + '" target="_blank" rel="noopener">Voir sur internet ↗</a>'
       + (S.readOnly ? '' : '<button type="button" class="btn small" data-ndwish="' + esc(d.id) + '">' + ICON_HEART + ' Wishlist</button><span class="spacer"></span><button type="button" class="iconbtn" data-ndrm="' + esc(d.id) + '" aria-label="Retirer ' + esc(d.title) + '" title="Retirer de la liste"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>')
@@ -5639,7 +5680,7 @@ function viewNews(){
   var cats = ['Actu', 'Test', 'Sortie', 'Conférence', 'Rumeur'].filter(function(c){ return rest.some(function(a){ return ncatOf(a.category) === c; }); });
   var shown = f ? rest.filter(function(a){ return ncatOf(a.category) === f; }) : rest;
   h += '<div class="nlayout"><div class="nmain">';
-  h += nrelsStrip(N, ref);
+  h += nrelsStrip(N, ref) + nConfBanner(N, ref, isLatest);
   if (hl) h += '<article class="card nhero">' + nArtVis(hl, 0, true) + '<div class="nh-body"><div class="nmeta">' + ncat(hl.category) + nconf(hl.confirmations) + '</div><h2>' + esc(hl.title) + '</h2>' + (hl.summary ? '<p>' + esc(hl.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(hl) + (hl.others ? '<span>et ' + esc(hl.others) + ' autres</span>' : '') + '</div></div></article>';
   if (cats.length > 1) h += '<div class="nfilters" role="group" aria-label="Filtrer par type"><button type="button" data-ncat="" aria-pressed="' + !f + '">Tout <span>' + rest.length + '</span></button>' + cats.map(function(c){ return '<button type="button" data-ncat="' + c + '" aria-pressed="' + (f === c) + '" style="--nc:' + NCAT[c][0] + '">' + c + ' <span>' + rest.filter(function(a){ return ncatOf(a.category) === c; }).length + '</span></button>'; }).join('') + '</div>';
   h += '<div class="ngrid">' + shown.map(function(a, i){ return '<article class="card nart" style="--i:' + i + '">' + nArtVis(a, i + 1) + '<div class="nmeta">' + ncat(a.category) + nconf(a.confirmations) + '</div><h3>' + esc(a.title) + '</h3>' + (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(a) + '</div></article>'; }).join('') + '</div></div>';
@@ -5647,7 +5688,6 @@ function viewNews(){
   var confs = (N.conferences || []).filter(function(c){ return Date.parse(c.date) > ref - 3 * 3600e3; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
   var weekEnd = ref + 7 * 864e5, rels = (N.releases || []).filter(function(r){ var t = Date.parse(r.date); return t >= ref - 864e5 && t <= weekEnd; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
   h += '<aside class="nside">';
-  if (confs[0]) { var c0 = confs[0]; h += '<section class="nconfcard"><span class="nc-k">Prochaine conférence</span><b>' + esc(c0.name) + '</b><span class="nc-d">' + new Date(c0.date).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) + '</span>' + (isLatest ? '<div class="ncount" data-countdown="' + esc(c0.date) + '">' + countdownHtml(c0.date) + '</div>' : '') + (safeUrl(c0.url) ? '<a class="nlink light" href="' + esc(safeUrl(c0.url)) + '" target="_blank" rel="noopener">Infos ↗</a>' : '') + (confs.length > 1 ? '<ul class="nc-more">' + confs.slice(1, 4).map(function(c){ return '<li><b>' + esc(c.name) + '</b><span>' + new Date(c.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'}) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>'; }
   h += '</aside></div>';
   var srcL = (N.sources || []).map(function(s){ var m = (N.sourceLinks || []).filter(function(x){ return x.name === s; })[0]; return {name:s, url:(m && safeUrl(m.url)) || 'https://www.google.com/search?q=' + encodeURIComponent(s)}; });
   if (srcL.length) h += '<details class="card nsrc-bottom"><summary><span>Sources de l\u2019édition</span><b>' + srcL.length + '</b></summary><div class="nsrc-links">' + srcL.map(function(x){ return '<a class="tag t-gray" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.name) + ' ↗</a>'; }).join('') + '</div></details>';
@@ -5656,6 +5696,13 @@ function viewNews(){
 }
 /* sorties de la semaine en bandeau horizontal, du premier au dernier jour */
 function nrelC(r){ return '<button type="button" class="nrel nrc" data-nrel="' + NREL_LIST.indexOf(r) + '" aria-haspopup="dialog" title="' + esc(r.title) + ' — options"><span class="nr-t"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nPlatTag).join('') + '</span></span></button>'; }
+function nConfBanner(N, ref, isLatest){
+  var confs = (N.conferences || []).filter(function(c){ return Date.parse(c.date) > ref - 3 * 3600e3; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
+  if (!confs[0]) return ''; var c0 = confs[0];
+  return '<section class="nconfcard nconf-banner"><div class="ncb-main"><span class="nc-k">Prochaine conférence</span><b>' + esc(c0.name) + '</b><span class="nc-d">' + new Date(c0.date).toLocaleString('fr-FR', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'}) + '</span>' + (safeUrl(c0.url) ? '<a class="nlink light" href="' + esc(safeUrl(c0.url)) + '" target="_blank" rel="noopener">Infos ↗</a>' : '') + '</div>'
+    + (isLatest ? '<div class="ncount" data-countdown="' + esc(c0.date) + '">' + countdownHtml(c0.date) + '</div>' : '')
+    + (confs.length > 1 ? '<ul class="nc-more">' + confs.slice(1, 5).map(function(c){ return '<li><b>' + esc(c.name) + '</b><span>' + new Date(c.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'}) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>';
+}
 function nrelsStrip(N, ref){
   var all = N.releases || [], r0 = new Date(ref), d0 = new Date(r0.getFullYear(), r0.getMonth(), r0.getDate()), t0 = d0.getTime();
   var kOf = function(d){ return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); }, days = [];
@@ -5822,10 +5869,10 @@ function viewCatPlat(p){
     + (function(){ var cnt = {}; rows.forEach(function(r){ var c = catFirst(r.t); cnt[c] = (cnt[c] || 0) + 1; }); var keys = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ★'.split(''); return '<div class="cat-abc" role="group" aria-label="Première lettre"><button type="button" data-catch="" aria-pressed="' + !F.ch + '">Tout</button>' + keys.filter(function(k){ return k !== '★' || cnt['★']; }).map(function(k){ return '<button type="button" data-catch="' + k + '" aria-pressed="' + (F.ch === k) + '"' + (cnt[k] ? '' : ' disabled') + ' title="' + (cnt[k] || 0) + ' jeu' + ((cnt[k] || 0) > 1 ? 'x' : '') + '">' + (k === '★' ? '…' : k) + '</button>'; }).join('') + '</div>'; })()
     + '<div class="cat-count">' + res.length.toLocaleString('fr-FR') + ' jeu' + (res.length > 1 ? 'x' : '') + (res.length !== rows.length ? ' sur ' + rows.length.toLocaleString('fr-FR') : '') + '</div>';
   if (!res.length) return h + '<div class="empty"><strong>Aucun jeu ne correspond</strong><button type="button" class="btn ghost small" data-catreset>Réinitialiser les filtres</button></div></section>';
-  h += '<div class="cat-list" role="table" aria-label="Jeux ' + esc(p.name) + '"><div class="cat-row cat-head" role="row"><span role="columnheader">Jeu</span><span role="columnheader">Année</span><span role="columnheader">Développeur · Éditeur</span><span role="columnheader">Régions</span><span role="columnheader"><span class="sr">Actions</span></span></div>'
+  h += '<div class="cat-list" role="table" aria-label="Jeux ' + esc(p.name) + '"><div class="cat-row cat-head" role="row"><span role="columnheader">Jeu</span><span role="columnheader">Année</span><span role="columnheader">Développeur · Éditeur</span><span role="columnheader">Régions</span><span role="columnheader"><button type="button" class="cr-sth" data-catown="' + (F.own === 'own' ? 'wish' : F.own === 'wish' ? 'not' : F.own === 'not' ? '' : 'own') + '" title="Filtrer : dans ma collection → wishlist → manquants → tous">Statut ' + (F.own === 'own' ? '· Collection' : F.own === 'wish' ? '· Wishlist' : F.own === 'not' ? '· Manquants' : '▾') + '</button></span><span role="columnheader"><span class="sr">Actions</span></span></div>'
     + res.slice(0, lim).map(function(r){ var o = isOwn(r);
-      return '<div class="cat-row' + (o ? ' is-' + o : '') + '" role="row" data-catinfo="' + r.i + '"><div class="cr-tw" role="cell">' + catCv(r, hasCv) + '<div class="cr-t"><button type="button" class="cr-open" data-catinfo="' + r.i + '" title="Voir la fiche du jeu"><b>' + esc(r.t) + '</b></button>' + (r.fr && r.fr !== r.t ? '<small>FR : ' + esc(r.fr) + '</small>' : '') + (r.jp && r.jp !== r.t ? '<small>JP : ' + esc(r.jp) + '</small>' : '') + (r.gn ? '<small class="cr-g">' + esc(r.gn) + '</small>' : '') + '</div></div><div class="cr-y" role="cell">' + esc(r.y || '—') + '</div><div class="cr-dp" role="cell"><span>' + esc(r.d || '—') + '</span>' + (r.p && r.p !== r.d ? '<small>' + esc(r.p) + '</small>' : '') + '</div><div class="cr-r" role="cell">' + catRegBadges(r.r) + '</div><div class="cr-a" role="cell">'
-        + (o ? '<span class="tag ' + (o === 'own' ? 't-mint' : 't-rose') + '">' + (o === 'own' ? '✓ Collection' : '♥ Wishlist') + '</span>' : (S.readOnly ? '' : '<button type="button" data-catadd="' + r.i + '" title="Ajouter à ma collection" aria-label="Ajouter ' + esc(r.t) + ' à ma collection">＋</button><button type="button" data-catwish="' + r.i + '" title="Ajouter à ma wishlist" aria-label="Ajouter ' + esc(r.t) + ' à ma wishlist">♥</button>'))
+      return '<div class="cat-row' + (o ? ' is-' + o : '') + '" role="row" data-catinfo="' + r.i + '"><div class="cr-tw" role="cell">' + catCv(r, hasCv) + '<div class="cr-t"><button type="button" class="cr-open" data-catinfo="' + r.i + '" title="Voir la fiche du jeu"><b>' + esc(r.t) + '</b></button>' + (r.fr && r.fr !== r.t ? '<small>FR : ' + esc(r.fr) + '</small>' : '') + (r.jp && r.jp !== r.t ? '<small>JP : ' + esc(r.jp) + '</small>' : '') + (r.gn ? '<small class="cr-g">' + esc(r.gn) + '</small>' : '') + '</div></div><div class="cr-y" role="cell">' + esc(r.y || '—') + '</div><div class="cr-dp" role="cell"><span>' + esc(r.d || '—') + '</span>' + (r.p && r.p !== r.d ? '<small>' + esc(r.p) + '</small>' : '') + '</div><div class="cr-r" role="cell">' + catRegBadges(r.r) + '</div><div class="cr-st" role="cell">' + (o ? '<span class="tag ' + (o === 'own' ? 't-mint' : 't-rose') + '">' + (o === 'own' ? '✓ Collection' : '♥ Wishlist') + '</span>' : '') + '</div><div class="cr-a" role="cell">'
+        + (o ? '' : (S.readOnly ? '' : '<button type="button" data-catadd="' + r.i + '" title="Ajouter à ma collection" aria-label="Ajouter ' + esc(r.t) + ' à ma collection">＋</button><button type="button" data-catwish="' + r.i + '" title="Ajouter à ma wishlist" aria-label="Ajouter ' + esc(r.t) + ' à ma wishlist">♥</button>'))
         + (S.readOnly ? '' : '<button type="button" data-catdisc="' + r.i + '" title="Ajouter à Jeux à découvrir" aria-label="Ajouter ' + esc(r.t) + ' à Jeux à découvrir">☆</button>') + '<a href="' + esc(r.u || 'https://www.google.com/search?q=' + encodeURIComponent(r.t + ' ' + p.name)) + '" target="_blank" rel="noopener" title="' + (r.u ? 'Voir sur MobyGames' : 'Voir sur internet') + '" aria-label="Voir ' + esc(r.t) + ' sur internet">↗</a></div></div>'; }).join('') + '</div>';
   if (hasCv) setTimeout(function(){ catCvLoad(p, key, res.slice(0, lim)); setTimeout(function(){ catEnsureCovers(p, key, res.slice(0, lim)); }, 600); }, 0);
   if (res.length > lim) h += '<button type="button" class="btn ghost cat-more" data-catmore>Afficher ' + Math.min(200, res.length - lim) + ' jeux de plus (' + (res.length - lim).toLocaleString('fr-FR') + ' restants)</button>';
@@ -6426,7 +6473,7 @@ function licGroup(title, rs, lic){
     var e = r.e, g = r.g, cv = g && g.coverId ? blob(g.coverId) : '', short = e.title.replace(new RegExp('^' + lic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*[:\\-–]?\\s*', 'i'), '') || e.title;
     var lang = e.lang === 'EN' ? '<span class="tag t-gray" title="Pas d\u2019édition française">' + licFlag('GB') + ' EN</span>' : e.lang === 'FR' ? '<span class="tag t-gray">' + licFlag('FR') + ' FR</span>' : '';
     var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">✓ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
-    return '<article class="lg-card is-click' + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + (cv ? '<img src="' + cv + '" alt="">' : '<span>' + esc(initials(short)) + '</span>') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
+    return '<article class="lg-card is-click' + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + (cv ? '<img class="bgi" src="' + cv + '" alt="" aria-hidden="true"><img class="fgi" src="' + cv + '" alt="">' : '<span>' + esc(initials(short)) + '</span>') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
   }).join('') + '</div></section>';
 }
 function licFlag(c){ try { var k = String(c).toLowerCase(); return typeof FLAGS !== 'undefined' && (FLAGS[k] || (k === 'gb' && (FLAGS.en || FLAGS.uk))) || ''; } catch (x) { return ''; } }
@@ -6668,7 +6715,7 @@ function giHtml(){
     + (i.cf && i.cf.y ? fact('Désaccord d’année', 'MobyGames ' + esc(i.cf.y.moby) + ' · IGDB ' + esc(i.cf.y.igdb)) : '');
   var sec = function(t, c){ return '<section class="gi-sec"><h4>' + t + '</h4>' + c + '</section>'; };
   var trd = GITR[String(d.id || i.title)], fr = S.giLang === 'fr', sumTxt = fr && trd && trd.summary ? trd.summary : d.summary, stoTxt = fr && trd && trd.storyline ? trd.storyline : d.storyline;
-  return '<header><h2 class="sr">' + esc(i.title) + '</h2>' + ((d.summary || d.storyline) ? '<div class="ch-switch gi-lang" role="group" aria-label="Langue"><button type="button" data-gilang="fr" aria-pressed="' + fr + '">FR</button><button type="button" data-gilang="en" aria-pressed="' + !fr + '">EN</button></div>' : '<span></span>') + '<button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
+  return '<header class="gi-head"><h2 class="sr">' + esc(i.title) + '</h2>' + ((d.summary || d.storyline) ? '<div class="ch-switch gi-lang" role="group" aria-label="Langue"><button type="button" data-gilang="fr" aria-pressed="' + fr + '">FR</button><button type="button" data-gilang="en" aria-pressed="' + !fr + '">EN</button></div>' : '<span></span>') + '<button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
     + '<div class="body gi-body">'
     + '<div class="gi-hero"' + (art ? ' style="--gi-art:url(\'' + esc(art) + '\')"' : '') + '>' + (cover ? '<img class="gi-cover" src="' + esc(cover) + '" alt="Jaquette de ' + esc(i.title) + '" referrerpolicy="no-referrer">' : '<span class="gi-cover gi-cover0">' + esc(initials(i.title)) + '</span>')
     + '<div class="gi-hd"><span class="gi-plat">' + esc(plats.length ? plats.slice(0, 4).join(' · ') + (plats.length > 4 ? ' +' + (plats.length - 4) : '') : (i.platform || '')) + '</span><h3 class="gi-title">' + esc(i.title) + '</h3><span class="gi-sub">' + esc([y, genres.split(', ')[0]].filter(Boolean).join(' · ')) + '</span>' + (rating ? '<span class="gi-rate"><b>' + rating[0] + '</b>/100 · ' + rating[1] + '</span>' : '') + '</div></div>'
@@ -6958,12 +7005,13 @@ function giRealCover(info){ return (info.cvu && info.cvu !== 'none') || /^data:i
 /* ---------- Fiche : traduction français / anglais ---------- */
 var GITR = {};
 async function giTranslate(){
-  var d = GI && GI.data; if (!d || !(d.summary || d.storyline) || !sampleFn) return;
+  var d = GI && GI.data; if (!d || !(d.summary || d.storyline)) return;
+  if (!sampleFn && !window.PS_SB) { GI.trErr = 'La traduction n\u2019est pas disponible dans cette vue.'; giRedraw(); return; }
   var id = String(d.id || GI.info.title); if (GITR[id] || GI.tr) return;
   try { var c = await db.doc('translations/' + id).get(); if (c.exists) { GITR[id] = c.data(); giRedraw(); return; } } catch (x) {}
   GI.tr = true; giRedraw();
   try {
-    var r = await sampleFn.json('Traduis en français naturel, fidèlement et sans rien ajouter, ces textes de présentation d\u2019un jeu vidéo. Garde les noms propres et les titres de jeux tels quels. Réponds uniquement en JSON : {"summary":"…","storyline":"…"} (chaîne vide si le texte d\u2019origine est vide).\n\nsummary : ' + (d.summary || '') + '\n\nstoryline : ' + (d.storyline || ''), {modelTier:'fast'});
+    var r = await giAsk('Traduis en français naturel, fidèlement et sans rien ajouter, ces textes de présentation d\u2019un jeu vidéo. Garde les noms propres et les titres de jeux tels quels. Réponds uniquement en JSON : {"summary":"…","storyline":"…"} (chaîne vide si le texte d\u2019origine est vide).\n\nsummary : ' + (d.summary || '') + '\n\nstoryline : ' + (d.storyline || ''), {modelTier:'fast'});
     if (r && (r.summary || r.storyline)) { GITR[id] = {summary:r.summary || '', storyline:r.storyline || ''}; if (!S.readOnly) db.collection('translations').doc(id).set(GITR[id]).catch(function(){}); }
   } catch (x) { GI.trErr = 'Traduction indisponible pour le moment' + (x && x.message && x.message !== 'sample_failed' ? ' (' + x.message + ')' : '') + '.'; }
   if (!GITR[id] && !GI.trErr) GI.trErr = 'La traduction n\u2019a rien renvoyé.';
@@ -6978,7 +7026,7 @@ document.addEventListener('click', function(e){
 S.giLang = (function(){ try { return localStorage.getItem('ps-gilang') || 'fr'; } catch (x) { return 'fr'; } })();
 
 /* ---------- Actus : couleur des plateformes ---------- */
-function nPlatTag(p){ var s = String(p || ''), c = /switch|nintendo|wii|3ds|\bds\b|game ?boy/i.test(s) ? 'np-n' : /xbox/i.test(s) ? 'np-x' : /ps\d|ps vita|psp|playstation/i.test(s) ? 'np-ps' : /^(pc|mac|windows|linux|steam)/i.test(s) ? 'np-pc' : 'np-o'; return '<span class="nptag ' + c + '">' + esc(s) + '</span>'; }
+function nPlatTag(p){ var s = String(p || ''), c = /switch|nintendo|\bnsw|wii|3ds|\bds\b|game ?boy|\bgb|n64|snes|\bnes\b/i.test(s) ? 'np-n' : /xbox|xone|\bx360|series ?x|series ?s|\bxsx/i.test(s) ? 'np-x' : /\bps\d|ps ?vita|\bpsp|playstation|\bpsvr/i.test(s) ? 'np-ps' : /^(pc|mac|windows|win|linux|steam|dos)\b/i.test(s) ? 'np-pc' : 'np-o'; return '<span class="nptag ' + c + '">' + esc(s) + '</span>'; }
 
 /* ---------- Jaquette & concordance : toujours accessible depuis la fiche ---------- */
 S.covOpen = S.covOpen || {};
@@ -6988,6 +7036,17 @@ document.addEventListener('click', function(e){
   if (t.hasAttribute('data-covopen')) { S.covOpen[g.id] = true; delete S.covSkip[g.id]; CS[g.id] = {mode:'search', q:''}; render(); var el = document.querySelector('.covs'); if (el) el.scrollIntoView({block:'center', behavior:'smooth'}); }
   else { S.covOpen[g.id] = false; S.covSkip[g.id] = true; render(); }
 });
+
+/* ---------- Appel à Claude (traduction des fiches) : fonction Supabase ou outil intégré ---------- */
+async function giAsk(prompt){
+  if (window.PS_SB) {
+    var r = await window.PS_SB.functions.invoke('claude', {body:{prompt:prompt, json:true, tier:'fast'}});
+    if (r.error) { var m = r.error.message || 'erreur'; try { var j = await r.error.context.json(); m = (j && j.error) || m; } catch (x) {} throw new Error(m); }
+    var t = String((r.data && r.data.text) || ''), a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a < 0) throw new Error('réponse vide');
+    return JSON.parse(t.slice(a, b + 1));
+  }
+  return sampleFn.json(prompt, {modelTier:'fast'});
+}
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
