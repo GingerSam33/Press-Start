@@ -3189,6 +3189,21 @@ dialog.ncal-dlg{width:min(1240px,calc(100vw - 24px))}
 .ncal-in .ncal-scroll{overflow:auto;padding:14px 18px 20px}
 .ncal-in .ncal{margin:0;border:0;box-shadow:none !important;padding:0;background:transparent}
 .ncal-in .ncal-g{min-width:900px}
+/* actus : vraies vignettes + aperçu d'article */
+.nvis.nreal{overflow:hidden;background:var(--thumb)}
+.nvis.nreal img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.nart.is-click:hover .nvis.nreal img,.nhero.is-click:hover .nvis.nreal img{transform:scale(1.04)}
+.nart.is-click,.nhero.is-click{cursor:pointer}
+.nart-hero{min-height:220px}
+.nart-hero .gi-hd{max-width:780px}
+.nart-hero .gi-title{font-size:clamp(20px,2.8vw,30px) !important}
+.nart-img{display:block;width:100%;max-height:420px;object-fit:cover;border-radius:16px}
+.nart-read{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 20px;text-decoration:none}
+.nart-src{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.nart-s{position:relative;display:flex;flex-direction:column;gap:2px;padding:10px 34px 10px 12px;border-radius:12px;background:var(--sunken);border:1px solid var(--card-border);color:var(--text);text-decoration:none;transition:transform .2s cubic-bezier(.3,1.5,.5,1),border-color .2s}
+.nart-s:hover{transform:translateY(-2px);border-color:var(--accent)}
+.nart-s b{font-size:13px}.nart-s span{font-size:12px;color:var(--muted);line-height:1.35}
+.nart-s i{position:absolute;right:12px;top:10px;font-style:normal;color:var(--accent-text)}
 </style>
 </head>
 <body>
@@ -5885,7 +5900,7 @@ document.addEventListener('keydown', function(e){
 /* ---------- Actus du jour ---------- */
 var NEWS = null, EDITIONS = [], NIMGS = [], DISC = [], NREL_LIST = [], NIMG_PICK = [], NBUB = null;
 function nSeedShuffle(arr, seed){ var a = arr.slice(), h = 2166136261; String(seed).split('').forEach(function(ch){ h = Math.imul(h ^ ch.charCodeAt(0), 16777619); }); var rnd = function(){ h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); h ^= h >>> 16; return (h >>> 0) / 4294967296; }; for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-function nArtVis(a, i, big){ var im = NIMG_PICK.length ? NIMG_PICK[i % NIMG_PICK.length] : null; if (!im || !im.svg) return nvisual(a.category, big); return '<div class="nvis nimg' + (big ? ' big' : '') + '"><img src="data:image/svg+xml;charset=utf-8,' + encodeURIComponent(im.svg) + '" alt="" loading="lazy"></div>'; }
+function nArtVis(a, i, big){ if (a && /^https:\/\//.test(a.img || '')) return '<div class="nvis nimg nreal' + (big ? ' big' : '') + '"><img src="' + esc(a.img) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'nbroken\');this.remove()"></div>'; var im = NIMG_PICK.length ? NIMG_PICK[i % NIMG_PICK.length] : null; if (!im || !im.svg) return nvisual(a.category, big); return '<div class="nvis nimg' + (big ? ' big' : '') + '"><img src="data:image/svg+xml;charset=utf-8,' + encodeURIComponent(im.svg) + '" alt="" loading="lazy"></div>'; }
 function discId(t){ return 'd-' + (norm(t).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'jeu'); }
 function discHas(t){ var id = discId(t); return DISC.some(function(d){ return d.id === id; }); }
 function nbubPlace(){ if (!NBUB) return; var el = NBUB.el, src = NBUB.src; if (!document.body.contains(src)) { nbubClose(); return; }
@@ -5960,9 +5975,10 @@ function viewNews(){
   var shown = f ? rest.filter(function(a){ return ncatOf(a.category) === f; }) : rest;
   h += '<div class="nlayout"><div class="nmain">';
   h += nrelsStrip(N, ref) + nConfBanner(N, ref, isLatest);
-  if (hl) h += '<article class="card nhero">' + nArtVis(hl, 0, true) + '<div class="nh-body"><div class="nmeta">' + ncat(hl.category) + nconf(hl.confirmations) + '</div><h2>' + esc(hl.title) + '</h2>' + (hl.summary ? '<p>' + esc(hl.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(hl) + (hl.others ? '<span>et ' + esc(hl.others) + ' autres</span>' : '') + '</div></div></article>';
+  S._nArts = [hl].concat(shown);
+  if (hl) h += '<article class="card nhero is-click" data-nart="0">' + nArtVis(hl, 0, true) + '<div class="nh-body"><div class="nmeta">' + ncat(hl.category) + nconf(hl.confirmations) + '</div><h2>' + esc(hl.title) + '</h2>' + (hl.summary ? '<p>' + esc(hl.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(hl) + (hl.others ? '<span>et ' + esc(hl.others) + ' autres</span>' : '') + '</div></div></article>';
   if (cats.length > 1) h += '<div class="nfilters" role="group" aria-label="Filtrer par type"><button type="button" data-ncat="" aria-pressed="' + !f + '">Tout <span>' + rest.length + '</span></button>' + cats.map(function(c){ return '<button type="button" data-ncat="' + c + '" aria-pressed="' + (f === c) + '" style="--nc:' + NCAT[c][0] + '">' + c + ' <span>' + rest.filter(function(a){ return ncatOf(a.category) === c; }).length + '</span></button>'; }).join('') + '</div>';
-  h += '<div class="ngrid">' + shown.map(function(a, i){ return '<article class="card nart" style="--i:' + i + '">' + nArtVis(a, i + 1) + '<div class="nmeta">' + ncat(a.category) + nconf(a.confirmations) + '</div><h3>' + esc(a.title) + '</h3>' + (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(a) + '</div></article>'; }).join('') + '</div></div>';
+  h += '<div class="ngrid">' + shown.map(function(a, i){ return '<article class="card nart is-click" data-nart="' + (i + 1) + '" style="--i:' + i + '">' + nArtVis(a, i + 1) + '<div class="nmeta">' + ncat(a.category) + nconf(a.confirmations) + '</div><h3>' + esc(a.title) + '</h3>' + (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(a) + '</div></article>'; }).join('') + '</div></div>';
   // colonne droite
   var confs = (N.conferences || []).filter(function(c){ return Date.parse(c.date) > ref - 3 * 3600e3; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
   var weekEnd = ref + 7 * 864e5, rels = (N.releases || []).filter(function(r){ var t = Date.parse(r.date); return t >= ref - 864e5 && t <= weekEnd; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
@@ -7580,6 +7596,27 @@ document.addEventListener('click', function(e){
   if (t.hasAttribute('data-nmonth')) { var base = S.newsMonth ? new Date(S.newsMonth) : new Date((S._ncal && S._ncal.ref) || Date.now()); var b = new Date(base.getFullYear(), base.getMonth() + (+t.getAttribute('data-nmonth')), 1); S.newsMonth = b.getTime(); ncalDlgDraw(); return; }
   S.newsCalOpen = false; ncalDlgOpen();
 }, true);
+
+
+/* ---------- Actus : aperçu d'un article avec toutes ses sources ---------- */
+function nartHtml(a){
+  var links = (a.links && a.links.length ? a.links : [{source:a.source, url:a.url}]).filter(function(l){ return safeUrl(l.url); });
+  var main = links[0] || null, img = /^https:\/\//.test(a.img || '') ? a.img : '';
+  var d = a.date ? new Date(a.date) : null;
+  return '<header class="gi-head"><h2 class="sr">' + esc(a.title) + '</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body gi-body">'
+    + '<div class="gi-hero nart-hero"' + (img ? ' style="--gi-art:url(\'' + esc(img) + '\')"' : '') + '><div class="gi-hd"><span class="gi-plat">' + esc([a.source, d ? d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'}) + ' · ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : ''].filter(Boolean).join(' · ')) + '</span><h3 class="gi-title">' + esc(a.title) + '</h3><span class="gi-sub">' + ncat(a.category) + (a.confirmations > 1 ? ' · confirmé par ' + a.confirmations + ' sources' : '') + '</span></div></div>'
+    + (img ? '<img class="nart-img" src="' + esc(img) + '" alt="" referrerpolicy="no-referrer" onerror="this.remove()">' : '')
+    + '<section class="gi-sec"><h4>En bref</h4><p class="gi-txt">' + esc(a.excerpt || a.summary || 'Pas de résumé fourni par le site.') + (a.excerpt && a.excerpt.length >= 880 ? '…' : '') + '</p></section>'
+    + (main ? '<a class="btn nart-read" href="' + esc(safeUrl(main.url)) + '" target="_blank" rel="noopener">Lire l\u2019article complet sur ' + esc(main.source) + ' ↗</a>' : '')
+    + (links.length > 1 ? '<section class="gi-sec"><h4>Toutes les sources (' + links.length + ')</h4><div class="nart-src">' + links.map(function(l){ return '<a class="nart-s" href="' + esc(safeUrl(l.url)) + '" target="_blank" rel="noopener"><b>' + esc(l.source) + '</b>' + (l.title ? '<span>' + esc(l.title) + '</span>' : '') + '<i aria-hidden="true">↗</i></a>'; }).join('') + '</div></section>' : '')
+    + '</div>';
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-nart]'); if (!t) return;
+  if (e.target.closest('a,button')) return;
+  var a = (S._nArts || [])[+t.getAttribute('data-nart')]; if (!a) return;
+  openDlg('<div class="dlg gi-dlg nart-dlg">' + nartHtml(a) + '</div>');
+});
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
