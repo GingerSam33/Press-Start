@@ -3103,6 +3103,39 @@ html[data-tone-dark] .cam-own{color:#6FD39A}html[data-tone-dark] .cam-wish{color
 .lg-del svg{width:16px;height:16px}
 .lg-del:hover{transform:scale(1.1)}
 .lg-card.editing{animation:none}
+/* jeux à découvrir : cartes de taille identique, image ajustée dans un cadre standard */
+.disc-grid{align-items:stretch !important}
+.disc-card{display:flex;flex-direction:column;height:100%}
+.disc-card .lg-cov{position:relative;aspect-ratio:3/4 !important;overflow:hidden;background:#141020 !important}
+.disc-card .lg-cov .bgi{display:block !important;position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;filter:blur(16px) brightness(.6) saturate(1.2)}
+.disc-card .lg-cov .fgi{position:relative;z-index:1;width:100% !important;height:100% !important;object-fit:contain !important;filter:drop-shadow(0 8px 16px rgba(0,0,0,.45))}
+.disc-card .lg-b{flex:1}
+/* collection par licence : cartes de même taille + édition or pour les jeux possédés */
+.lg-grid{align-items:stretch !important}
+.lg-card:not(.disc-card){display:flex;flex-direction:column;height:100%}
+.lg-card:not(.disc-card) .lg-cov{position:relative;aspect-ratio:3/4 !important;overflow:hidden;background:#141020 !important}
+.lg-card:not(.disc-card) .lg-cov .bgi{display:block !important;position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;filter:blur(16px) brightness(.6) saturate(1.2)}
+.lg-card:not(.disc-card) .lg-cov .fgi{position:relative;z-index:1;width:100% !important;height:100% !important;object-fit:contain !important}
+.lg-card:not(.disc-card) .lg-b{flex:1}
+.lg-chk{display:none !important}
+.lg-card.own{border:2px solid #E3B341 !important;box-shadow:0 6px 0 #B8862A,0 0 0 4px rgba(227,179,65,.18),0 18px 30px -16px rgba(184,134,42,.7) !important}
+.lg-card.own:hover{box-shadow:0 8px 0 #B8862A,0 0 0 5px rgba(227,179,65,.28),0 22px 36px -16px rgba(184,134,42,.85) !important}
+.lg-rib{position:absolute;top:16px;left:-36px;z-index:3;transform:rotate(-35deg);padding:4px 38px;background:linear-gradient(90deg,#F7D774,#C9962A);color:#4A3200;font-size:10.5px;font-weight:800;letter-spacing:.12em;box-shadow:0 4px 10px -4px rgba(0,0,0,.5)}
+.lg-sheen{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 48%,transparent 60%);background-size:250% 100%;background-position:120% 0;transition:background-position .9s}
+.lg-card.own:hover .lg-sheen{background-position:-40% 0}
+.lg-card.own .lg-own{background:linear-gradient(90deg,#F7D774,#E3B341) !important;color:#4A3200 !important;font-weight:800;border:0}
+.lg-card.miss{filter:none}
+.lg-card.miss .lg-cov .fgi{filter:grayscale(.85) opacity(.6)}
+/* jeux terminés : édition trophée doré */
+.sv-card{position:relative}
+.sv-card.done{border:2px solid #E3B341 !important;box-shadow:0 6px 0 #B8862A,0 0 0 4px rgba(227,179,65,.18),0 20px 32px -18px rgba(184,134,42,.7) !important}
+.sv-card.done:hover{box-shadow:0 8px 0 #B8862A,0 0 0 5px rgba(227,179,65,.28),0 24px 38px -18px rgba(184,134,42,.85) !important}
+.sv-card.done .sv-body{position:relative}
+.sv-trophy{position:absolute;right:16px;top:-32px;z-index:3;display:flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE9A8,#E3B341 55%,#B8862A);border:4px solid var(--card);font-size:27px;box-shadow:0 10px 18px -8px rgba(0,0,0,.6);transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.sv-card.done:hover .sv-trophy{transform:rotate(-10deg) scale(1.08)}
+.sv-card.done .sv-body{padding-top:26px}
+.sv-card.done .sv-name{padding-right:64px}
+.sv-card.done .sv-state{border:2px solid #E3B341 !important;background:color-mix(in srgb,#FFE07A 18%,var(--card)) !important}
 </style>
 </head>
 <body>
@@ -5746,7 +5779,7 @@ function suiviCard(g, isDone, i){
       + (S.readOnly ? '' : '<button type="button" class="sv-repos" data-repos="' + esc(g.id) + '" aria-label="Repositionner l\u2019image de ' + esc(g.name) + '" title="Repositionner l\u2019image">' + rsvg('<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"></path>') + '</button>'
       + '<div class="sv-rhint"><span>' + rsvg('<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"></path>') + 'Glisse l\u2019image vers le haut ou le bas</span><button type="button" class="btn small" data-reposok="' + esc(g.id) + '">' + ICON_CHECK + 'Terminé</button></div>') : '<span class="sv-ph">' + esc(initials(g.name)) + '</span>')
     + '</div>'
-    + '<div class="sv-body"><b class="sv-name">' + esc(g.name) + '</b>';
+    + '<div class="sv-body">' + (isDone ? '<span class="sv-trophy" aria-hidden="true" title="Jeu terminé">🏆</span>' : '') + '<b class="sv-name">' + esc(g.name) + '</b>';
   h += '<div class="sv-state">' + statusTag(g.status)
     + (isDone ? (hasNote ? '<span class="sv-sep" aria-hidden="true"></span><span class="sv-note">' + shinyStars(s5) + '<b class="gold-num">' + noteFmt(s5) + '<small>/5</small></b><span class="tag t-' + vd[1] + '">' + vd[0] + '</span></span>' : '<span class="sv-sep" aria-hidden="true"></span><span class="sv-note none">Pas encore noté · <span class="link-like">Noter le jeu</span></span>') : '')
     + '</div>';
@@ -5826,7 +5859,7 @@ function viewDiscover(){
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
   return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? '' : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
-    return '<article class="lg-card is-click disc-card" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><div class="lg-cov"><img class="fgi" src="' + esc(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></div><div class="lg-b"><b class="lg-t">' + esc(d.title) + '</b>'
+    return '<article class="lg-card is-click disc-card" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><div class="lg-cov">' + (function(u){ return '<img class="bgi" src="' + esc(u) + '" alt="" aria-hidden="true" referrerpolicy="no-referrer"><img class="fgi" src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'; })(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '</div><div class="lg-b"><b class="lg-t">' + esc(d.title) + '</b>'
       + '<div class="lg-m">' + list(d.platforms).map(function(x){ return ctag(x); }).join('') + (when ? '<span class="tag t-sky">' + esc(when) + '</span>' : '') + '</div>'
       + '<div class="d-acts"><a class="btn small ghost" href="' + esc(nRelUrl(d)) + '" target="_blank" rel="noopener">Voir sur internet ↗</a>'
       + (S.readOnly ? '' : '<button type="button" class="btn small" data-ndwish="' + esc(d.id) + '">' + ICON_HEART + ' Wishlist</button><span class="spacer"></span><button type="button" class="iconbtn" data-ndrm="' + esc(d.id) + '" aria-label="Retirer ' + esc(d.title) + '" title="Retirer de la liste"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>')
@@ -6668,12 +6701,14 @@ function viewLicence(){
   return h + delB;
 }
 function licGroup(title, rs, lic){
+  var yOf = function(r){ return +((r.e && r.e.year) || (r.g && r.g.year) || 9999); };
+  rs = rs.slice().sort(function(a, b){ return yOf(a) - yOf(b) || String(a.e.title).localeCompare(String(b.e.title), 'fr'); });
   return '<section class="lg-sec"><h2 class="section-title tt-title">' + esc(title) + ' <span class="lg-n">' + rs.filter(function(r){ return r.owned; }).length + ' / ' + rs.length + '</span></h2><div class="lg-grid">' + rs.map(function(r, i){
     var e = r.e, g = r.g, cv = g && g.coverId ? blob(g.coverId) : '', short = e.title.replace(new RegExp('^' + lic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*[:\\-–]?\\s*', 'i'), '') || e.title;
     var lang = e.lang === 'EN' ? '<span class="tag t-gray" title="Pas d\u2019édition française">' + licFlag('GB') + ' EN</span>' : e.lang === 'FR' ? '<span class="tag t-gray">' + licFlag('FR') + ' FR</span>' : '';
-    var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">✓ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
+    var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">★ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
     var del = S.licEdit2 && !S.readOnly ? '<button type="button" class="lg-del" data-lgdel="' + (r.ei != null ? r.ei : 'g:' + (g && g.id)) + '" title="' + (r.ei != null ? 'Retirer de la liste de la saga' : 'Retirer ce jeu de la licence') + '" aria-label="Retirer">' + ICON_TRASH + '</button>' : '';
-    return '<article class="lg-card is-click' + (S.licEdit2 ? ' editing' : '') + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + del + '<img class="fgi" src="' + (cv || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + '" alt="">' + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
+    return '<article class="lg-card is-click' + (S.licEdit2 ? ' editing' : '') + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + del + (function(u){ return '<img class="bgi" src="' + u + '" alt="" aria-hidden="true"><img class="fgi" src="' + u + '" alt="">'; })(cv || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + (r.owned ? '<span class="lg-rib">POSSÉDÉ</span><span class="lg-sheen" aria-hidden="true"></span>' : '') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
   }).join('') + '</div></section>';
 }
 function licFlag(c){ try { var k = String(c).toLowerCase(); return typeof FLAGS !== 'undefined' && (FLAGS[k] || (k === 'gb' && (FLAGS.en || FLAGS.uk))) || ''; } catch (x) { return ''; } }
