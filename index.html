@@ -2925,6 +2925,10 @@ dialog:has(.gi-dlg){border-radius:26px;overflow:hidden;padding:0}
 .gi-hero + *{padding-left:208px !important;min-height:56px}
 @media (max-width:620px){.gi-hero .gi-cover{width:130px;margin-bottom:-40px}.gi-hero + *{padding-left:0 !important}}
 .gi-f .tags{display:flex;flex-wrap:wrap;gap:4px}
+.gi-facts{grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr)) !important}
+.gi-f{min-width:0;overflow:hidden}
+.gi-f .tag,.gi-f .ctag{max-width:100%;white-space:normal !important;overflow-wrap:anywhere;word-break:break-word;text-align:left;line-height:1.35;height:auto !important;min-height:28px;padding-top:4px;padding-bottom:4px}
+.gi-f .gi-more{white-space:nowrap}
 .gi-f b .tag,.gi-f .tag{font-size:11.5px}
 /* visionneuse : grandes zones précédent / suivant */
 .slb-zone{position:absolute;top:0;bottom:0;width:16%;min-width:70px;border:0;background:transparent;cursor:pointer;display:flex;align-items:center;z-index:2}
@@ -3055,6 +3059,28 @@ button.cfy-d:hover{transform:scale(1.15)}
 .nrg-grid{flex:1 1 auto;min-height:0;grid-auto-rows:min-content !important;align-content:start;align-items:start}
 .nrg-card{overflow:visible !important;max-height:none !important;flex:none}
 .nrg-card .nr-pl{display:flex !important;flex-wrap:wrap;gap:4px;margin-top:2px}
+/* base de jeux : bouton « + Ajouter » (piste D) + tuile Internet (piste E) */
+.cr-a{display:flex;align-items:center;justify-content:flex-end;gap:8px;overflow:visible}
+.cat-row{overflow:visible}
+.cam{position:relative;display:inline-flex}
+.cam-btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px 0 13px;border:0;border-radius:999px;background:var(--accent);color:var(--accent-fg);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 60%,#000);white-space:nowrap}
+.cam-btn{transition:transform .2s cubic-bezier(.3,1.5,.5,1),box-shadow .2s,filter .2s !important}
+.cam-btn:hover{filter:brightness(1.06);transform:translateY(-3px) !important;box-shadow:0 5px 0 color-mix(in srgb,var(--accent) 60%,#000),0 14px 26px -14px var(--accent) !important}
+.cam-btn:active{transform:translateY(2px) !important;box-shadow:0 1px 0 color-mix(in srgb,var(--accent) 60%,#000) !important}
+.cr-net{transition:transform .2s cubic-bezier(.3,1.5,.5,1),box-shadow .2s,background-color .2s,color .2s !important}
+.cr-net:hover{transform:translateY(-3px) !important;box-shadow:0 14px 26px -16px var(--accent)}
+.cr-net:active{transform:translateY(0) !important}
+.cam-chev{margin-left:2px;padding-left:6px;border-left:1px solid color-mix(in srgb,var(--accent-fg) 35%,transparent);box-sizing:content-box;transition:transform .2s}
+.cam.open .cam-chev{transform:rotate(180deg)}
+.cam-pop{position:absolute;right:0;top:calc(100% + 8px);z-index:70;display:flex;flex-direction:column;width:250px;padding:6px;border-radius:16px;background:var(--card);border:1px solid var(--card-border);box-shadow:0 22px 44px -18px rgba(20,18,40,.5);animation:nbubIn .16s cubic-bezier(.2,.8,.2,1)}
+.cam-i{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border:0;border-radius:10px;background:transparent;font:inherit;font-size:13px;font-weight:600;text-align:left;cursor:pointer;transition:background-color .15s,padding-left .2s}
+.cam-i:hover{background:var(--sunken);padding-left:16px}
+.cam-own{color:#1A7A45}.cam-wish{color:#C2304A}.cam-disc{color:#A36A00}
+html[data-tone-dark] .cam-own{color:#6FD39A}html[data-tone-dark] .cam-wish{color:#FF8FA3}html[data-tone-dark] .cam-disc{color:#FFD772}
+.cr-net{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:58px;height:44px;border-radius:12px;background:var(--sunken);color:var(--soft);text-decoration:none;transition:transform .2s cubic-bezier(.3,1.5,.5,1),background-color .2s,color .2s}
+.cr-net small{font-size:10px;font-weight:700}
+.cr-net:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent-text)}
+.cat-row{grid-template-columns:minmax(200px,2.2fr) 56px minmax(140px,1.4fr) minmax(80px,.7fr) 112px 176px !important}
 </style>
 </head>
 <body>
@@ -6023,8 +6049,12 @@ function viewCatPlat(p){
   h += '<div class="cat-list" role="table" aria-label="Jeux ' + esc(p.name) + '"><div class="cat-row cat-head" role="row"><span role="columnheader">Jeu</span><span role="columnheader">Année</span><span role="columnheader">Développeur · Éditeur</span><span role="columnheader">Régions</span><span role="columnheader"><button type="button" class="cr-sth" data-catown="' + (F.own === 'own' ? 'wish' : F.own === 'wish' ? 'not' : F.own === 'not' ? '' : 'own') + '" title="Filtrer : dans ma collection → wishlist → manquants → tous">Statut ' + (F.own === 'own' ? '· Collection' : F.own === 'wish' ? '· Wishlist' : F.own === 'not' ? '· Manquants' : '▾') + '</button></span><span role="columnheader"><span class="sr">Actions</span></span></div>'
     + res.slice(0, lim).map(function(r){ var o = isOwn(r);
       return '<div class="cat-row' + (o ? ' is-' + o : '') + '" role="row" data-catinfo="' + r.i + '"><div class="cr-tw" role="cell">' + catCv(r, hasCv) + '<div class="cr-t"><button type="button" class="cr-open" data-catinfo="' + r.i + '" title="Voir la fiche du jeu"><b>' + esc(r.t) + '</b></button>' + (r.fr && r.fr !== r.t ? '<small>FR : ' + esc(r.fr) + '</small>' : '') + (r.jp && r.jp !== r.t ? '<small>JP : ' + esc(r.jp) + '</small>' : '') + (r.gn ? '<small class="cr-g">' + esc(r.gn) + '</small>' : '') + '</div></div><div class="cr-y" role="cell">' + esc(r.y || '—') + '</div><div class="cr-dp" role="cell"><span>' + esc(r.d || '—') + '</span>' + (r.p && r.p !== r.d ? '<small>' + esc(r.p) + '</small>' : '') + '</div><div class="cr-r" role="cell">' + catRegBadges(r.r) + '</div><div class="cr-st" role="cell">' + (o ? '<span class="tag ' + (o === 'own' ? 't-mint' : 't-rose') + '">' + (o === 'own' ? '✓ Collection' : '♥ Wishlist') + '</span>' : '') + '</div><div class="cr-a" role="cell">'
-        + (o ? '' : (S.readOnly ? '' : '<button type="button" data-catadd="' + r.i + '" title="Ajouter à ma collection" aria-label="Ajouter ' + esc(r.t) + ' à ma collection">＋</button><button type="button" data-catwish="' + r.i + '" title="Ajouter à ma wishlist" aria-label="Ajouter ' + esc(r.t) + ' à ma wishlist">♥</button>'))
-        + (S.readOnly ? '' : '<button type="button" data-catdisc="' + r.i + '" title="Ajouter à Jeux à découvrir" aria-label="Ajouter ' + esc(r.t) + ' à Jeux à découvrir">☆</button>') + '<a href="' + esc(r.u || 'https://www.google.com/search?q=' + encodeURIComponent(r.t + ' ' + p.name)) + '" target="_blank" rel="noopener" title="' + (r.u ? 'Voir sur MobyGames' : 'Voir sur internet') + '" aria-label="Voir ' + esc(r.t) + ' sur internet">↗</a></div></div>'; }).join('') + '</div>';
+        + (function(){ if (S.readOnly) return ''; var it = [];
+            if (!o) { it.push('<button type="button" role="menuitem" class="cam-i cam-own" data-catadd="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Ajouter à ma collection</button>'); it.push('<button type="button" role="menuitem" class="cam-i cam-wish" data-catwish="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="currentColor"></path></svg>Ajouter à la wishlist</button>'); }
+            it.push('<button type="button" role="menuitem" class="cam-i cam-disc" data-catdisc="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" fill="currentColor"></path></svg>Ajouter à Jeux à découvrir</button>');
+            var open = S.catMenu === r.i;
+            return '<span class="cam' + (open ? ' open' : '') + '"><button type="button" class="cam-btn" data-catmenu="' + r.i + '" aria-haspopup="menu" aria-expanded="' + open + '"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg><span>Ajouter</span><svg class="cam-chev" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>' + (open ? '<span class="cam-pop" role="menu">' + it.join('') + '</span>' : '') + '</span>'; })()
+        + '<a class="cr-net" href="' + esc(r.u || 'https://www.google.com/search?q=' + encodeURIComponent(r.t + ' ' + p.name)) + '" target="_blank" rel="noopener" title="' + (r.u ? 'Voir sur MobyGames' : 'Voir sur internet') + '" aria-label="Voir ' + esc(r.t) + ' sur internet"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"></path></svg><small>Internet</small></a></div></div>'; }).join('') + '</div>';
   if (hasCv) setTimeout(function(){ catCvLoad(p, key, res.slice(0, lim)); setTimeout(function(){ catEnsureCovers(p, key, res.slice(0, lim)); }, 600); }, 0);
   if (res.length > lim) h += '<button type="button" class="btn ghost cat-more" data-catmore>Afficher ' + Math.min(200, res.length - lim) + ' jeux de plus (' + (res.length - lim).toLocaleString('fr-FR') + ' restants)</button>';
   return h + '</section>' + (S.readOnly ? '' : '<div class="lic-delzone"><button type="button" class="btn danger" data-catdel="1">' + ICON_TRASH + ' Supprimer cette plateforme</button><span>Supprime la plateforme et sa liste de jeux de la Base de jeux. Ta collection n\u2019est pas touchée.</span></div>');
@@ -7338,6 +7368,16 @@ document.addEventListener('click', function(e){
   if (k === 'all') { F.q = ''; F.reg = ''; F.own = ''; F.y = ''; F.gn = ''; F.ch = ''; } else F[k] = '';
   S.catLim = 100; render();
 });
+
+
+/* ---------- Base de jeux : menu « + Ajouter » ---------- */
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-catmenu]');
+  if (t) { e.preventDefault(); e.stopPropagation(); var i = +t.getAttribute('data-catmenu'); S.catMenu = S.catMenu === i ? null : i; render(); return; }
+  if (S.catMenu != null && !(e.target.closest && e.target.closest('.cam-pop'))) { S.catMenu = null; setTimeout(render, 0); }
+  else if (S.catMenu != null && e.target.closest('.cam-i')) { S.catMenu = null; }
+}, true);
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && S.catMenu != null) { S.catMenu = null; render(); } });
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
