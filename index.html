@@ -3180,6 +3180,15 @@ html[data-tone-dark] .nptag.soft{color:color-mix(in srgb,var(--npc) 55%,#fff) !i
 .ncal-more2{align-self:flex-start;padding:0 4px;border:0;background:none;font:inherit;font-size:11.5px;font-weight:700;color:var(--wd);cursor:pointer}
 .ncal-more2:hover{text-decoration:underline}
 .ncal-e.c{background:#2B2220 !important;color:#FFE14D !important;border-radius:8px}
+/* tickets centrés dans leurs colonnes */
+.ns-day .nrel.tkm,.ncal-c .nrel.tkm,.nrel.tkm{margin:0 !important;width:100% !important;max-width:100%;box-sizing:border-box;align-self:stretch}
+.ns-day{align-items:stretch}
+.ncal-c{align-items:stretch;padding:8px !important;box-sizing:border-box}
+/* calendrier intégral en fenêtre */
+dialog.ncal-dlg{width:min(1240px,calc(100vw - 24px))}
+.ncal-in .ncal-scroll{overflow:auto;padding:14px 18px 20px}
+.ncal-in .ncal{margin:0;border:0;box-shadow:none !important;padding:0;background:transparent}
+.ncal-in .ncal-g{min-width:900px}
 </style>
 </head>
 <body>
@@ -5961,7 +5970,7 @@ function viewNews(){
   h += '</aside></div>';
   var srcL = (N.sources || []).map(function(s){ var m = (N.sourceLinks || []).filter(function(x){ return x.name === s; })[0]; return {name:s, url:(m && safeUrl(m.url)) || 'https://www.google.com/search?q=' + encodeURIComponent(s)}; });
   if (srcL.length) h += '<details class="card nsrc-bottom"><summary><span>Sources de l\u2019édition</span><b>' + srcL.length + '</b></summary><div class="nsrc-links">' + srcL.map(function(x){ return '<a class="tag t-gray" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.name) + ' ↗</a>'; }).join('') + '</div></details>';
-  if (S.newsCalOpen) h += newsCalendar(N.releases || [], N.conferences || [], ref);
+  S._ncal = {rels:N.releases || [], confs:N.conferences || [], ref:ref};
   return h;
 }
 /* sorties de la semaine en bandeau horizontal, du premier au dernier jour */
@@ -5983,7 +5992,7 @@ function nrelsStrip(N, ref){
   var f = week.filter(nPlatOk), open = S.nrelOpen || {}, LIM = 5, today = kOf(new Date());
   var h = '<section class="card nstrip" aria-label="Sorties de la semaine"><div class="ns-head"><h2>Sorties de la semaine <span class="nr-cnt">' + f.length + '</span></h2>';
   if (week.length) h += '<div class="nplats" role="group" aria-label="Filtrer par plateforme"><button type="button" data-nplat="" aria-pressed="' + !S.nplat + '">Toutes</button>' + NPLATS.filter(function(p){ return week.some(function(r){ return nPlatMatch(r, p); }); }).map(function(p){ return '<button type="button" data-nplat="' + p[0] + '" aria-pressed="' + (S.nplat === p[0]) + '">' + p[0] + '</button>'; }).join('') + '</div>';
-  h += '<button type="button" class="link" data-act="newsCal">' + (S.newsCalOpen ? 'Masquer le calendrier' : 'Voir le calendrier →') + '</button></div><div class="ns-row">';
+  h += '<button type="button" class="link" data-act="newsCal">Voir le calendrier →</button></div><div class="ns-row">';
   days.forEach(function(d){ var k = kOf(d), items = f.filter(function(r){ return kOf(new Date(r.date)) === k; }).sort(function(a, b){ return String(a.title).localeCompare(String(b.title), 'fr'); }), n = items.length, lim = LIM; (S._nrelDay = S._nrelDay || {})[k] = items;
     h += '<div class="ns-day wd' + d.getDay() + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'long'}) + '</span><small>' + n + ' jeu' + (n > 1 ? 'x' : '') + '</small></div>'
       + (n ? items.slice(0, lim).map(function(r){ return nrelTk(r, d, false); }).join('') : '<p class="ns-none">Aucune sortie</p>')
@@ -7545,6 +7554,21 @@ function psFavicon(){
   } catch (x) {}
 }
 setTimeout(psFavicon, 300);
+
+
+/* ---------- Calendrier intégral des sorties dans une fenêtre ---------- */
+function ncalDlgDraw(){ var dg = document.getElementById('ncalDlg'); if (!dg || !S._ncal) return; dg.innerHTML = '<div class="nrg-in ncal-in"><header><h2>Calendrier des sorties</h2><button type="button" class="iconbtn" data-ncalx="1" aria-label="Fermer">✕</button></header><div class="ncal-scroll">' + newsCalendar(S._ncal.rels, S._ncal.confs, S._ncal.ref) + '</div></div>'; }
+function ncalDlgOpen(){
+  var dg = document.getElementById('ncalDlg'); if (!dg) { dg = document.createElement('dialog'); dg.id = 'ncalDlg'; dg.className = 'nrg-dlg ncal-dlg'; document.body.appendChild(dg); dg.addEventListener('click', function(ev){ if (ev.target === dg) dg.close(); }); }
+  ncalDlgDraw(); if (!dg.open) dg.showModal();
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-act="newsCal"],[data-ncalx],#ncalDlg [data-nmonth]'); if (!t) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (t.hasAttribute('data-ncalx')) { var dg = document.getElementById('ncalDlg'); if (dg) dg.close(); return; }
+  if (t.hasAttribute('data-nmonth')) { var base = S.newsMonth ? new Date(S.newsMonth) : new Date((S._ncal && S._ncal.ref) || Date.now()); var b = new Date(base.getFullYear(), base.getMonth() + (+t.getAttribute('data-nmonth')), 1); S.newsMonth = b.getTime(); ncalDlgDraw(); return; }
+  S.newsCalOpen = false; ncalDlgOpen();
+}, true);
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
