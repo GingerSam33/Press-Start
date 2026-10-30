@@ -3136,6 +3136,50 @@ html[data-tone-dark] .cam-own{color:#6FD39A}html[data-tone-dark] .cam-wish{color
 .sv-card.done .sv-body{padding-top:26px}
 .sv-card.done .sv-name{padding-right:64px}
 .sv-card.done .sv-state{border:2px solid #E3B341 !important;background:color-mix(in srgb,#FFE07A 18%,var(--card)) !important}
+/* or : priorité sur l'habillage des thèmes */
+.lg-card.own,html[data-bgfull] .main .lg-card.own,html .main .lg-card.own{border:2px solid #E3B341 !important;box-shadow:0 6px 0 #B8862A,0 0 0 4px rgba(227,179,65,.18),0 18px 30px -16px rgba(184,134,42,.7) !important}
+.sv-card.done,html[data-bgfull] .main .sv-card.done,html .main .sv-card.done{border:2px solid #E3B341 !important;box-shadow:0 6px 0 #B8862A,0 0 0 4px rgba(227,179,65,.18),0 20px 32px -18px rgba(184,134,42,.7) !important}
+html[data-bgfull] .main .sv-card.done .sv-state,html .main .sv-card.done .sv-state{border:2px solid #E3B341 !important;background:color-mix(in srgb,#FFE07A 18%,var(--card)) !important}
+.lg-cov>.lg-rib{top:12px !important;left:-34px !important;padding:3px 32px !important;font-size:9px !important;font-weight:800 !important;line-height:1.4 !important;letter-spacing:.14em !important;color:#4A3200 !important;font-family:Poppins,system-ui,sans-serif !important;text-transform:uppercase}
+/* sorties du jour : cartes « ticket » + tags pastel */
+.nrg-card.tk{flex-direction:row !important;align-items:stretch !important;gap:0 !important;padding:0 !important;overflow:hidden !important;border:1px solid var(--card-border) !important;border-radius:14px !important;background:var(--card) !important;--wd:var(--accent)}
+.nrg-card.tk.wd1{--wd:#4F7BD4}.nrg-card.tk.wd2{--wd:#1FA59A}.nrg-card.tk.wd3{--wd:#4C9A5B}.nrg-card.tk.wd4{--wd:#D99A00}.nrg-card.tk.wd5{--wd:#E2702A}.nrg-card.tk.wd6{--wd:#D6467F}.nrg-card.tk.wd0{--wd:#8B5CF6}
+.tk-stub{flex:none;width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:var(--wd);color:#FFFFFF;border-right:2px dashed var(--card);position:relative}
+.tk-stub b{font-size:20px !important;line-height:1;color:#FFFFFF !important;padding:0 !important}
+.tk-stub small{font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.95}
+.tk-body{display:flex;flex-direction:column;gap:6px;padding:10px 12px;min-width:0}
+.tk-body b{padding:0 !important}
+.nrg-card.tk:hover{transform:translateY(-3px);box-shadow:0 14px 26px -16px var(--wd) !important;border-color:var(--wd) !important}
+.nptag.soft{color:var(--npc) !important;text-shadow:none !important;background:color-mix(in srgb,var(--npc) 13%,var(--card)) !important;border-radius:7px}
+.nptag.soft.np-n{--npc:#E60012}.nptag.soft.np-x{--npc:#107C10}.nptag.soft.np-ps{--npc:#1F5FD6}.nptag.soft.np-pc{--npc:#7B4FE0}.nptag.soft.np-o{--npc:#6A6480}
+html[data-tone-dark] .nptag.soft{color:color-mix(in srgb,var(--npc) 55%,#fff) !important;background:color-mix(in srgb,var(--npc) 22%,var(--card)) !important}
+/* sorties : style mini-tickets (frise de la semaine + calendrier) */
+.ns-day{--wd:var(--accent);background:color-mix(in srgb,var(--wd) 6%,var(--sunken)) !important;border-radius:20px !important;padding:10px !important;gap:8px !important}
+.ns-day.wd1,.ncal-c.wd1{--wd:#4F7BD4}.ns-day.wd2,.ncal-c.wd2{--wd:#1FA59A}.ns-day.wd3,.ncal-c.wd3{--wd:#4C9A5B}.ns-day.wd4,.ncal-c.wd4{--wd:#D99A00}.ns-day.wd5,.ncal-c.wd5{--wd:#E2702A}.ns-day.wd6,.ncal-c.wd6{--wd:#D6467F}.ns-day.wd0,.ncal-c.wd0{--wd:#8B5CF6}
+.ns-day .ns-dh small{background:var(--wd) !important;color:#FFFFFF !important;box-shadow:none !important}
+.ns-day.today{box-shadow:inset 0 0 0 2px var(--wd) !important}
+.nrel.tkm{display:flex !important;align-items:stretch;gap:0 !important;width:100%;padding:0 !important;border-radius:14px !important;overflow:hidden;background:var(--card) !important;border:1px solid var(--card-border) !important;text-align:left;font:inherit;cursor:pointer;transition:transform .2s cubic-bezier(.3,1.5,.5,1),box-shadow .2s,border-color .2s}
+.nrel.tkm:hover{transform:translateY(-3px) !important;box-shadow:0 14px 26px -16px var(--wd) !important;border-color:var(--wd) !important}
+.tkm-stub{flex:none;width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:var(--wd);color:#FFFFFF;border-right:2px dashed var(--card)}
+.tkm-stub b{font-size:17px;line-height:1;color:#FFFFFF}
+.tkm-stub small{font-size:8.5px;font-weight:700;letter-spacing:.08em}
+.tkm-b{display:flex;flex-direction:column;gap:5px;padding:9px 11px;min-width:0}
+.tkm-b>b{font-size:13px;font-weight:600;line-height:1.3;color:var(--text)}
+.tkm-b .nr-pl{margin-top:0 !important}
+.nrel.tkm.mini{border-radius:9px !important}
+.nrel.tkm.mini .tkm-stub{width:7px;border-right-width:1.5px}
+.nrel.tkm.mini .tkm-b{padding:4px 7px;gap:3px}
+.nrel.tkm.mini .tkm-b>b{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nrel.tkm.mini .nptag{font-size:9.5px !important;padding:0 6px !important;line-height:1.6}
+.ncal-c{--wd:var(--accent);display:flex;flex-direction:column;gap:4px;min-width:0}
+.ncal-c.today{box-shadow:inset 0 0 0 2px var(--wd) !important}
+.ncal-dh{display:flex;align-items:center;justify-content:space-between}
+.ncal-c .ncal-n{font-weight:800;color:var(--wd) !important}
+.ncal-cnt{padding:0 7px;border-radius:999px;background:var(--wd);color:#FFFFFF;font-size:10.5px;font-weight:800}
+.ncal-c.empty{opacity:.75}
+.ncal-more2{align-self:flex-start;padding:0 4px;border:0;background:none;font:inherit;font-size:11.5px;font-weight:700;color:var(--wd);cursor:pointer}
+.ncal-more2:hover{text-decoration:underline}
+.ncal-e.c{background:#2B2220 !important;color:#FFE14D !important;border-radius:8px}
 </style>
 </head>
 <body>
@@ -5929,6 +5973,8 @@ function nConfBanner(N, ref, isLatest){
     + (isLatest ? '<div class="ncount" data-countdown="' + esc(c0.date) + '">' + countdownHtml(c0.date) + '</div>' : '')
     + (confs.length > 1 ? '<ul class="nc-more">' + confs.slice(1, 5).map(function(c){ return '<li><b>' + esc(c.name) + '</b><span>' + new Date(c.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'}) + '</span></li>'; }).join('') + '</ul>' : '') + '</section>';
 }
+function nrelTk(r, d, mini){ var w = d.toLocaleDateString('fr-FR', {weekday:'short'}).replace('.', '').toUpperCase(), m = d.toLocaleDateString('fr-FR', {month:'short'}).replace('.', '').toUpperCase();
+  return '<button type="button" class="nrel tkm' + (mini ? ' mini' : '') + '" data-nrel="' + NREL_LIST.indexOf(r) + '" title="' + esc(r.title + ' · ' + list(r.platforms).join(', ')) + '"><span class="tkm-stub">' + (mini ? '' : '<small>' + esc(w) + '</small><b>' + d.getDate() + '</b><small>' + esc(m) + '</small>') + '</span><span class="tkm-b"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).slice(0, mini ? 3 : 6).map(nSoftTag).join('') + (mini && list(r.platforms).length > 3 ? '<span class="nptag soft np-o">+' + (list(r.platforms).length - 3) + '</span>' : '') + '</span></span></button>'; }
 function nrelsStrip(N, ref){
   var all = N.releases || [], r0 = new Date(ref), d0 = new Date(r0.getFullYear(), r0.getMonth(), r0.getDate()), t0 = d0.getTime();
   var kOf = function(d){ return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); }, days = [];
@@ -5940,7 +5986,7 @@ function nrelsStrip(N, ref){
   h += '<button type="button" class="link" data-act="newsCal">' + (S.newsCalOpen ? 'Masquer le calendrier' : 'Voir le calendrier →') + '</button></div><div class="ns-row">';
   days.forEach(function(d){ var k = kOf(d), items = f.filter(function(r){ return kOf(new Date(r.date)) === k; }).sort(function(a, b){ return String(a.title).localeCompare(String(b.title), 'fr'); }), n = items.length, lim = LIM; (S._nrelDay = S._nrelDay || {})[k] = items;
     h += '<div class="ns-day wd' + d.getDay() + (k === today ? ' today' : '') + (n ? '' : ' empty') + '"><div class="ns-dh"><b>' + (function(){ var w = d.toLocaleDateString('fr-FR', {weekday:'long'}); w = w.charAt(0).toUpperCase() + w.slice(1); return k === today ? 'Aujourd\u2019hui · ' + w : w; })() + '</b><span>' + d.getDate() + ' ' + d.toLocaleDateString('fr-FR', {month:'long'}) + '</span><small>' + n + ' jeu' + (n > 1 ? 'x' : '') + '</small></div>'
-      + (n ? items.slice(0, lim).map(nrelC).join('') : '<p class="ns-none">Aucune sortie</p>')
+      + (n ? items.slice(0, lim).map(function(r){ return nrelTk(r, d, false); }).join('') : '<p class="ns-none">Aucune sortie</p>')
       + (n > LIM ? '<button type="button" class="nr-more" data-nrelpop="' + k + '" aria-haspopup="dialog">+ ' + (n - LIM) + ' autre' + (n - LIM > 1 ? 's' : '') + '</button>' : '') + '</div>'; });
   return h + '</div></section>';
 }
@@ -5976,8 +6022,9 @@ function newsCalendar(rels, confs, ref){
     + ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(function(j){ return '<span class="ncal-wd">' + j + '</span>'; }).join('');
   for (var i = 0; i < start; i++) h += '<span></span>';
   for (var d = 1; d <= days; d++) {
-    var dt = new Date(base.getFullYear(), base.getMonth(), d), ev = byDay[key(dt)] || [], isT = key(dt) === key(today);
-    h += '<div class="ncal-c' + (isT ? ' today' : '') + '"><span class="ncal-n">' + d + '</span>' + ncalLimit(ev, key(dt)).map(function(e){ return e.t === 'r' ? '<button type="button" class="ncal-e r" data-nrel="' + NREL_LIST.indexOf(e.x) + '" aria-haspopup="dialog" title="' + esc(e.x.title + ' · ' + list(e.x.platforms).join(', ')) + '">' + esc(e.x.title) + '</button>' : (safeUrl(e.x.url) ? '<a class="ncal-e c" href="' + esc(safeUrl(e.x.url)) + '" target="_blank" rel="noopener" title="' + esc(e.x.name) + '">● ' + esc(e.x.name) + '</a>' : '<span class="ncal-e c" title="' + esc(e.x.name) + '">● ' + esc(e.x.name) + '</span>'); }).join('') + ncalMore(ev, key(dt)) + '</div>';
+    var dt = new Date(base.getFullYear(), base.getMonth(), d), ev = byDay[key(dt)] || [], isT = key(dt) === key(today), relsD = ev.filter(function(e){ return e.t === 'r'; }).map(function(e){ return e.x; }), confD = ev.filter(function(e){ return e.t === 'c'; });
+    (S._nrelDay = S._nrelDay || {})[key(dt)] = relsD;
+    h += '<div class="ncal-c wd' + dt.getDay() + (isT ? ' today' : '') + (ev.length ? '' : ' empty') + '"><div class="ncal-dh"><span class="ncal-n">' + d + '</span>' + (relsD.length ? '<span class="ncal-cnt">' + relsD.length + '</span>' : '') + '</div>' + confD.concat(relsD.slice(0, 3).map(function(x){ return {t:'r', x:x}; })).map(function(e){ return e.t === 'r' ? nrelTk(e.x, dt, true) : (safeUrl(e.x.url) ? '<a class="ncal-e c" href="' + esc(safeUrl(e.x.url)) + '" target="_blank" rel="noopener" title="' + esc(e.x.name) + '">● ' + esc(e.x.name) + '</a>' : '<span class="ncal-e c" title="' + esc(e.x.name) + '">● ' + esc(e.x.name) + '</span>'); }).join('') + (relsD.length > 3 ? '<button type="button" class="ncal-more2" data-nrelpop="' + key(dt) + '">+ ' + (relsD.length - 3) + ' autre' + (relsD.length - 3 > 1 ? 's' : '') + '</button>' : '') + '</div>';
   }
   return h + '</div></section>';
 }
@@ -7264,6 +7311,7 @@ document.addEventListener('click', function(e){
 S.giLang = (function(){ try { return localStorage.getItem('ps-gilang') || 'fr'; } catch (x) { return 'fr'; } })();
 
 /* ---------- Actus : couleur des plateformes ---------- */
+function nSoftTag(p){ var t = nPlatTag(p); return t.replace('class="nptag ', 'class="nptag soft '); }
 function nPlatTag(p){ var s = String(p || ''), c = /switch|nintendo|\bnsw|wii|3ds|\bds\b|game ?boy|\bgb|n64|snes|\bnes\b/i.test(s) ? 'np-n' : /xbox|xone|\bx360|series ?x|series ?s|\bxsx/i.test(s) ? 'np-x' : /\bps\d|ps ?vita|\bpsp|playstation|\bpsvr/i.test(s) ? 'np-ps' : /^(pc|mac|windows|win|linux|steam|dos)\b/i.test(s) ? 'np-pc' : 'np-o'; return '<span class="nptag ' + c + '">' + esc(s) + '</span>'; }
 
 /* ---------- Jaquette & concordance : toujours accessible depuis la fiche ---------- */
@@ -7354,7 +7402,7 @@ function nrgOpen(k){
   var p = k.split('-'), d = new Date(+p[0], +p[1], +p[2]), w = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
   NRG = {k:k, items:items};
   var dg = document.getElementById('nrelGrid'); if (!dg) { dg = document.createElement('dialog'); dg.id = 'nrelGrid'; dg.className = 'nrg-dlg'; document.body.appendChild(dg); dg.addEventListener('click', function(ev){ if (ev.target === dg) dg.close(); }); }
-  dg.innerHTML = '<div class="nrg-in"><header><h2>Sorties du ' + esc(w) + ' <span class="nr-cnt">' + items.length + '</span></h2><button type="button" class="iconbtn" data-nrgx="1" aria-label="Fermer">✕</button></header><div class="nrg-grid">' + items.map(function(r, i){ return '<button type="button" class="nrg-card" data-nrgi="' + i + '"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nPlatTag).join('') + '</span></button>'; }).join('') + '</div></div>';
+  dg.innerHTML = '<div class="nrg-in"><header><h2>Sorties du ' + esc(w) + ' <span class="nr-cnt">' + items.length + '</span></h2><button type="button" class="iconbtn" data-nrgx="1" aria-label="Fermer">✕</button></header><div class="nrg-grid">' + items.map(function(r, i){ return '<button type="button" class="nrg-card tk wd' + d.getDay() + '" data-nrgi="' + i + '"><span class="tk-stub"><small>' + esc(d.toLocaleDateString('fr-FR', {weekday:'short'}).replace('.', '').toUpperCase()) + '</small><b>' + d.getDate() + '</b><small>' + esc(d.toLocaleDateString('fr-FR', {month:'short'}).replace('.', '').toUpperCase()) + '</small></span><span class="tk-body"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nSoftTag).join('') + '</span></span></button>'; }).join('') + '</div></div>';
   if (!dg.open) dg.showModal();
 }
 document.addEventListener('click', function(e){
