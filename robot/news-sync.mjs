@@ -30,7 +30,11 @@ function parseFeed(xml) {
   for (const b of blocks) {
     let link = strip(tag(b, 'link')); if (!link) { const m = b.match(/<link[^>]*href="([^"]+)"/i); link = m ? m[1] : ''; }
     const date = Date.parse(strip(tag(b, 'pubDate') || tag(b, 'published') || tag(b, 'updated') || tag(b, 'dc:date')));
-    items.push({title: strip(tag(b, 'title')), url: link, date: isNaN(date) ? null : date, summary: strip(tag(b, 'description') || tag(b, 'summary') || tag(b, 'content')).slice(0, 260)});
+    const raw = tag(b, 'content:encoded') || tag(b, 'description') || tag(b, 'summary') || tag(b, 'content');
+    let img = (b.match(/<media:content[^>]*url="([^"]+)"/i) || b.match(/<media:thumbnail[^>]*url="([^"]+)"/i) || b.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="image/i) || b.match(/<enclosure[^>]*type="image[^"]*"[^>]*url="([^"]+)"/i) || decode(raw).match(/<img[^>]+src="([^"]+)"/i) || [])[1] || '';
+    img = decode(img); if (!/^https:\/\//.test(img)) img = '';
+    const full = strip(raw);
+    items.push({title: strip(tag(b, 'title')), url: link, date: isNaN(date) ? null : date, summary: full.slice(0, 260), excerpt: full.slice(0, 900), img});
   }
   return items.filter(i => i.title && i.url);
 }
@@ -84,18 +88,25 @@ try {
   const articles = clusters.map(c => {
     const srcs = [...new Set(c.items.map(i => i.source))];
     const main = c.items.find(i => i.lang === 'fr') || c.items[0];
-    return {title: main.title, summary: main.summary, lang: main.lang, url: main.url, source: main.source, category: category(c.items.map(i => i.title).join(' ')), confirmations: srcs.length, others: srcs.length > 1 ? srcs.length - 1 : 0, sources: srcs, date: main.date ? new Date(main.date).toISOString() : null};
+    const links = []; c.items.forEach(i => { if (!links.some(l => l.source === i.source)) links.push({source: i.source, url: i.url, title: i.title}); });
+    const img = main.img || (c.items.find(i => i.img) || {}).img || '';
+    return {title: main.title, summary: main.summary, excerpt: main.excerpt || main.summary, img, links, lang: main.lang, url: main.url, source: main.source, category: category(c.items.map(i => i.title).join(' ')), confirmations: srcs.length, others: srcs.length > 1 ? srcs.length - 1 : 0, sources: srcs, date: main.date ? new Date(main.date).toISOString() : null};
   }).sort((a, b) => b.confirmations - a.confirmations || Date.parse(b.date || 0) - Date.parse(a.date || 0)).slice(0, 48);
   log(`${all.length} articles lus → ${articles.length} sujets`);
+  /* vignette de secours : image og:image de la page de l'article */
+  for (const a of articles.filter(x => !x.img).slice(0, 25)) {
+    try { const r = await fetch(a.url, {headers: {'User-Agent': 'Mozilla/5.0 PressStartBot/1.0'}, signal: AbortSignal.timeout(8000)}); const html = (await r.text()).slice(0, 200000); const m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i); if (m && /^https:\/\//.test(decode(m[1]))) a.img = decode(m[1]); } catch {}
+  }
+  log(`${articles.filter(x => x.img).length} sujets avec vignette`);
   /* traduction en français des sujets anglophones (si la clé Anthropic est fournie) */
   if (env.ANTHROPIC_API_KEY) {
     const en = articles.map((a, i) => [i, a]).filter(([, a]) => a.lang !== 'fr');
     if (en.length) {
       try {
-        const r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers: {'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'}, body: JSON.stringify({model: env.ANTHROPIC_MODEL_FAST || 'claude-haiku-5-5', max_tokens: 8000, messages: [{role: 'user', content: 'Traduis en français naturel ces titres et résumés d\'articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement avec un JSON : [{"i":0,"title":"…","summary":"…"}].\n\n' + JSON.stringify(en.map(([i, a]) => ({i, title: a.title, summary: a.summary})))}]})});
+        const r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers: {'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'}, body: JSON.stringify({model: env.ANTHROPIC_MODEL_FAST || 'claude-haiku-5-5', max_tokens: 16000, messages: [{role: 'user', content: 'Traduis en français naturel ces titres et résumés d\'articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement avec un JSON : [{"i":0,"title":"…","summary":"…","excerpt":"…"}].\n\n' + JSON.stringify(en.map(([i, a]) => ({i, title: a.title, summary: a.summary, excerpt: a.excerpt})))}]})});
         const d = await r.json(), txt = (d.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
         const arr = JSON.parse(txt.slice(txt.indexOf('['), txt.lastIndexOf(']') + 1));
-        let n = 0; for (const t of arr) { const a = articles[t.i]; if (a && t.title) { a.titleEn = a.title; a.title = t.title; if (t.summary) { a.summaryEn = a.summary; a.summary = t.summary; } a.lang = 'fr'; n++; } }
+        let n = 0; for (const t of arr) { const a = articles[t.i]; if (a && t.title) { a.titleEn = a.title; a.title = t.title; if (t.summary) { a.summaryEn = a.summary; a.summary = t.summary; } if (t.excerpt) { a.excerptEn = a.excerpt; a.excerpt = t.excerpt; } a.lang = 'fr'; n++; } }
         log(`${n} sujets traduits en français`);
       } catch (e) { log(`⚠ traduction : ${e.message}`); }
     }
