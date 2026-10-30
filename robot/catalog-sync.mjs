@@ -18,6 +18,18 @@ for (const [k, v] of Object.entries({SUPABASE_URL: SB, SUPABASE_SECRET_KEY: SBK,
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// fetch avec nouvelles tentatives en cas de coupure réseau (ECONNRESET, terminated…) ou d'erreur serveur 5xx
+async function fetchRetry(url, opts = {}, tries = 5) {
+  let last;
+  for (let a = 0; a < tries; a++) {
+    try {
+      const r = await fetch(url, {...opts, signal: AbortSignal.timeout(60000)});
+      if (r.status >= 500 && a < tries - 1) { last = new Error(`HTTP ${r.status}`); await sleep(3000 * (a + 1)); continue; }
+      return r;
+    } catch (e) { last = e; await sleep(3000 * (a + 1)); }
+  }
+  throw Object.assign(new Error(`réseau : ${last && (last.cause?.code || last.message)}`), {network: true});
+}
 const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 const key = s => norm(s).replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '');
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
@@ -27,7 +39,7 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const SB_AUTH = String(SBK).startsWith('sb_') ? {apikey: SBK} : {apikey: SBK, Authorization: `Bearer ${SBK}`};
 if (String(SBK).startsWith('sb_publishable_')) { console.error('SUPABASE_SECRET_KEY contient la clé publishable : il faut la Secret key (sb_secret_…).'); process.exit(1); }
 async function sb(path, opts = {}) {
-  const r = await fetch(`${SB}/rest/v1/${path}`, {...opts, headers: {...SB_AUTH, 'Content-Type': 'application/json', Prefer: 'return=minimal,resolution=merge-duplicates', ...(opts.headers || {})}});
+  const r = await fetchRetry(`${SB}/rest/v1/${path}`, {...opts, headers: {...SB_AUTH, 'Content-Type': 'application/json', Prefer: 'return=minimal,resolution=merge-duplicates', ...(opts.headers || {})}});
   if (!r.ok) throw new Error(`Supabase ${r.status} : ${await r.text()}`);
   return r.status === 204 ? null : r.json().catch(() => null);
 }
@@ -55,7 +67,7 @@ async function moby(path, params = {}) {
   Object.entries({...params, api_key: MOBY}).forEach(([k, v]) => u.searchParams.set(k, v));
   for (let attempt = 0; attempt < 4; attempt++) {
     mobyLast = Date.now(); mobyReq++;
-    const r = await fetch(u);
+    const r = await fetchRetry(u);
     if (r.status === 429) { await sleep(5000 * (attempt + 1)); continue; }
     if (!r.ok) throw new Error(`MobyGames ${r.status} : ${await r.text()}`);
     return r.json();
@@ -67,12 +79,12 @@ async function moby(path, params = {}) {
 let igdbToken = null;
 async function igdb(endpoint, body) {
   if (!igdbToken) {
-    const t = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${TW_ID}&client_secret=${TW_SECRET}&grant_type=client_credentials`, {method: 'POST'});
+    const t = await fetchRetry(`https://id.twitch.tv/oauth2/token?client_id=${TW_ID}&client_secret=${TW_SECRET}&grant_type=client_credentials`, {method: 'POST'});
     if (!t.ok) throw new Error(`Twitch ${t.status} : ${await t.text()}`);
     igdbToken = (await t.json()).access_token;
   }
   for (let attempt = 0; attempt < 4; attempt++) {
-    const r = await fetch(`https://api.igdb.com/v4/${endpoint}`, {method: 'POST', headers: {'Client-ID': TW_ID, Authorization: `Bearer ${igdbToken}`, 'Content-Type': 'text/plain'}, body});
+    const r = await fetchRetry(`https://api.igdb.com/v4/${endpoint}`, {method: 'POST', headers: {'Client-ID': TW_ID, Authorization: `Bearer ${igdbToken}`, 'Content-Type': 'text/plain'}, body});
     if (r.status === 429) { await sleep(1500 * (attempt + 1)); continue; }
     if (!r.ok) throw new Error(`IGDB ${r.status} : ${await r.text()}`);
     await sleep(300);
@@ -115,11 +127,11 @@ function suggest(names, list, getNames) {
 /* ---------- Jaquettes et illustrations de MES jeux (copiées dans le stockage Supabase) ---------- */
 const OWNED_MAX = +(env.OWNED_MAX || 40);
 async function storeImage(url) {
-  const r = await fetch(url); if (!r.ok) throw new Error(`image ${r.status}`);
+  const r = await fetchRetry(url); if (!r.ok) throw new Error(`image ${r.status}`);
   const type = r.headers.get('content-type') || 'image/jpeg', buf = Buffer.from(await r.arrayBuffer());
   const id = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
   if (DRY) return id;
-  const u = await fetch(`${SB}/storage/v1/object/assets/${id}`, {method: 'POST', headers: {...SB_AUTH, 'Content-Type': type, 'x-upsert': 'true', 'cache-control': 'max-age=31536000'}, body: buf});
+  const u = await fetchRetry(`${SB}/storage/v1/object/assets/${id}`, {method: 'POST', headers: {...SB_AUTH, 'Content-Type': type, 'x-upsert': 'true', 'cache-control': 'max-age=31536000'}, body: buf});
   if (!u.ok) throw new Error(`stockage ${u.status} : ${await u.text()}`);
   return id;
 }
@@ -162,6 +174,7 @@ try {
   else { const s = state.next % Math.max(1, targets.length); targets = targets.slice(s).concat(targets.slice(0, s)); }
 
   for (const p of targets) {
+   try {
     const names = [p.name, ...(p.aliases || [])];
     const mk = names.map(key).find(k => MAPK[k]) ; const forced = mk ? MAPK[mk] : {};
     const mp = bestMatch(names, mobyPlats, x => [x.platform_name], forced.moby);
@@ -192,7 +205,7 @@ try {
           for (const g of d.games || []) mo.set(key(g.title), g);
           mOff += 100; if (!d.games || d.games.length < 100) { mobyDone = true; break; }
         }
-      } catch (e) { if (!e.quota) throw e; log(`  quota MobyGames atteint, reprise la prochaine fois (offset ${mOff})`); }
+      } catch (e) { if (!e.quota && !e.network) throw e; log(e.quota ? `  quota MobyGames atteint, reprise la prochaine fois (offset ${mOff})` : `  ⚠ MobyGames injoignable (${e.message}), reprise la prochaine fois (offset ${mOff})`); }
     }
     state.offsets = state.offsets || {}; state.offsets[p.id] = mobyDone ? 0 : mOff;
 
@@ -245,6 +258,7 @@ try {
     await upsert([...changed].map(c => ({col: chunkCol, id: c.id, data: {n: c.n, g: c.g}})));
     await upsert([{col: 'catalog', id: p.id, data: {...Object.fromEntries(Object.entries(p).filter(([k]) => k !== 'id')), count: total, updatedAt: Date.now(), source: 'MobyGames + IGDB', status: mobyDone && ip ? 'complet' : (p.status || '')}}]);
     log(`  +${pr.added} nouveaux · ${pr.enriched} enrichis · ${pr.conflicts} désaccords · total ${total}`);
+   } catch (e) { log(`  ⚠ ${p.name} : ${e.message} — plateforme ignorée pour ce passage`); report.warnings = (report.warnings || []).concat(`${p.name} : ${e.message}`); }
     if (mobyReq >= MOBY_MAX) break;
   }
   if (!ONLY.length) state.next = (state.next || 0) + report.platforms.filter(p => p.complete).length;
