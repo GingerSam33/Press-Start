@@ -3204,6 +3204,10 @@ dialog.ncal-dlg{width:min(1240px,calc(100vw - 24px))}
 .nart-s:hover{transform:translateY(-2px);border-color:var(--accent)}
 .nart-s b{font-size:13px}.nart-s span{font-size:12px;color:var(--muted);line-height:1.35}
 .nart-s i{position:absolute;right:12px;top:10px;font-style:normal;color:var(--accent-text)}
+/* aperçu d'article : image centrée */
+.nart-dlg .gi-hero + *{padding-left:0 !important;min-height:0 !important}
+.nart-dlg .nart-img{width:auto !important;max-width:100%;margin:0 auto !important;display:block;align-self:center}
+.nart-dlg .gi-body>.nart-img{margin-left:auto !important;margin-right:auto !important}
 </style>
 </head>
 <body>
@@ -3351,7 +3355,6 @@ dialog.ncal-dlg{width:min(1240px,calc(100vw - 24px))}
 .psl-box button{min-height:44px;border:0;border-radius:999px;background:linear-gradient(90deg,#FF3EA5,#9B5CFF);color:#fff;font:inherit;font-weight:700;letter-spacing:.08em;cursor:pointer}
 .psl-err{margin:0;font-size:12.5px;color:#FF9AB0}
 </style>
-
 <script>
 (function(){
 'use strict';
@@ -5975,7 +5978,7 @@ function viewNews(){
   var shown = f ? rest.filter(function(a){ return ncatOf(a.category) === f; }) : rest;
   h += '<div class="nlayout"><div class="nmain">';
   h += nrelsStrip(N, ref) + nConfBanner(N, ref, isLatest);
-  S._nArts = [hl].concat(shown);
+  S._nArts = [hl].concat(shown); setTimeout(function(){ newsTranslate(N); }, 500);
   if (hl) h += '<article class="card nhero is-click" data-nart="0">' + nArtVis(hl, 0, true) + '<div class="nh-body"><div class="nmeta">' + ncat(hl.category) + nconf(hl.confirmations) + '</div><h2>' + esc(hl.title) + '</h2>' + (hl.summary ? '<p>' + esc(hl.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(hl) + (hl.others ? '<span>et ' + esc(hl.others) + ' autres</span>' : '') + '</div></div></article>';
   if (cats.length > 1) h += '<div class="nfilters" role="group" aria-label="Filtrer par type"><button type="button" data-ncat="" aria-pressed="' + !f + '">Tout <span>' + rest.length + '</span></button>' + cats.map(function(c){ return '<button type="button" data-ncat="' + c + '" aria-pressed="' + (f === c) + '" style="--nc:' + NCAT[c][0] + '">' + c + ' <span>' + rest.filter(function(a){ return ncatOf(a.category) === c; }).length + '</span></button>'; }).join('') + '</div>';
   h += '<div class="ngrid">' + shown.map(function(a, i){ return '<article class="card nart is-click" data-nart="' + (i + 1) + '" style="--i:' + i + '">' + nArtVis(a, i + 1) + '<div class="nmeta">' + ncat(a.category) + nconf(a.confirmations) + '</div><h3>' + esc(a.title) + '</h3>' + (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(a) + '</div></article>'; }).join('') + '</div></div>';
@@ -7617,6 +7620,29 @@ document.addEventListener('click', function(e){
   var a = (S._nArts || [])[+t.getAttribute('data-nart')]; if (!a) return;
   openDlg('<div class="dlg gi-dlg nart-dlg">' + nartHtml(a) + '</div>');
 });
+
+
+/* ---------- Actus : traduction des articles restés en anglais (une fois par édition, enregistrée) ---------- */
+var NTR_BUSY = false;
+async function newsTranslate(ed){
+  if (NTR_BUSY || S.readOnly || !ed || !window.PS_SB || !ed.articles) return;
+  var todo = ed.articles.map(function(a, i){ return [i, a]; }).filter(function(x){ return x[1].lang === 'en' || (x[1].lang == null && !x[1].titleEn && /^[\x00-\x7F’'“”–—…]+$/.test(String(x[1].title || '')) && /\b(the|and|of|is|has|with|for|new)\b/i.test(String(x[1].title || ''))); });
+  if (!todo.length) return;
+  NTR_BUSY = true;
+  try {
+    var arts = ed.articles.slice();
+    for (var k = 0; k < todo.length; k += 8) {
+      var batch = todo.slice(k, k + 8);
+      var r = await giAsk('Traduis en français naturel ces titres et résumés d\u2019articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement en JSON : {"items":[{"i":0,"title":"…","summary":"…","excerpt":"…"}]}.\n\n' + JSON.stringify(batch.map(function(x){ return {i:x[0], title:x[1].title, summary:x[1].summary || '', excerpt:x[1].excerpt || ''}; })));
+      (r.items || []).forEach(function(t){ var a = arts[t.i]; if (!a || !t.title) return; arts[t.i] = Object.assign({}, a, {titleEn:a.title, title:t.title, summaryEn:a.summary, summary:t.summary || a.summary, excerptEn:a.excerpt, excerpt:t.excerpt || a.excerpt, lang:'fr'}); });
+    }
+    var hl = ed.headline ? (arts.filter(function(a){ return a.url === ed.headline.url; })[0] || ed.headline) : null;
+    var upd = {articles:arts, headline:hl};
+    if (ed.day) await db.collection('news_editions').doc(ed.day).update(upd);
+    try { var cur = await db.doc('news/edition').get(); if (cur.exists && cur.data().day === ed.day) await db.doc('news/edition').update(upd); } catch (x) {}
+  } catch (x) {}
+  NTR_BUSY = false;
+}
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
