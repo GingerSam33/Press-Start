@@ -98,18 +98,25 @@ try {
     try { const r = await fetch(a.url, {headers: {'User-Agent': 'Mozilla/5.0 PressStartBot/1.0'}, signal: AbortSignal.timeout(8000)}); const html = (await r.text()).slice(0, 200000); const m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i); if (m && /^https:\/\//.test(decode(m[1]))) a.img = decode(m[1]); } catch {}
   }
   log(`${articles.filter(x => x.img).length} sujets avec vignette`);
-  /* traduction en français des sujets anglophones (si la clé Anthropic est fournie) */
+  /* traduction en français des sujets anglophones (si la clé Anthropic est fournie), par petits lots */
   if (env.ANTHROPIC_API_KEY) {
     const en = articles.map((a, i) => [i, a]).filter(([, a]) => a.lang !== 'fr');
-    if (en.length) {
-      try {
-        const r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers: {'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'}, body: JSON.stringify({model: env.ANTHROPIC_MODEL_FAST || 'claude-haiku-5-5', max_tokens: 16000, messages: [{role: 'user', content: 'Traduis en français naturel ces titres et résumés d\'articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement avec un JSON : [{"i":0,"title":"…","summary":"…","excerpt":"…"}].\n\n' + JSON.stringify(en.map(([i, a]) => ({i, title: a.title, summary: a.summary, excerpt: a.excerpt})))}]})});
-        const d = await r.json(), txt = (d.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-        const arr = JSON.parse(txt.slice(txt.indexOf('['), txt.lastIndexOf(']') + 1));
-        let n = 0; for (const t of arr) { const a = articles[t.i]; if (a && t.title) { a.titleEn = a.title; a.title = t.title; if (t.summary) { a.summaryEn = a.summary; a.summary = t.summary; } if (t.excerpt) { a.excerptEn = a.excerpt; a.excerpt = t.excerpt; } a.lang = 'fr'; n++; } }
-        log(`${n} sujets traduits en français`);
-      } catch (e) { log(`⚠ traduction : ${e.message}`); }
+    let n = 0;
+    for (let k = 0; k < en.length; k += 10) {
+      const batch = en.slice(k, k + 10);
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers: {'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'}, body: JSON.stringify({model: env.ANTHROPIC_MODEL_FAST || 'claude-haiku-5-5', max_tokens: 6000, messages: [{role: 'user', content: 'Traduis en français naturel ces titres et résumés d\'articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement avec un JSON valide, sans texte autour : {"items":[{"i":0,"title":"…","summary":"…","excerpt":"…"}]}.\n\n' + JSON.stringify(batch.map(([i, a]) => ({i, title: a.title, summary: a.summary, excerpt: a.excerpt})))}]})});
+          const d = await r.json();
+          if (!r.ok) throw new Error((d && d.error && d.error.message) || ('HTTP ' + r.status));
+          const txt = (d.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+          const obj = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
+          for (const t of obj.items || []) { const a = articles[t.i]; if (a && t.title) { a.titleEn = a.title; a.title = t.title; if (t.summary) { a.summaryEn = a.summary; a.summary = t.summary; } if (t.excerpt) { a.excerptEn = a.excerpt; a.excerpt = t.excerpt; } a.lang = 'fr'; n++; } }
+          break;
+        } catch (e) { log(`⚠ traduction (lot ${k / 10 + 1}, essai ${attempt + 1}) : ${e.message}`); await sleep(3000); }
+      }
     }
+    log(`${n} sujets traduits en français sur ${en.length}`);
   } else log('Traduction ignorée : secret ANTHROPIC_API_KEY absent');
 
   /* sorties : 60 prochains jours sur les plateformes suivies */
