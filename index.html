@@ -3208,6 +3208,96 @@ dialog.ncal-dlg{width:min(1240px,calc(100vw - 24px))}
 .nart-dlg .gi-hero + *{padding-left:0 !important;min-height:0 !important}
 .nart-dlg .nart-img{width:auto !important;max-width:100%;margin:0 auto !important;display:block;align-self:center}
 .nart-dlg .gi-body>.nart-img{margin-left:auto !important;margin-right:auto !important}
+/* ===== consoles : cartes premium (piste 4) ===== */
+.cgrid{gap:22px !important}
+.ccard.cc4{position:relative;cursor:pointer;padding:12px;border:2px solid var(--card-border);box-shadow:0 7px 0 var(--card-border);overflow:visible;transition:transform .3s cubic-bezier(.3,1.5,.5,1),box-shadow .3s}
+.ccard.cc4:hover{transform:translateY(-6px)}
+.cc4-pic{position:relative;height:170px !important;overflow:hidden !important;background:var(--sw-top,#0D0A24) !important;cursor:pointer}
+.swbg{position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:
+ radial-gradient(1px 1px at 12% 18%,#fff 60%,transparent),radial-gradient(1px 1px at 32% 8%,#fff 60%,transparent),radial-gradient(1.5px 1.5px at 58% 22%,#fff 60%,transparent),radial-gradient(1px 1px at 78% 12%,#fff 60%,transparent),radial-gradient(1px 1px at 88% 30%,#fff 60%,transparent),radial-gradient(1px 1px at 22% 34%,#fff 60%,transparent),radial-gradient(1px 1px at 46% 40%,#fff 60%,transparent),radial-gradient(1.5px 1.5px at 68% 44%,#fff 60%,transparent),
+ radial-gradient(ellipse 70% 55% at 50% 58%,color-mix(in srgb,var(--sw-glow,#B478FF) 45%,transparent),transparent 70%),
+ linear-gradient(180deg,color-mix(in srgb,var(--sw-top,#0B0820) 100%,#000 20%) 0%,var(--sw-top,#1A1048) 55%,color-mix(in srgb,var(--sw-top,#2A1A6A) 70%,var(--sw-glow,#8A5CFF) 30%) 100%)}
+.swbg::after{content:'';position:absolute;left:-30%;right:-30%;bottom:-6%;height:52%;background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--sw-glow,#D678FF) 75%,transparent) 0 2px,transparent 2px 34px),repeating-linear-gradient(0deg,color-mix(in srgb,var(--sw-glow,#D678FF) 75%,transparent) 0 2px,transparent 2px 22px);transform:perspective(160px) rotateX(58deg);transform-origin:bottom;-webkit-mask-image:linear-gradient(0deg,#000 20%,transparent 95%);mask-image:linear-gradient(0deg,#000 20%,transparent 95%)}
+.swbg::before{content:'';position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse 55% 45% at 50% 55%,rgba(255,255,255,.26),transparent 70%)}
+.cc4-pic img{position:relative;z-index:2;width:86% !important;height:86% !important;object-fit:contain !important;filter:drop-shadow(0 12px 14px rgba(0,0,0,.55)) drop-shadow(0 0 18px color-mix(in srgb,var(--sw-glow,#BE8CFF) 40%,transparent));transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
+.ccard.cc4:hover .cc4-pic img{transform:translate(10px,-8px) scale(1.05) rotate(-2deg)}
+.cc4-ph{position:relative;z-index:2;color:rgba(255,255,255,.75)}.cc4-ph svg{width:46px;height:46px}
+.cc4-shine{position:absolute;inset:0;z-index:3;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.45) 48%,transparent 60%);background-size:250% 100%;background-position:130% 0;pointer-events:none;transition:background-position .9s}
+.ccard.cc4:hover .cc4-shine{background-position:-40% 0}
+.cc4-b{display:flex;flex-direction:column;gap:2px;padding:2px 4px 2px}
+.cc4-b .meta{font-size:12.5px;color:var(--muted);padding:0 4px}
+.cc4-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cstag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 4px !important;border-radius:999px !important;border:0 !important;font:inherit;font-size:12.5px !important;font-weight:700;cursor:pointer;transition:transform .2s cubic-bezier(.3,1.5,.5,1),filter .2s}
+.cstag:hover{transform:translateY(-2px)}
+.cstag i{display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%}.cstag i svg{width:12px;height:12px}
+.cstag.ok{background:#E2F4E8 !important;color:#1A7A45 !important}.cstag.ok i{background:#1A7A45;color:#fff}
+.cstag.no{background:color-mix(in srgb,var(--muted) 12%,var(--card)) !important;color:var(--muted) !important}.cstag.no i{background:color-mix(in srgb,var(--muted) 45%,var(--card));color:#fff}
+/* or brillant */
+.ccard.cc4.gold,html[data-bgfull] .main .ccard.cc4.gold{border:3px solid transparent !important;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,#FFF5CC,#FFE07A 25%,#E3B341 50%,#FFE9A0 70%,#C9962A) border-box !important;background-size:100% 100%,200% 200% !important;animation:cgold 6s ease-in-out infinite;box-shadow:0 7px 0 #A8791E,0 0 0 4px rgba(227,179,65,.16),0 22px 36px -18px rgba(184,134,42,.8) !important}
+@keyframes cgold{0%,100%{background-position:0 0,0% 50%}50%{background-position:0 0,100% 50%}}
+.ccard.cc4.gold .cc4-shine{animation:cshine 3.6s ease-in-out infinite}
+@keyframes cshine{0%,62%{background-position:130% 0}100%{background-position:-40% 0}}
+.ccard.cc4.gold .cstag.ok{background:linear-gradient(135deg,#FFF5CC,#FFE07A) !important;color:#7A5200 !important;box-shadow:inset 0 0 0 1px rgba(201,150,42,.45)}
+.ccard.cc4.gold .cstag.ok i{background:linear-gradient(135deg,#E3B341,#A8791E)}
+.ccard.cc4.silver,html[data-bgfull] .main .ccard.cc4.silver{border-color:#AEB6C4 !important;box-shadow:0 7px 0 #7E8796 !important}
+.ccard.cc4.none .cc4-pic img{filter:grayscale(1) opacity(.5)}
+.ccard.cc4.none .swbg{filter:grayscale(1)}
+.ccard.cc4.none .nm{color:var(--muted)}
+.cc4-rib{position:absolute;top:12px;right:-6px;z-index:5;display:inline-flex;align-items:center;gap:5px;padding:5px 12px 5px 9px;border-radius:999px 0 0 999px;background:linear-gradient(90deg,#FFF5CC,#E3B341);color:#5A3E00;font-size:10px;font-weight:800;letter-spacing:.12em;box-shadow:0 6px 12px -6px rgba(0,0,0,.55)}
+.cc4-rib svg{width:14px;height:14px;animation:ctw 2.4s ease-in-out infinite}
+@keyframes ctw{0%,100%{transform:scale(.9) rotate(0)}50%{transform:scale(1.15) rotate(15deg)}}
+/* ===== fiche d'une console ===== */
+.csheet{position:relative;border-radius:26px;background:var(--card);border:2px solid var(--card-border);box-shadow:0 8px 0 var(--card-border);overflow:hidden}
+.csheet.gold{border:3px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,#FFF5CC,#FFE07A 25%,#E3B341 50%,#FFE9A0 70%,#C9962A) border-box;box-shadow:0 8px 0 #A8791E}
+.csh-hero{position:relative;height:340px;display:flex;align-items:center;justify-content:center}
+.swbg.big{border-radius:0;-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 45%,rgba(0,0,0,.6) 72%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 45%,rgba(0,0,0,.6) 72%,transparent 100%)}
+.swbg.big::after{height:58%;bottom:4%;background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--sw-glow,#D678FF) 70%,transparent) 0 2px,transparent 2px 60px),repeating-linear-gradient(0deg,color-mix(in srgb,var(--sw-glow,#D678FF) 70%,transparent) 0 2px,transparent 2px 36px);transform:perspective(260px) rotateX(60deg)}
+.csh-top{position:absolute;top:14px;left:16px;right:16px;z-index:4;display:flex;justify-content:space-between;gap:8px}
+.csh-top .btn{background:rgba(10,8,30,.45) !important;color:#fff !important;border-color:rgba(255,255,255,.3) !important;backdrop-filter:blur(6px)}
+.csh-hero img{position:relative;z-index:2;max-width:min(460px,78%);max-height:250px;object-fit:contain;filter:drop-shadow(0 24px 24px rgba(0,0,0,.5)) drop-shadow(0 0 24px color-mix(in srgb,var(--sw-glow,#BE8CFF) 40%,transparent))}
+.cc4-ph.big svg{width:90px;height:90px}
+.csh-body{position:relative;z-index:3;padding:6px 26px 26px;display:flex;flex-direction:column;gap:16px}
+.csh-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.csh-k{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.csh-name{margin:0;font-size:clamp(22px,3vw,32px) !important;line-height:1.25 !important;color:var(--text);padding:0 !important}
+.csh-head .cc4-tags{justify-content:center;margin-top:4px}
+.csh-head .cstag{cursor:default}
+.csh-facts{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.csh-facts span{display:flex;flex-direction:column;min-width:110px;padding:8px 14px;border-radius:12px;background:var(--sunken);border:1px solid var(--card-border)}
+.csh-facts small{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.csh-facts b{font-size:14px;color:var(--text)}
+.cex{padding:14px;border-radius:20px;background:color-mix(in srgb,var(--sunken) 70%,var(--card));border:1px solid var(--card-border)}
+.cexh{display:flex;align-items:center;gap:10px;margin-bottom:10px}.cexh b{font-size:14.5px;color:var(--text)}
+.cexs{padding:3px 12px;border-radius:999px;background:linear-gradient(135deg,#FFF5CC,#FFE07A);color:#7A5200;font-size:12px;font-weight:700}
+.cex-del{margin-left:auto;font-size:12px}
+.cexg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.csx{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--card-border)}
+.csx header{display:flex;flex-direction:column;gap:8px}.csx h4{margin:0;font-size:14px;color:var(--text)}
+.csx .cmb{display:flex;gap:6px;flex-wrap:wrap}
+.udd .cdd-btn{min-height:40px}
+.udd .ci{display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%}.udd .ci svg{width:11px;height:11px}.udd .ci.ok{background:#1A7A45;color:#fff}.udd .ci.no{background:color-mix(in srgb,var(--muted) 45%,var(--card));color:#fff}
+.cphs{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+.cph{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--sunken)}
+.cph-img{width:100%;height:100%;padding:0;border:0;background:none;cursor:zoom-in}.cph-img img{width:100%;height:100%;object-fit:cover;display:block}
+.cph-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border:0;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:11px;cursor:pointer;opacity:0;transition:opacity .2s}
+.cph:hover .cph-x{opacity:1}
+.cph.add{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--card-border);background:var(--card);color:var(--accent-text);font-size:20px;cursor:pointer}.cph.add small{font-size:10.5px;font-weight:600}
+.cnote{width:100%;box-sizing:border-box;min-height:44px;padding:8px 10px;border-radius:12px;border:1px solid var(--card-border);background:var(--sunken);color:var(--text);font:inherit;font-size:12.5px;resize:vertical}
+.cex-add{min-height:48px;border-radius:16px;border:2px dashed var(--card-border);background:var(--sunken);color:var(--accent-text);font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.cex-add:hover{transform:translateY(-2px)}
+@media (max-width:820px){.cexg{grid-template-columns:1fr}.csh-hero{height:260px}}
+
+.csh-name{font-weight:500 !important}
+html[data-bgfull="pixel"] .main .csh-name{font-family:'Press Start 2P',monospace !important;font-size:clamp(14px,2vw,20px) !important;line-height:1.6 !important}
+/* consoles : boutons Modifier / Ajouter + corbeille */
+.con-st{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.con-acts{display:inline-flex;gap:8px;margin-left:auto}
+.con-acts .btn svg{width:14px;height:14px;margin-right:4px;vertical-align:-2px}
+.con-del{position:absolute;top:-10px;left:-10px;z-index:8;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:3px solid var(--card);border-radius:50%;background:#C2304A;color:#fff;cursor:pointer;box-shadow:0 6px 14px -6px rgba(0,0,0,.6);transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.con-del svg{width:16px;height:16px}
+.con-del:hover{transform:scale(1.12) rotate(-8deg)}
+.ccard.cc4.editing{animation:conWig .5s ease-in-out infinite alternate}
+.ccard.cc4.editing.gold{animation:conWig .5s ease-in-out infinite alternate,cgold 6s ease-in-out infinite}
+@keyframes conWig{from{transform:rotate(-.6deg)}to{transform:rotate(.6deg)}}
 </style>
 </head>
 <body>
@@ -3680,6 +3770,7 @@ function render(){
   else if (S.view === 'data') html = viewData();
   else if (S.view === 'suivi') html = viewSuivi();
   else if (S.view === 'licence') html = viewLicence();
+  else if (S.view === 'console') html = viewConsole();
   else if (S.view === 'catalog') html = viewCatalog();
   else if (S.view === 'news') html = viewNews();
   else html = viewQuick(S.view);
@@ -3896,24 +3987,19 @@ function table(rows, sortable, kind){
 function viewConsoles(){
   var brands = allBrands();
   if (brands.indexOf(S.brand) < 0) S.brand = brands[0];
-  var mine = S.consoles.filter(function(c){ return c.brand === S.brand; }).sort(function(a, b){ return (a.year || 9999) - (b.year || 9999) || String(a.name).localeCompare(b.name, 'fr'); });
+  var yr = function(c){ var m = String(c.year || '').match(/\d{4}/); return m ? +m[0] : 9999; };
+  var mine = S.consoles.filter(function(c){ return c.brand === S.brand; }).sort(function(a, b){ return yr(a) - yr(b) || String(a.name).localeCompare(b.name, 'fr'); });
   var owned = mine.filter(function(c){ return c.owned; }).length;
   var h = crtConsoles(brands);
   var ct = crtTheme(), boxedN = mine.filter(function(c){ return c.boxed; }).length, missN = mine.length - owned;
   h += '<section class="chero" style="--crt-bg:' + ct.bg + ';--crt-glow:' + ct.glow + ';--crt-kick:' + ct.kick + ';--crt-lab:' + ct.lab + ';--crt-frame:' + ct.frame + (ct.font ? ';--crt-font:' + ct.font : '') + '" aria-label="Constructeur ' + esc(S.brand) + '"><div class="ch-l"><span class="ch-k">CONSTRUCTEUR</span><h2 class="ch-logo">' + brandLogoImg(S.brand) + '</h2></div><div class="ch-st">' + [[owned, 'possédée', '#39FF88', 1], [boxedN, 'en boîte', '#FFE14D', 0], [missN, 'manquante', '#FF5C7A', 1]].map(function(x){ return '<span style="--sc:' + x[2] + '"><b>' + x[0] + '</b>' + x[1] + (x[3] && x[0] > 1 ? 's' : '') + '</span>'; }).join('') + '</div></section>';
   [['salon', 'Consoles de salon'], ['portable', 'Consoles portables']].forEach(function(sec){
     var items = mine.filter(function(c){ return (c.category || 'salon') === sec[0]; });
-    h += '<div class="section-title tt-title"><h2>' + sec[1] + '</h2><span>' + items.length + ' console' + (items.length > 1 ? 's' : '') + '</span></div>';
+    var ed = S.conEdit === sec[0];
+    h += '<div class="section-title tt-title con-st"><h2>' + sec[1] + '</h2><span>' + items.length + ' console' + (items.length > 1 ? 's' : '') + '</span>' + (S.readOnly ? '' : '<span class="con-acts"><button type="button" class="btn ghost small" data-conedit="' + sec[0] + '" aria-pressed="' + ed + '">' + (ed ? '✓ Terminer' : ICON_PEN + ' Modifier') + '</button><button type="button" class="btn small" data-act="newConsole" data-cat="' + sec[0] + '">＋ Ajouter</button></span>') + '</div>';
     if (!items.length) { h += '<div class="card empty"><span>Aucune console ' + (sec[0] === 'salon' ? 'de salon' : 'portable') + ' pour ' + esc(S.brand) + '.</span><button class="btn ghost small" data-act="newConsole" data-cat="' + sec[0] + '"' + writeGuard() + '>+ Ajouter</button></div>'; return; }
     h += '<div class="cgrid">';
-    items.forEach(function(c){
-      var img = blob(c.imageId);
-      var ng = S.games.filter(function(g){ return list(g.consoles).some(function(x){ return norm(x) === norm(c.name) || (c.short && norm(x) === norm(c.short)); }); }).length;
-      h += '<article class="ccard' + (c.owned ? ' owned' : '') + '"><button class="pic" data-console="' + esc(c.id) + '" aria-label="Modifier ' + esc(c.name) + '">' + (img ? '<img src="' + img + '" alt="">' : (sec[0] === 'salon' ? ICON_HOME : ICON_HAND)) + '</button>'
-        + '<div><div class="nm">' + esc(c.name) + '</div><div class="meta">' + (c.year ? esc(c.year) + ' · ' : '') + ng + ' jeu' + (ng > 1 ? 'x' : '') + '</div></div>'
-        + '<div class="toggles"><button class="toggle own" data-toggle="owned" data-id="' + esc(c.id) + '" aria-pressed="' + !!c.owned + '"' + writeGuard() + '>Possédée</button>'
-        + '<button class="toggle box" data-toggle="boxed" data-id="' + esc(c.id) + '" aria-pressed="' + !!c.boxed + '"' + writeGuard() + '>En boîte</button></div></article>';
-    });
+    items.forEach(function(c){ var ch = conCardHtml(c, sec[0]); if (ed) ch = ch.replace('<div class="pic cc4-pic">', '<button type="button" class="con-del" data-condel="' + esc(c.id) + '" aria-label="Supprimer ' + esc(c.name) + '" title="Supprimer cette console">' + ICON_TRASH + '</button><div class="pic cc4-pic">').replace('class="ccard cc4 ', 'class="ccard cc4 editing '); h += ch; });
     h += '</div>';
   });
   return h;
@@ -7644,6 +7730,88 @@ async function newsTranslate(ed){
   NTR_BUSY = false;
 }
 
+/* ---------- Consoles : cartes premium + fiche détaillée par exemplaire ---------- */
+var CK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>', XX_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+var CON_STATES = ['Neuf', 'Comme neuf', 'Très bon', 'Bon', 'Correct', 'Abîmé', 'Pour pièces'];
+function conStag(lab, ok, attrs){ return '<button type="button" class="cstag ' + (ok ? 'ok' : 'no') + '"' + (attrs || '') + '><i>' + (ok ? CK_SVG : XX_SVG) + '</i>' + lab + '</button>'; }
+function conUnits(c){ var u = list(c.units); if (u.length) return u; return [{id:'u1', console:{owned:!!c.owned, state:'', photos:[], note:''}, box:{owned:!!c.boxed, state:'', photos:[], note:''}}]; }
+function conGames(c){ return S.games.filter(function(g){ return list(g.consoles).some(function(x){ return norm(x) === norm(c.name) || (c.short && norm(x) === norm(c.short)); }); }).length; }
+function conSwStyle(){ var t = crtTheme(); return '--sw-top:' + t.bg + ';--sw-glow:' + t.glow + ';--sw-kick:' + t.kick; }
+function conCardHtml(c, sec){
+  var img = blob(c.imageId), ng = conGames(c), st = c.owned && c.boxed ? 'gold' : (c.owned || c.boxed) ? 'silver' : 'none';
+  return '<article class="ccard cc4 ' + st + (c.owned ? ' owned' : '') + '" data-conopen="' + esc(c.id) + '" style="' + conSwStyle() + '">'
+    + '<div class="pic cc4-pic"><span class="swbg" aria-hidden="true"></span>' + (img ? '<img src="' + img + '" alt="">' : '<span class="cc4-ph">' + (sec === 'salon' ? ICON_HOME : ICON_HAND) + '</span>') + '<span class="cc4-shine" aria-hidden="true"></span>'
+    + (st === 'gold' ? '<span class="cc4-rib"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.6 4.6 2.7 7.4 9.5 10.5-6.8 3.1-8.9 5.9-9.5 10.5-.6-4.6-2.7-7.4-9.5-10.5C9.3 8.9 11.4 6.1 12 1.5z" fill="#5A3E00"/></svg>COMPLÈTE</span>' : '') + '</div>'
+    + '<div class="cc4-b"><div class="nm">' + esc(c.name) + '</div><div class="meta">' + (c.year ? esc(c.year) + ' · ' : '') + ng + ' jeu' + (ng > 1 ? 'x' : '') + '</div>'
+    + '<div class="cc4-tags">' + conStag('Console', !!c.owned, ' data-toggle="owned" data-id="' + esc(c.id) + '"' + writeGuard()) + conStag('En boîte', !!c.boxed, ' data-toggle="boxed" data-id="' + esc(c.id) + '"' + writeGuard()) + '</div></div></article>';
+}
+function uddHtml(key, label, opts, val, okFn){
+  var open = S.uddOpen === key, cur = opts.filter(function(o){ return o[0] === val; })[0] || opts[0], ok = okFn ? okFn(cur[0]) : null;
+  return '<div class="cdd udd' + (open ? ' open' : '') + '"><button type="button" class="cdd-btn" data-udd="' + esc(key) + '" aria-haspopup="listbox" aria-expanded="' + open + '"' + writeGuard() + '><small>' + esc(label) + '</small>' + (ok == null ? '' : '<i class="ci ' + (ok ? 'ok' : 'no') + '">' + (ok ? CK_SVG : XX_SVG) + '</i>') + '<b>' + esc(cur[1]) + '</b><svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg></button>'
+    + (open ? '<div class="cdd-pop" role="listbox">' + opts.map(function(o){ return '<button type="button" role="option" class="cdd-opt" data-uddv="' + esc(key) + '|' + esc(o[0]) + '" aria-selected="' + (o[0] === val) + '"><span class="cdd-l">' + esc(o[1]) + '</span>' + (o[0] === val ? '<svg class="cdd-ck" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>' : '') + '</button>'; }).join('') + '</div>' : '') + '</div>';
+}
+function conPartHtml(c, u, ui, part){
+  var p = u[part] || {}, isBox = part === 'box', key = c.id + '|' + ui + '|' + part;
+  var photos = list(p.photos);
+  return '<section class="csx ' + part + '"><header><h4>' + (isBox ? '📦 Boîte' : '🎮 Console') + '</h4><div class="cmb">'
+    + uddHtml(key + '|owned', 'Possédée', isBox ? [['1', 'En boîte'], ['', 'Pas de boîte']] : [['1', 'Possédée'], ['', 'Non possédée']], p.owned ? '1' : '', function(v){ return v === '1'; })
+    + uddHtml(key + '|state', 'État', [['', 'Non renseigné']].concat(CON_STATES.map(function(x){ return [x, x]; })), p.state || '')
+    + '</div></header><div class="cphs">' + photos.map(function(id, k){ return '<span class="cph"><button type="button" class="cph-img" data-conph="' + esc(key) + '|' + k + '" aria-label="Agrandir la photo"><img src="' + blob(id) + '" alt="" loading="lazy"></button>' + (S.readOnly ? '' : '<button type="button" class="cph-x" data-conphdel="' + esc(key) + '|' + k + '" aria-label="Supprimer la photo">✕</button>') + '</span>'; }).join('')
+    + (S.readOnly ? '' : '<label class="cph add"><input type="file" accept="image/*" multiple hidden data-conphadd="' + esc(key) + '">＋<small>Photo</small></label>') + '</div>'
+    + '<textarea class="cnote" data-connote="' + esc(key) + '" rows="2" placeholder="' + (isBox ? 'État de la boîte, notice, cales…' : 'Fonctionnement, rayures, câbles…') + '"' + (S.readOnly ? ' readonly' : '') + '>' + esc(p.note || '') + '</textarea></section>';
+}
+function viewConsole(){
+  var c = S.consoles.find(function(x){ return x.id === S.conId; }); if (!c) { S.view = 'consoles'; return viewConsoles(); }
+  var img = blob(c.imageId), units = conUnits(c), ng = conGames(c), st = c.owned && c.boxed ? 'gold' : (c.owned || c.boxed) ? 'silver' : 'none';
+  var h = '<div class="csheet ' + st + '" style="' + conSwStyle() + '"><div class="csh-hero"><span class="swbg big" aria-hidden="true"></span><div class="csh-top"><button type="button" class="btn ghost small" data-nav="consoles">← Consoles</button>' + (S.readOnly ? '' : '<button type="button" class="btn ghost small" data-console="' + esc(c.id) + '">' + ICON_PEN + ' Modifier les infos</button>') + '</div>' + (img ? '<img src="' + img + '" alt="' + esc(c.name) + '">' : '<span class="cc4-ph big">' + ((c.category || 'salon') === 'salon' ? ICON_HOME : ICON_HAND) + '</span>') + '</div>'
+    + '<div class="csh-body"><div class="csh-head"><span class="csh-k">' + ((c.category || 'salon') === 'salon' ? 'Console de salon' : 'Console portable') + ' · ' + esc(c.brand || '') + '</span><h1 class="nm csh-name">' + esc(c.name) + '</h1><div class="cc4-tags">' + conStag('Console', !!c.owned) + conStag('En boîte', !!c.boxed) + '</div></div>'
+    + '<div class="csh-facts"><span><small>Constructeur</small><b>' + esc(c.brand || '—') + '</b></span><span><small>Sortie</small><b>' + esc(c.year || '—') + '</b></span><span><small>Catégorie</small><b>' + ((c.category || 'salon') === 'salon' ? 'Salon' : 'Portable') + '</b></span><span><small>Jeux possédés</small><b>' + ng + '</b></span><span><small>Exemplaires</small><b>' + units.length + '</b></span></div>'
+    + units.map(function(u, ui){ var full = u.console && u.console.owned && u.box && u.box.owned; return '<div class="cex"><div class="cexh"><b>Exemplaire ' + (ui + 1) + '</b>' + (full ? '<span class="cexs">✓ Complet</span>' : '') + (units.length > 1 && !S.readOnly ? '<button type="button" class="link cex-del" data-conudel="' + esc(c.id) + '|' + ui + '">Supprimer cet exemplaire</button>' : '') + '</div><div class="cexg">' + conPartHtml(c, u, ui, 'box') + conPartHtml(c, u, ui, 'console') + '</div></div>'; }).join('')
+    + (S.readOnly ? '' : '<button type="button" class="cex-add" data-conuadd="' + esc(c.id) + '">＋ Ajouter un exemplaire (autre console ou autre boîte)</button>') + '</div></div>';
+  return h;
+}
+async function conSaveUnits(c, units){
+  var patch = {units:units, owned:units.some(function(u){ return u.console && u.console.owned; }), boxed:units.some(function(u){ return u.box && u.box.owned; })};
+  c.units = units; c.owned = patch.owned; c.boxed = patch.boxed;
+  try { await withRetry(function(){ return db.collection('consoles').doc(c.id).update(patch); }); } catch (x) { toast(failMsg(x)); }
+}
+function conFind(key){ var p = key.split('|'), c = S.consoles.find(function(x){ return x.id === p[0]; }); if (!c) return null; var units = JSON.parse(JSON.stringify(conUnits(c))); return {c:c, units:units, ui:+p[1], part:p[2], u:units[+p[1]]}; }
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-conopen],[data-udd],[data-uddv],[data-conph],[data-conphdel],[data-conuadd],[data-conudel]');
+  if (!t) { if (S.uddOpen && !(e.target.closest && e.target.closest('.udd'))) { S.uddOpen = null; render(); } return; }
+  if (t.hasAttribute('data-conopen')) { if (e.target.closest('button,a,input,label')) return; S.conId = t.getAttribute('data-conopen'); S.uddOpen = null; go('console'); return; }
+  if (t.hasAttribute('data-udd')) { e.preventDefault(); var k = t.getAttribute('data-udd'); S.uddOpen = S.uddOpen === k ? null : k; render(); return; }
+  if (S.readOnly) return;
+  if (t.hasAttribute('data-uddv')) { var pv = t.getAttribute('data-uddv').split('|'), f = conFind(pv.slice(0, 3).join('|')); S.uddOpen = null; if (!f) return; var fld = pv[3], val = pv.slice(4).join('|'); f.u[f.part] = Object.assign({photos:[], note:''}, f.u[f.part]); if (fld === 'owned') f.u[f.part].owned = val === '1'; else f.u[f.part].state = val; render(); await conSaveUnits(f.c, f.units); render(); return; }
+  if (t.hasAttribute('data-conph')) { var q = t.getAttribute('data-conph').split('|'), f2 = conFind(q.slice(0, 3).join('|')); if (!f2) return; var ph = list(f2.u[f2.part] && f2.u[f2.part].photos).map(function(id){ return blob(id); }); if (typeof shotOpen === 'function') shotOpen(ph, +q[3]); return; }
+  if (t.hasAttribute('data-conphdel')) { var q2 = t.getAttribute('data-conphdel').split('|'), f3 = conFind(q2.slice(0, 3).join('|')); if (!f3) return; var arr = list(f3.u[f3.part].photos).slice(); arr.splice(+q2[3], 1); f3.u[f3.part].photos = arr; await conSaveUnits(f3.c, f3.units); render(); return; }
+  if (t.hasAttribute('data-conuadd')) { var c4 = S.consoles.find(function(x){ return x.id === t.getAttribute('data-conuadd'); }); if (!c4) return; var us = JSON.parse(JSON.stringify(conUnits(c4))); us.push({id:'u' + Date.now().toString(36), console:{owned:false, state:'', photos:[], note:''}, box:{owned:false, state:'', photos:[], note:''}}); await conSaveUnits(c4, us); render(); return; }
+  if (t.hasAttribute('data-conudel')) { var q3 = t.getAttribute('data-conudel').split('|'), c5 = S.consoles.find(function(x){ return x.id === q3[0]; }); if (!c5) return; var us2 = JSON.parse(JSON.stringify(conUnits(c5))); us2.splice(+q3[1], 1); await conSaveUnits(c5, us2); render(); return; }
+});
+document.addEventListener('change', async function(e){
+  var t = e.target; if (!t.hasAttribute || !t.hasAttribute('data-conphadd') || S.readOnly) return;
+  var f = conFind(t.getAttribute('data-conphadd')); if (!f || !t.files.length) return;
+  toast('Envoi des photos…');
+  try { var ids = []; for (var i = 0; i < t.files.length; i++) { var id = await uploadFile(t.files[i]); if (id) ids.push(id); } f.u[f.part] = Object.assign({photos:[], note:''}, f.u[f.part]); f.u[f.part].photos = list(f.u[f.part].photos).concat(ids); await conSaveUnits(f.c, f.units); render(); toast(ids.length + ' photo' + (ids.length > 1 ? 's ajoutées' : ' ajoutée')); } catch (x) { toast(failMsg(x)); }
+});
+document.addEventListener('focusout', async function(e){
+  var t = e.target; if (!t.hasAttribute || !t.hasAttribute('data-connote') || S.readOnly) return;
+  var f = conFind(t.getAttribute('data-connote')); if (!f) return; var v = t.value.trim();
+  if ((f.u[f.part] && f.u[f.part].note || '') === v) return;
+  f.u[f.part] = Object.assign({photos:[], note:''}, f.u[f.part]); f.u[f.part].note = v; await conSaveUnits(f.c, f.units);
+});
+
+
+/* ---------- Consoles : modifier (suppression) ---------- */
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-conedit],[data-condel],[data-condelok]'); if (!t || S.readOnly) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (t.hasAttribute('data-conedit')) { var k = t.getAttribute('data-conedit'); S.conEdit = S.conEdit === k ? null : k; render(); return; }
+  if (t.hasAttribute('data-condel')) { var c = S.consoles.find(function(x){ return x.id === t.getAttribute('data-condel'); }); if (!c) return; openDlg('<div class="dlg"><header><h2>Supprimer « ' + esc(c.name) + ' » ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body"><p style="margin:0;font-size:14px;line-height:1.6">La console, ses exemplaires et leurs photos seront retirés de ta collection. Tes jeux ne sont pas touchés.</p></div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn danger" data-condelok="' + esc(c.id) + '">Supprimer</button></footer></div>'); return; }
+  var id = t.getAttribute('data-condelok'); t.disabled = true; t.textContent = 'Suppression…';
+  withRetry(function(){ return db.collection('consoles').doc(id).delete(); }).then(function(){ closeDlg(); toast('Console supprimée'); }).catch(function(x){ closeDlg(); toast(failMsg(x)); });
+}, true);
+
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
 function importCard(){
@@ -7726,8 +7894,7 @@ document.addEventListener('click', async function(e){
   if (t.hasAttribute('data-toggle')) {
     var cid = t.getAttribute('data-id'), field = t.getAttribute('data-toggle'), c = S.consoles.find(function(x){ return x.id === cid; });
     if (!c) return; var patch = {}; patch[field] = !c[field];
-    if (field === 'boxed' && patch.boxed) patch.owned = true;
-    if (field === 'owned' && !patch.owned) patch.boxed = false;
+    if (list(c.units).length) { var usT = JSON.parse(JSON.stringify(c.units)); if (field === 'owned') usT[0].console = Object.assign({photos:[], note:''}, usT[0].console, {owned:patch.owned}); else usT[0].box = Object.assign({photos:[], note:''}, usT[0].box, {owned:patch.boxed}); patch.units = usT; patch.owned = usT.some(function(u){ return u.console && u.console.owned; }); patch.boxed = usT.some(function(u){ return u.box && u.box.owned; }); }
     t.disabled = true;
     try { await withRetry(function(){ return db.collection('consoles').doc(cid).update(patch); }); } catch (x) { toast(failMsg(x)); }
     t.disabled = false; return;
