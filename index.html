@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Press Start — Collection gaming</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3341,6 +3341,37 @@ html[data-bgfull="pixel"] .main .csh-name{font-family:'Press Start 2P',monospace
   /* tactile : pas d'effets de survol qui restent collés */
   .ccard.cc4:hover,.lg-card:hover,.nrel.tkm:hover,.cam-btn:hover,.cr-net:hover{transform:none !important}
   .ccard.cc4:active,.lg-card:active,.nrel.tkm:active{transform:scale(.98) !important}
+}
+/* fiche console en fenêtre */
+dialog.con-dlg{width:min(1060px,calc(100vw - 24px));max-height:calc(100vh - 32px);padding:0;border:0;background:transparent;overflow:visible}
+dialog.con-dlg::backdrop{background:rgba(10,8,30,.6);backdrop-filter:blur(3px)}
+.con-dlg-in{max-height:calc(100vh - 32px);overflow-y:auto;border-radius:26px;scrollbar-width:none}
+.con-dlg-in::-webkit-scrollbar{display:none}
+.con-dlg .csheet{box-shadow:none}
+/* reflet des cartes consoles : seulement au survol */
+.ccard.cc4.gold,html[data-bgfull] .main .ccard.cc4.gold{animation:none !important}
+.ccard.cc4.gold:hover,html[data-bgfull] .main .ccard.cc4.gold:hover{animation:cgold 2.4s ease-in-out infinite !important}
+.ccard.cc4.gold .cc4-shine{animation:none !important}
+.ccard.cc4.gold .cc4-rib svg{animation:none}
+.ccard.cc4.gold:hover .cc4-rib svg{animation:ctw 2.4s ease-in-out infinite}
+
+@media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){
+  html,body{overflow-x:hidden;max-width:100%}
+  .main{overflow-x:clip;min-width:0}
+  input,select,textarea{font-size:16px !important}
+  .side{display:none !important}
+  .mdrawer{position:fixed;top:0;left:0;bottom:0;z-index:600;width:min(320px,86vw);display:flex;flex-direction:column;gap:18px;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--side,var(--card));border-right:1px solid var(--side-border,var(--card-border));box-shadow:0 0 40px rgba(0,0,0,.35);transform:translateX(-105%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+  body.mside-open .mdrawer{transform:none}
+  .mdr-h{display:flex;align-items:center;justify-content:space-between}.mdr-h b{font-size:16px;color:var(--text)}
+  .mtab{left:0 !important;right:0 !important;bottom:0 !important;border-radius:22px 22px 0 0 !important;padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px) !important;background:var(--card) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;border:0 !important;border-top:1px solid var(--card-border) !important;box-shadow:0 -8px 24px -12px rgba(0,0,0,.35) !important;transform:translateZ(0);will-change:transform}
+  .main{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 92px) !important}
+  /* accueil : recherche toujours à portée de main */
+  #homeList{overflow:visible !important}
+  #homeList .rowhead{position:sticky;top:0;z-index:40;margin:-14px -14px 0;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;background:var(--card);border-radius:0 0 18px 18px;box-shadow:0 10px 18px -16px rgba(0,0,0,.4);flex-direction:column;align-items:stretch;gap:8px}
+  #homeList .list-tools{display:flex;flex-direction:row-reverse;gap:8px;width:100%}
+  #homeList .list-tools .search{flex:1;min-height:48px}
+  #homeList .list-tools .search input{width:100%;font-size:16px !important}
+  #homeList .list-tools .btn{flex:none;min-height:48px;padding:0 14px;white-space:nowrap}
 }
 </style>
 <link rel="manifest" href="manifest.json">
@@ -7559,7 +7590,7 @@ function nrelInfo(r){ var p = list(r.platforms)[0] || ''; return {title:r.title,
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('.nrel[data-nrel],.ncal-e.r[data-nrel],[data-nrgi]'); if (!t) return;
   e.preventDefault(); e.stopImmediatePropagation();
-  var r = t.hasAttribute('data-nrgi') ? (NRG && NRG.items[+t.getAttribute('data-nrgi')]) : NREL_LIST[+t.getAttribute('data-nrel')]; if (!r) return;
+  var r = t.hasAttribute('data-nrgi') ? (NRG && NRG.items[+t.getAttribute('data-nrgi')]) : ((t.closest('#ncalDlg') && S._ncalList) || NREL_LIST)[+t.getAttribute('data-nrel')]; if (!r) return;
   if (typeof nrpClose === 'function') nrpClose();
   giOpen(nrelInfo(r));
 }, true);
@@ -7725,7 +7756,7 @@ setTimeout(psFavicon, 300);
 
 
 /* ---------- Calendrier intégral des sorties dans une fenêtre ---------- */
-function ncalDlgDraw(){ var dg = document.getElementById('ncalDlg'); if (!dg || !S._ncal) return; dg.innerHTML = '<div class="nrg-in ncal-in"><header><h2>Calendrier des sorties</h2><button type="button" class="iconbtn" data-ncalx="1" aria-label="Fermer">✕</button></header><div class="ncal-scroll">' + newsCalendar(S._ncal.rels, S._ncal.confs, S._ncal.ref) + '</div></div>'; }
+function ncalDlgDraw(){ var dg = document.getElementById('ncalDlg'); if (!dg || !S._ncal) return; relArchLoad(); NREL_LIST = S._ncalList = relMerged(S._ncal.rels); dg.innerHTML = '<div class="nrg-in ncal-in"><header><h2>Calendrier des sorties</h2><button type="button" class="iconbtn" data-ncalx="1" aria-label="Fermer">✕</button></header><div class="ncal-scroll">' + newsCalendar(NREL_LIST, S._ncal.confs, S._ncal.ref) + '</div></div>'; }
 function ncalDlgOpen(){
   var dg = document.getElementById('ncalDlg'); if (!dg) { dg = document.createElement('dialog'); dg.id = 'ncalDlg'; dg.className = 'nrg-dlg ncal-dlg'; document.body.appendChild(dg); dg.addEventListener('click', function(ev){ if (ev.target === dg) dg.close(); }); }
   ncalDlgDraw(); if (!dg.open) dg.showModal();
@@ -7815,7 +7846,7 @@ function conPartHtml(c, u, ui, part){
 function viewConsole(){
   var c = S.consoles.find(function(x){ return x.id === S.conId; }); if (!c) { S.view = 'consoles'; return viewConsoles(); }
   var img = blob(c.imageId), units = conUnits(c), ng = conGames(c), st = c.owned && c.boxed ? 'gold' : (c.owned || c.boxed) ? 'silver' : 'none';
-  var h = '<div class="csheet ' + st + '" style="' + conSwStyle() + '"><div class="csh-hero"><span class="swbg big" aria-hidden="true"></span><div class="csh-top"><button type="button" class="btn ghost small" data-nav="consoles">← Consoles</button>' + (S.readOnly ? '' : '<button type="button" class="btn ghost small" data-console="' + esc(c.id) + '">' + ICON_PEN + ' Modifier les infos</button>') + '</div>' + (img ? '<img src="' + img + '" alt="' + esc(c.name) + '">' : '<span class="cc4-ph big">' + ((c.category || 'salon') === 'salon' ? ICON_HOME : ICON_HAND) + '</span>') + '</div>'
+  var h = '<div class="csheet ' + st + '" style="' + conSwStyle() + '"><div class="csh-hero"><span class="swbg big" aria-hidden="true"></span><div class="csh-top"><button type="button" class="btn ghost small" data-conclose="1">✕ Fermer</button>' + (S.readOnly ? '' : '<button type="button" class="btn ghost small" data-console="' + esc(c.id) + '">' + ICON_PEN + ' Modifier les infos</button>') + '</div>' + (img ? '<img src="' + img + '" alt="' + esc(c.name) + '">' : '<span class="cc4-ph big">' + ((c.category || 'salon') === 'salon' ? ICON_HOME : ICON_HAND) + '</span>') + '</div>'
     + '<div class="csh-body"><div class="csh-head"><span class="csh-k">' + ((c.category || 'salon') === 'salon' ? 'Console de salon' : 'Console portable') + ' · ' + esc(c.brand || '') + '</span><h1 class="nm csh-name">' + esc(c.name) + '</h1><div class="cc4-tags">' + conStag('Console', !!c.owned) + conStag('En boîte', !!c.boxed) + '</div></div>'
     + '<div class="csh-facts"><span><small>Constructeur</small><b>' + esc(c.brand || '—') + '</b></span><span><small>Sortie</small><b>' + esc(c.year || '—') + '</b></span><span><small>Catégorie</small><b>' + ((c.category || 'salon') === 'salon' ? 'Salon' : 'Portable') + '</b></span><span><small>Jeux possédés</small><b>' + ng + '</b></span><span><small>Exemplaires</small><b>' + units.length + '</b></span></div>'
     + units.map(function(u, ui){ var full = u.console && u.console.owned && u.box && u.box.owned; return '<div class="cex"><div class="cexh"><b>Exemplaire ' + (ui + 1) + '</b>' + (full ? '<span class="cexs">✓ Complet</span>' : '') + (units.length > 1 && !S.readOnly ? '<button type="button" class="link cex-del" data-conudel="' + esc(c.id) + '|' + ui + '">Supprimer cet exemplaire</button>' : '') + '</div><div class="cexg">' + conPartHtml(c, u, ui, 'box') + conPartHtml(c, u, ui, 'console') + '</div></div>'; }).join('')
@@ -7831,7 +7862,7 @@ function conFind(key){ var p = key.split('|'), c = S.consoles.find(function(x){ 
 document.addEventListener('click', async function(e){
   var t = e.target.closest && e.target.closest('[data-conopen],[data-udd],[data-uddv],[data-conph],[data-conphdel],[data-conuadd],[data-conudel]');
   if (!t) { if (S.uddOpen && !(e.target.closest && e.target.closest('.udd'))) { S.uddOpen = null; render(); } return; }
-  if (t.hasAttribute('data-conopen')) { if (e.target.closest('button,a,input,label')) return; S.conId = t.getAttribute('data-conopen'); S.uddOpen = null; go('console'); return; }
+  if (t.hasAttribute('data-conopen')) return;
   if (t.hasAttribute('data-udd')) { e.preventDefault(); var k = t.getAttribute('data-udd'); S.uddOpen = S.uddOpen === k ? null : k; render(); return; }
   if (S.readOnly) return;
   if (t.hasAttribute('data-uddv')) { var pv = t.getAttribute('data-uddv').split('|'), f = conFind(pv.slice(0, 3).join('|')); S.uddOpen = null; if (!f) return; var fld = pv[3], val = pv.slice(4).join('|'); f.u[f.part] = Object.assign({photos:[], note:''}, f.u[f.part]); if (fld === 'owned') f.u[f.part].owned = val === '1'; else f.u[f.part].state = val; render(); await conSaveUnits(f.c, f.units); render(); return; }
@@ -7874,6 +7905,15 @@ function mtabInit(){
   var bd = document.createElement('div'); bd.className = 'mside-bd'; bd.setAttribute('data-mtab', 'close'); document.body.appendChild(bd);
   mtabSync();
 }
+function mdrawerToggle(force){
+  var open = force != null ? force : !document.body.classList.contains('mside-open');
+  var d = document.getElementById('mdrawer');
+  if (open) {
+    if (!d) { d = document.createElement('aside'); d.id = 'mdrawer'; d.className = 'mdrawer'; d.setAttribute('aria-label', 'Menu'); document.body.appendChild(d); }
+    var side = document.querySelector('.side'); d.innerHTML = '<div class="mdr-h"><b>Menu</b><button type="button" class="iconbtn" data-mtab="close" aria-label="Fermer">✕</button></div>' + (side ? side.innerHTML : '');
+  }
+  document.body.classList.toggle('mside-open', open);
+}
 function mtabSync(){
   var n = document.getElementById('mtab'); if (!n) return;
   var v = S.view === 'licence' ? 'licences' : S.view === 'console' ? 'consoles' : S.view;
@@ -7881,15 +7921,41 @@ function mtabSync(){
 }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-mtab]');
-  if (!t) { if (document.body.classList.contains('mside-open') && e.target.closest && e.target.closest('.side [data-nav]')) document.body.classList.remove('mside-open'); return; }
+  if (!t) { if (document.body.classList.contains('mside-open') && e.target.closest && e.target.closest('#mdrawer [data-nav]')) setTimeout(function(){ mdrawerToggle(false); }, 0); else if (document.body.classList.contains('mside-open') && e.target.closest && e.target.closest('#mdrawer')) setTimeout(function(){ if (document.body.classList.contains('mside-open')) mdrawerToggle(true); }, 30); return; }
   var k = t.getAttribute('data-mtab');
-  if (k === 'more') { document.body.classList.toggle('mside-open'); return; }
-  document.body.classList.remove('mside-open');
+  if (k === 'more') { mdrawerToggle(); return; }
+  mdrawerToggle(false);
   if (k === 'close') return;
   if (typeof go === 'function') go(k); else { S.view = k; render(); }
   window.scrollTo(0, 0);
 });
 (function(){ var _render = render; render = function(){ var r = _render.apply(this, arguments); try { mtabInit(); mtabSync(); } catch (x) {} return r; }; })();
+
+/* ---------- Fiche console en fenêtre par-dessus la page ---------- */
+function conDlgDraw(){
+  var dg = document.getElementById('conDlg'); if (!dg || !dg.open) return;
+  var sc = dg.querySelector('.con-dlg-in'), top = sc ? sc.scrollTop : 0, ae = document.activeElement, aKey = ae && ae.getAttribute && ae.getAttribute('data-connote');
+  dg.innerHTML = '<div class="con-dlg-in">' + viewConsole() + '</div>';
+  var sc2 = dg.querySelector('.con-dlg-in'); if (sc2) sc2.scrollTop = top;
+  if (aKey) { var el = dg.querySelector('[data-connote="' + aKey + '"]'); if (el) el.focus(); }
+}
+function conDlgOpen(id){
+  S.conId = id; S.uddOpen = null;
+  var dg = document.getElementById('conDlg'); if (!dg) { dg = document.createElement('dialog'); dg.id = 'conDlg'; dg.className = 'con-dlg'; document.body.appendChild(dg); dg.addEventListener('click', function(ev){ if (ev.target === dg) dg.close(); }); }
+  if (!dg.open) dg.showModal(); conDlgDraw();
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-conopen],[data-conclose]'); if (!t) return;
+  if (t.hasAttribute('data-conclose')) { e.preventDefault(); var dg = document.getElementById('conDlg'); if (dg) dg.close(); return; }
+  if (e.target.closest('button,a,input,label')) return;
+  e.preventDefault(); e.stopImmediatePropagation(); conDlgOpen(t.getAttribute('data-conopen'));
+}, true);
+(function(){ var _r2 = render; render = function(){ var r = _r2.apply(this, arguments); try { conDlgDraw(); } catch (x) {} return r; }; })();
+
+/* ---------- Calendrier : historique des sorties (archive jour par jour) ---------- */
+var RELARCH = [];
+function relArchLoad(){ if (!db || relArchLoad.done) return; relArchLoad.done = true; db.collection('releases_day').onSnapshot(function(s){ var out = []; snapList(s).forEach(function(d){ list(d.items).forEach(function(r){ out.push(r); }); }); RELARCH = out; if (typeof ncalDlgDraw === 'function') ncalDlgDraw(); }, function(){}); }
+function relMerged(cur){ var seen = {}, out = []; list(cur).concat(RELARCH).forEach(function(r){ if (!r || !r.title || !r.date) return; var k = String(r.title).toLowerCase() + '|' + String(r.date).slice(0, 10); if (seen[k]) return; seen[k] = 1; out.push(r); }); return out; }
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
