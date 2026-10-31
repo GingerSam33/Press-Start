@@ -3298,7 +3298,59 @@ html[data-bgfull="pixel"] .main .csh-name{font-family:'Press Start 2P',monospace
 .ccard.cc4.editing{animation:conWig .5s ease-in-out infinite alternate}
 .ccard.cc4.editing.gold{animation:conWig .5s ease-in-out infinite alternate,cgold 6s ease-in-out infinite}
 @keyframes conWig{from{transform:rotate(-.6deg)}to{transform:rotate(.6deg)}}
+/* ===== iPhone / app installée (petits écrans tactiles uniquement) ===== */
+.mtab,.mside-bd{display:none}
+@media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){
+  html{-webkit-text-size-adjust:100%}
+  body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+  .app{display:block !important;min-height:100dvh}
+  .side{position:fixed !important;top:0;left:0;bottom:0;z-index:600;width:min(320px,86vw) !important;max-width:none !important;min-height:0 !important;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 24px) !important;overflow-y:auto;transform:translateX(-105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);border-right:1px solid var(--side-border) !important;border-bottom:0 !important;box-shadow:0 0 40px rgba(0,0,0,.35)}
+  body.mside-open .side{transform:none}
+  .mside-bd{display:block;position:fixed;inset:0;z-index:590;background:rgba(10,8,30,.45);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s}
+  body.mside-open .mside-bd{opacity:1;pointer-events:auto}
+  .main{padding:calc(env(safe-area-inset-top,0px) + 14px) 14px calc(env(safe-area-inset-bottom,0px) + 96px) !important;gap:18px !important}
+  .mtab{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:580;padding:6px;border-radius:24px;background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--card-border);box-shadow:0 14px 34px -14px rgba(0,0,0,.45)}
+  .mtab button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;border:0;border-radius:18px;background:transparent;color:var(--muted);font:inherit;font-size:10.5px;font-weight:600;cursor:pointer;transition:background-color .2s,color .2s,transform .15s}
+  .mtab button svg{width:24px;height:24px}
+  .mtab button:active{transform:scale(.92)}
+  .mtab button[aria-current="page"]{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent-text)}
+  /* grilles et cartes */
+  .cgrid,.lg-grid,.disc-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important}
+  .ccard.cc4 .cc4-pic{height:120px !important}
+  .cc4-b .nm{font-size:13px}
+  .cstag{font-size:11.5px !important;padding:3px 9px 3px 3px !important}.cstag i{width:18px;height:18px}
+  .section-title h2{font-size:clamp(14px,4.4vw,20px) !important}
+  .con-acts{margin-left:0;width:100%}.con-acts .btn{flex:1}
+  /* base de jeux : lignes compactes */
+  .cat-head{display:none !important}
+  .cat-row{grid-template-columns:minmax(0,1fr) auto !important;gap:8px !important;padding:10px !important}
+  .cat-row>*:nth-child(2),.cat-row>*:nth-child(3),.cat-row>*:nth-child(4),.cat-row>*:nth-child(5){display:none !important}
+  .cr-net{width:48px !important;height:40px !important}
+  .cat-dds{gap:6px}.cdd-btn{min-height:40px;padding:0 10px}
+  /* fenêtres : feuilles qui montent du bas */
+  dialog{max-width:100vw !important;width:100vw !important;margin:auto 0 0 0 !important;max-height:92dvh !important;border-radius:24px 24px 0 0 !important;padding-bottom:env(safe-area-inset-bottom,0px) !important}
+  dialog[open]{animation:sheetUp .32s cubic-bezier(.2,.8,.2,1)}
+  @keyframes sheetUp{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  dialog.nrg-dlg,dialog#confYear,dialog#ncalDlg{width:100vw !important}
+  .gi-hero .gi-cover{width:110px !important;margin-bottom:-30px !important}
+  .gi-hero + *{padding-left:0 !important}
+  .gi-title{font-size:clamp(20px,6vw,28px) !important}
+  .csh-hero{height:240px}.csh-body{padding:4px 14px 18px}
+  .cexg{grid-template-columns:1fr !important}
+  .nrel-pop{left:10px !important;right:10px !important;width:auto !important}
+  /* tactile : pas d'effets de survol qui restent collés */
+  .ccard.cc4:hover,.lg-card:hover,.nrel.tkm:hover,.cam-btn:hover,.cr-net:hover{transform:none !important}
+  .ccard.cc4:active,.lg-card:active,.nrel.tkm:active{transform:scale(.98) !important}
+}
 </style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Press Start">
+<meta name="theme-color" content="#140B30">
+<script>if ('serviceWorker' in navigator) window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });</script>
 </head>
 <body>
 <div class="app">
@@ -7811,6 +7863,33 @@ document.addEventListener('click', function(e){
   var id = t.getAttribute('data-condelok'); t.disabled = true; t.textContent = 'Suppression…';
   withRetry(function(){ return db.collection('consoles').doc(id).delete(); }).then(function(){ closeDlg(); toast('Console supprimée'); }).catch(function(x){ closeDlg(); toast(failMsg(x)); });
 }, true);
+
+/* ---------- iPhone / app installée : barre d'onglets en bas + menu tiroir ---------- */
+var MTABS = [['home', 'Accueil', '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'], ['news', 'Actus', '<path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h5M8 13h5"/>'], ['consoles', 'Consoles', '<path d="M6 8h12a4 4 0 0 1 4 4v1a3 3 0 0 1-5.4 1.8L15 13H9l-1.6 1.8A3 3 0 0 1 2 13v-1a4 4 0 0 1 4-4zM7 10v4M5 12h4"/>'], ['licences', 'Collection', '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>']];
+function mtabInit(){
+  if (document.getElementById('mtab')) return;
+  var n = document.createElement('nav'); n.id = 'mtab'; n.className = 'mtab'; n.setAttribute('aria-label', 'Navigation rapide');
+  n.innerHTML = MTABS.map(function(t){ return '<button type="button" data-mtab="' + t[0] + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + t[2] + '</svg><span>' + t[1] + '</span></button>'; }).join('') + '<button type="button" data-mtab="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Plus</span></button>';
+  document.body.appendChild(n);
+  var bd = document.createElement('div'); bd.className = 'mside-bd'; bd.setAttribute('data-mtab', 'close'); document.body.appendChild(bd);
+  mtabSync();
+}
+function mtabSync(){
+  var n = document.getElementById('mtab'); if (!n) return;
+  var v = S.view === 'licence' ? 'licences' : S.view === 'console' ? 'consoles' : S.view;
+  n.querySelectorAll('[data-mtab]').forEach(function(b){ var k = b.getAttribute('data-mtab'); b.setAttribute('aria-current', k === v || (k === 'more' && MTABS.every(function(t){ return t[0] !== v; })) ? 'page' : 'false'); });
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-mtab]');
+  if (!t) { if (document.body.classList.contains('mside-open') && e.target.closest && e.target.closest('.side [data-nav]')) document.body.classList.remove('mside-open'); return; }
+  var k = t.getAttribute('data-mtab');
+  if (k === 'more') { document.body.classList.toggle('mside-open'); return; }
+  document.body.classList.remove('mside-open');
+  if (k === 'close') return;
+  if (typeof go === 'function') go(k); else { S.view = k; render(); }
+  window.scrollTo(0, 0);
+});
+(function(){ var _render = render; render = function(){ var r = _render.apply(this, arguments); try { mtabInit(); mtabSync(); } catch (x) {} return r; }; })();
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
