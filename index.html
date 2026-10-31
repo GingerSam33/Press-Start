@@ -3373,6 +3373,48 @@ dialog.con-dlg::backdrop{background:rgba(10,8,30,.6);backdrop-filter:blur(3px)}
   #homeList .list-tools .search input{width:100%;font-size:16px !important}
   #homeList .list-tools .btn{flex:none;min-height:48px;padding:0 14px;white-space:nowrap}
 }
+
+/* actus : lu / non lu */
+.nrd{position:absolute;top:12px;left:12px;z-index:4;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;pointer-events:none}
+.nrd.nl{background:var(--accent);color:var(--accent-fg);box-shadow:0 4px 10px -4px var(--accent)}
+.nrd.lu{background:color-mix(in srgb,var(--card) 85%,transparent);color:var(--muted);backdrop-filter:blur(4px)}
+.nart,.nhero{position:relative}
+/* sorties du jour : jaquette à droite du ticket */
+.nrg-card.tk{align-items:stretch}
+.tk-cv{flex:none;margin-left:auto;align-self:center;width:46px;height:62px;margin-right:10px;border-radius:7px;overflow:visible;position:relative}
+.tk-cv img{width:100%;height:100%;object-fit:cover;border-radius:7px;box-shadow:0 6px 12px -6px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.3,1.5,.5,1),box-shadow .3s;transform-origin:right center;position:relative;z-index:1}
+.tk-cv:hover img{transform:scale(2.6);z-index:20;box-shadow:0 20px 40px -12px rgba(0,0,0,.6)}
+.nrg-card.tk{overflow:visible !important}
+.nrg-card.tk .tk-stub{border-radius:13px 0 0 13px}
+.nrg-card.tk:hover{z-index:5}
+/* bouton menu flottant + recherche plein écran (iPhone) */
+.mmenu-btn,.msearch{display:none}
+@media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){
+  .mmenu-btn{display:flex;align-items:center;justify-content:center;position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:10px;z-index:570;width:42px;height:42px;border:1px solid var(--card-border);border-radius:14px;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--text);box-shadow:0 8px 18px -10px rgba(0,0,0,.4)}
+  .mmenu-btn svg{width:20px;height:20px}
+  .main{padding-top:calc(env(safe-area-inset-top,0px) + 60px) !important}
+  .mtab button.home svg{width:28px;height:28px}
+  .mtab button.home{color:var(--text)}
+  .msearch{display:flex;flex-direction:column;position:fixed;inset:0;z-index:700;background:var(--bg,var(--card));padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  body.ms-open .msearch{transform:none}
+  body.ms-open{overflow:hidden}
+  .ms-h{display:flex;align-items:center;gap:10px}
+  .ms-in{flex:1;display:flex;align-items:center;gap:8px;min-height:46px;padding:0 14px;border-radius:14px;background:var(--card);border:1px solid var(--card-border);color:var(--muted)}
+  .ms-in svg{width:18px;height:18px;flex:none}
+  .ms-in input{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:16px !important;outline:0}
+  .ms-x{border:0;background:none;color:var(--accent-text);font:inherit;font-size:15px;font-weight:600}
+  .ms-r{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 0 calc(env(safe-area-inset-bottom,0px) + 30px)}
+  .ms-empty{text-align:center;color:var(--muted);font-size:14px;margin:30px 0}
+  /* grille de jaquettes 3 par 3 */
+  .mgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px}
+  .mtile{display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;text-align:left;font:inherit;cursor:pointer}
+  .mt-cv{display:block;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--sunken);box-shadow:0 8px 16px -10px rgba(0,0,0,.45)}
+  .mt-cv img{width:100%;height:100%;object-fit:cover;display:block}
+  .mtile:active .mt-cv{transform:scale(.96)}
+  .mt-l{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+  .mtile.wish .mt-cv{outline:2px solid #E2557A;outline-offset:-2px}
+  .tk-cv:hover img{transform:none}
+}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -3964,7 +4006,7 @@ function viewHome(counts){
     + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
   h += homeFilters(H);
   if (chips.length) h += '<div class="activef"><span class="af-label">Filtres actifs :</span>' + chips.map(function(c){ return '<button class="fchip" style="--fc:' + c[3] + '" data-hclear="' + c[0] + '"' + (c[4] != null ? ' data-hval="' + esc(c[4]) + '"' : '') + '><span class="fk">' + esc(c[1]) + ' :</span><b>' + esc(c[2]) + '</b><span aria-hidden="true" class="fx">×</span><span class="sr">Retirer ce filtre</span></button>'; }).join('') + '<button class="af-clear" data-hclear="all">Effacer tous les filtres</button></div>';
-  h += (S.games.length ? (rows.length ? table(rows, true) : '<div class="empty"><strong>Aucun jeu ne correspond</strong><span>Retire un filtre pour voir plus de jeux.</span></div>') : emptyGames()) + '</section>';
+  h += (S.games.length ? (rows.length ? (isMob() ? '<div class="mgrid">' + rows.map(function(g){ return mTile(g.g || g); }).join('') + '</div>' : table(rows, true)) : '<div class="empty"><strong>Aucun jeu ne correspond</strong><span>Retire un filtre pour voir plus de jeux.</span></div>') : emptyGames()) + '</section>';
   return h;
 }
 var FCOL = {wish:'#1F6FD6', dup:'#B4236A', multi:'#0E7C86', physique:'#4049E8', demat:'#A5670A', q:'#4A5468', autres:'#5B5872', format:'#C2501A', type:'#7A3FD1', status:'#16796A', note:'#A36A00', year:'#2A64B8'};
@@ -5676,7 +5718,7 @@ function gameBanner(g){ if (g.artId && g.useArt !== false) return blob(g.artId);
 function viewData(){
   var bs = metaBanners(), noBanner = S.games.filter(function(g){ return !gameBanner(g); }).length;
   var h = crtPage({kick:'SYSTEM', title:'BASE DE DONNÉES', sub:'Mes menus déroulants, les fonds de fiches et l\u2019habillage du site', blink:'CHARGEMENT TERMINÉ', sc:[['JEUX', crtPad(S.games.length)], ['CONSOLES', crtPad(S.consoles.length)], ['LISTES', crtPad(DB_KEYS.length)], ['VALEURS', crtPad(DB_KEYS.reduce(function(s, k){ return s + optValues(k).length; }, 0))], ['FONDS', crtPad(bs.length)]]}) + hbSection();
-  h += importCard() + exportCard();
+  h += importCard() + compressCard() + exportCard();
   h += notionCard();
   h += '<section class="card db-banners"><div class="rowhead"><div><h2>Fonds des fiches de jeu</h2><div class="sub">Une image est choisie au hasard pour chaque nouvelle fiche. Format conseillé : large et peu détaillé (par exemple 1600 × 500).</div></div>'
     + (bs.length && noBanner && !S.readOnly ? '<button class="btn ghost small" data-act="assignBanners">Donner un fond aux ' + noBanner + ' fiche' + (noBanner > 1 ? 's' : '') + ' sans fond</button>' : '') + '</div><div class="bn-grid">';
@@ -6147,10 +6189,10 @@ function viewNews(){
   var shown = f ? rest.filter(function(a){ return ncatOf(a.category) === f; }) : rest;
   h += '<div class="nlayout"><div class="nmain">';
   h += nrelsStrip(N, ref) + nConfBanner(N, ref, isLatest);
-  S._nArts = [hl].concat(shown); setTimeout(function(){ newsTranslate(N); }, 500);
-  if (hl) h += '<article class="card nhero is-click" data-nart="0">' + nArtVis(hl, 0, true) + '<div class="nh-body"><div class="nmeta">' + ncat(hl.category) + nconf(hl.confirmations) + '</div><h2>' + esc(hl.title) + '</h2>' + (hl.summary ? '<p>' + esc(hl.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(hl) + (hl.others ? '<span>et ' + esc(hl.others) + ' autres</span>' : '') + '</div></div></article>';
+  S._nArts = [hl].concat(shown); nReadLoad(); setTimeout(function(){ newsTranslate(N); }, 500);
+  if (hl) h += '<article class="card nhero is-click" data-nart="0">' + nReadTag(hl) + nArtVis(hl, 0, true) + '<div class="nh-body"><div class="nmeta">' + ncat(hl.category) + nconf(hl.confirmations) + '</div><h2>' + esc(hl.title) + '</h2>' + (hl.summary ? '<p>' + esc(hl.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(hl) + (hl.others ? '<span>et ' + esc(hl.others) + ' autres</span>' : '') + '</div></div></article>';
   if (cats.length > 1) h += '<div class="nfilters" role="group" aria-label="Filtrer par type"><button type="button" data-ncat="" aria-pressed="' + !f + '">Tout <span>' + rest.length + '</span></button>' + cats.map(function(c){ return '<button type="button" data-ncat="' + c + '" aria-pressed="' + (f === c) + '" style="--nc:' + NCAT[c][0] + '">' + c + ' <span>' + rest.filter(function(a){ return ncatOf(a.category) === c; }).length + '</span></button>'; }).join('') + '</div>';
-  h += '<div class="ngrid">' + shown.map(function(a, i){ return '<article class="card nart is-click" data-nart="' + (i + 1) + '" style="--i:' + i + '">' + nArtVis(a, i + 1) + '<div class="nmeta">' + ncat(a.category) + nconf(a.confirmations) + '</div><h3>' + esc(a.title) + '</h3>' + (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(a) + '</div></article>'; }).join('') + '</div></div>';
+  h += '<div class="ngrid">' + shown.map(function(a, i){ return '<article class="card nart is-click" data-nart="' + (i + 1) + '" style="--i:' + i + '">' + nReadTag(a) + nArtVis(a, i + 1) + '<div class="nmeta">' + ncat(a.category) + nconf(a.confirmations) + '</div><h3>' + esc(a.title) + '</h3>' + (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(a) + '</div></article>'; }).join('') + '</div></div>';
   // colonne droite
   var confs = (N.conferences || []).filter(function(c){ return Date.parse(c.date) > ref - 3 * 3600e3; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
   var weekEnd = ref + 7 * 864e5, rels = (N.releases || []).filter(function(r){ var t = Date.parse(r.date); return t >= ref - 864e5 && t <= weekEnd; }).sort(function(a, b){ return Date.parse(a.date) - Date.parse(b.date); });
@@ -7600,7 +7642,7 @@ function nrgOpen(k){
   var p = k.split('-'), d = new Date(+p[0], +p[1], +p[2]), w = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
   NRG = {k:k, items:items};
   var dg = document.getElementById('nrelGrid'); if (!dg) { dg = document.createElement('dialog'); dg.id = 'nrelGrid'; dg.className = 'nrg-dlg'; document.body.appendChild(dg); dg.addEventListener('click', function(ev){ if (ev.target === dg) dg.close(); }); }
-  dg.innerHTML = '<div class="nrg-in"><header><h2>Sorties du ' + esc(w) + ' <span class="nr-cnt">' + items.length + '</span></h2><button type="button" class="iconbtn" data-nrgx="1" aria-label="Fermer">✕</button></header><div class="nrg-grid">' + items.map(function(r, i){ return '<button type="button" class="nrg-card tk wd' + d.getDay() + '" data-nrgi="' + i + '"><span class="tk-stub"><small>' + esc(d.toLocaleDateString('fr-FR', {weekday:'short'}).replace('.', '').toUpperCase()) + '</small><b>' + d.getDate() + '</b><small>' + esc(d.toLocaleDateString('fr-FR', {month:'short'}).replace('.', '').toUpperCase()) + '</small></span><span class="tk-body"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nSoftTag).join('') + '</span></span></button>'; }).join('') + '</div></div>';
+  dg.innerHTML = '<div class="nrg-in"><header><h2>Sorties du ' + esc(w) + ' <span class="nr-cnt">' + items.length + '</span></h2><button type="button" class="iconbtn" data-nrgx="1" aria-label="Fermer">✕</button></header><div class="nrg-grid">' + items.map(function(r, i){ return '<button type="button" class="nrg-card tk wd' + d.getDay() + '" data-nrgi="' + i + '"><span class="tk-stub"><small>' + esc(d.toLocaleDateString('fr-FR', {weekday:'short'}).replace('.', '').toUpperCase()) + '</small><b>' + d.getDate() + '</b><small>' + esc(d.toLocaleDateString('fr-FR', {month:'short'}).replace('.', '').toUpperCase()) + '</small></span><span class="tk-body"><b>' + esc(r.title) + '</b><span class="nr-pl">' + list(r.platforms).map(nSoftTag).join('') + '</span></span>' + (r.cvu ? '<span class="tk-cv"><img src="' + esc(r.cvu) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' : '') + '</button>'; }).join('') + '</div></div>';
   if (!dg.open) dg.showModal();
 }
 document.addEventListener('click', function(e){
@@ -7787,29 +7829,35 @@ document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-nart]'); if (!t) return;
   if (e.target.closest('a,button')) return;
   var a = (S._nArts || [])[+t.getAttribute('data-nart')]; if (!a) return;
-  openDlg('<div class="dlg gi-dlg nart-dlg">' + nartHtml(a) + '</div>');
+  nMarkRead(a); openDlg('<div class="dlg gi-dlg nart-dlg">' + nartHtml(a) + '</div>'); var cardEl = t.querySelector('.nrd'); if (cardEl) { cardEl.className = 'nrd lu'; cardEl.textContent = '✓ Lu'; }
 });
 
 
 /* ---------- Actus : traduction des articles restés en anglais (une fois par édition, enregistrée) ---------- */
 var NTR_BUSY = false;
 async function newsTranslate(ed){
-  if (NTR_BUSY || S.readOnly || !ed || !window.PS_SB || !ed.articles) return;
-  var todo = ed.articles.map(function(a, i){ return [i, a]; }).filter(function(x){ return x[1].lang === 'en' || (x[1].lang == null && !x[1].titleEn && /^[\x00-\x7F’'“”–—…]+$/.test(String(x[1].title || '')) && /\b(the|and|of|is|has|with|for|new)\b/i.test(String(x[1].title || ''))); });
+  if (NTR_BUSY || S.readOnly || !ed || !window.PS_SB || !Array.isArray(ed.articles)) return;
+  var isEn = function(a){ return a && (a.lang === 'en' || (a.lang == null && !a.titleEn && /^[\x00-\x7F’'“”–—…]+$/.test(String(a.title || '')) && /\b(the|and|of|is|has|with|for|new|to|in)\b/i.test(String(a.title || '')))); };
+  var todo = ed.articles.map(function(a, i){ return [i, a]; }).filter(function(x){ return isEn(x[1]); });
   if (!todo.length) return;
-  NTR_BUSY = true;
-  try {
-    var arts = ed.articles.slice();
-    for (var k = 0; k < todo.length; k += 8) {
-      var batch = todo.slice(k, k + 8);
-      var r = await giAsk('Traduis en français naturel ces titres et résumés d\u2019articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement en JSON : {"items":[{"i":0,"title":"…","summary":"…","excerpt":"…"}]}.\n\n' + JSON.stringify(batch.map(function(x){ return {i:x[0], title:x[1].title, summary:x[1].summary || '', excerpt:x[1].excerpt || ''}; })));
-      (r.items || []).forEach(function(t){ var a = arts[t.i]; if (!a || !t.title) return; arts[t.i] = Object.assign({}, a, {titleEn:a.title, title:t.title, summaryEn:a.summary, summary:t.summary || a.summary, excerptEn:a.excerpt, excerpt:t.excerpt || a.excerpt, lang:'fr'}); });
+  NTR_BUSY = true; var done = 0;
+  for (var k = 0; k < todo.length; k += 5) {
+    var batch = todo.slice(k, k + 5);
+    for (var att = 0; att < 2; att++) {
+      try {
+        var r = await giAsk('Traduis en français naturel ces titres et résumés d\u2019articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement en JSON : {"items":[{"i":0,"title":"…","summary":"…","excerpt":"…"}]}.\n\n' + JSON.stringify(batch.map(function(x){ return {i:x[0], title:x[1].title, summary:x[1].summary || '', excerpt:String(x[1].excerpt || '').slice(0, 900)}; })));
+        (r.items || []).forEach(function(t){ var a = ed.articles[t.i]; if (!a || !t.title) return; ed.articles[t.i] = Object.assign({}, a, {titleEn:a.title, title:t.title, summaryEn:a.summary, summary:t.summary || a.summary, excerptEn:a.excerpt, excerpt:t.excerpt || a.excerpt, lang:'fr'}); done++; });
+        break;
+      } catch (x) { await new Promise(function(ok){ setTimeout(ok, 2500); }); }
     }
-    var hl = ed.headline ? (arts.filter(function(a){ return a.url === ed.headline.url; })[0] || ed.headline) : null;
-    var upd = {articles:arts, headline:hl};
-    if (ed.day) await db.collection('news_editions').doc(ed.day).update(upd);
+    if (S.view === 'news') renderSoon();
+  }
+  if (done) {
+    if (ed.headline) { var hl = ed.articles.filter(function(a){ return a.url === ed.headline.url; })[0]; if (hl) ed.headline = hl; }
+    var upd = {articles:ed.articles, headline:ed.headline || null};
+    try { if (ed.day) await db.collection('news_editions').doc(ed.day).update(upd); } catch (x) {}
     try { var cur = await db.doc('news/edition').get(); if (cur.exists && cur.data().day === ed.day) await db.doc('news/edition').update(upd); } catch (x) {}
-  } catch (x) {}
+  }
   NTR_BUSY = false;
 }
 
@@ -7839,8 +7887,8 @@ function conPartHtml(c, u, ui, part){
   return '<section class="csx ' + part + '"><header><h4>' + (isBox ? '📦 Boîte' : '🎮 Console') + '</h4><div class="cmb">'
     + uddHtml(key + '|owned', 'Possédée', isBox ? [['1', 'En boîte'], ['', 'Pas de boîte']] : [['1', 'Possédée'], ['', 'Non possédée']], p.owned ? '1' : '', function(v){ return v === '1'; })
     + uddHtml(key + '|state', 'État', [['', 'Non renseigné']].concat(CON_STATES.map(function(x){ return [x, x]; })), p.state || '')
-    + '</div></header><div class="cphs">' + photos.map(function(id, k){ return '<span class="cph"><button type="button" class="cph-img" data-conph="' + esc(key) + '|' + k + '" aria-label="Agrandir la photo"><img src="' + blob(id) + '" alt="" loading="lazy"></button>' + (S.readOnly ? '' : '<button type="button" class="cph-x" data-conphdel="' + esc(key) + '|' + k + '" aria-label="Supprimer la photo">✕</button>') + '</span>'; }).join('')
-    + (S.readOnly ? '' : '<label class="cph add"><input type="file" accept="image/*" multiple hidden data-conphadd="' + esc(key) + '">＋<small>Photo</small></label>') + '</div>'
+    + '</div></header><div class="cphs">' + photos.map(function(id, k){ return '<span class="cph"><button type="button" class="cph-img" data-conph="' + esc(key) + '|' + k + '" aria-label="Agrandir la photo"><img src="' + esc(phSrc(id)) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></button>' + (S.readOnly ? '' : '<button type="button" class="cph-x" data-conphdel="' + esc(key) + '|' + k + '" aria-label="Supprimer la photo">✕</button>') + '</span>'; }).join('')
+    + (S.readOnly ? '' : '<label class="cph add"><input type="file" accept="image/*" multiple hidden data-conphadd="' + esc(key) + '">＋<small>Photo</small></label><button type="button" class="cph add" data-conphurl="' + esc(key) + '">🔗<small>Lien</small></button>') + '</div>'
     + '<textarea class="cnote" data-connote="' + esc(key) + '" rows="2" placeholder="' + (isBox ? 'État de la boîte, notice, cales…' : 'Fonctionnement, rayures, câbles…') + '"' + (S.readOnly ? ' readonly' : '') + '>' + esc(p.note || '') + '</textarea></section>';
 }
 function viewConsole(){
@@ -7860,14 +7908,15 @@ async function conSaveUnits(c, units){
 }
 function conFind(key){ var p = key.split('|'), c = S.consoles.find(function(x){ return x.id === p[0]; }); if (!c) return null; var units = JSON.parse(JSON.stringify(conUnits(c))); return {c:c, units:units, ui:+p[1], part:p[2], u:units[+p[1]]}; }
 document.addEventListener('click', async function(e){
-  var t = e.target.closest && e.target.closest('[data-conopen],[data-udd],[data-uddv],[data-conph],[data-conphdel],[data-conuadd],[data-conudel]');
+  var t = e.target.closest && e.target.closest('[data-conopen],[data-udd],[data-uddv],[data-conph],[data-conphdel],[data-conuadd],[data-conudel],[data-conphurl]');
   if (!t) { if (S.uddOpen && !(e.target.closest && e.target.closest('.udd'))) { S.uddOpen = null; render(); } return; }
   if (t.hasAttribute('data-conopen')) return;
   if (t.hasAttribute('data-udd')) { e.preventDefault(); var k = t.getAttribute('data-udd'); S.uddOpen = S.uddOpen === k ? null : k; render(); return; }
   if (S.readOnly) return;
   if (t.hasAttribute('data-uddv')) { var pv = t.getAttribute('data-uddv').split('|'), f = conFind(pv.slice(0, 3).join('|')); S.uddOpen = null; if (!f) return; var fld = pv[3], val = pv.slice(4).join('|'); f.u[f.part] = Object.assign({photos:[], note:''}, f.u[f.part]); if (fld === 'owned') f.u[f.part].owned = val === '1'; else f.u[f.part].state = val; render(); await conSaveUnits(f.c, f.units); render(); return; }
-  if (t.hasAttribute('data-conph')) { var q = t.getAttribute('data-conph').split('|'), f2 = conFind(q.slice(0, 3).join('|')); if (!f2) return; var ph = list(f2.u[f2.part] && f2.u[f2.part].photos).map(function(id){ return blob(id); }); if (typeof shotOpen === 'function') shotOpen(ph, +q[3]); return; }
+  if (t.hasAttribute('data-conph')) { var q = t.getAttribute('data-conph').split('|'), f2 = conFind(q.slice(0, 3).join('|')); if (!f2) return; var ph = list(f2.u[f2.part] && f2.u[f2.part].photos).map(function(id){ return phSrc(id); }); if (typeof shotOpen === 'function') shotOpen(ph, +q[3]); return; }
   if (t.hasAttribute('data-conphdel')) { var q2 = t.getAttribute('data-conphdel').split('|'), f3 = conFind(q2.slice(0, 3).join('|')); if (!f3) return; var arr = list(f3.u[f3.part].photos).slice(); arr.splice(+q2[3], 1); f3.u[f3.part].photos = arr; await conSaveUnits(f3.c, f3.units); render(); return; }
+  if (t.hasAttribute('data-conphurl')) { var fu = conFind(t.getAttribute('data-conphurl')); if (!fu) return; var u0 = window.prompt('Colle le lien direct de l\u2019image (https://…)'); u0 = String(u0 || '').trim(); if (!/^https:\/\//.test(u0)) { if (u0) toast('Le lien doit commencer par https://'); return; } var gd = u0.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=view&)?id=)([\w-]+)/); if (gd) u0 = 'https://lh3.googleusercontent.com/d/' + gd[1] + '=w1600'; fu.u[fu.part] = Object.assign({photos:[], note:''}, fu.u[fu.part]); fu.u[fu.part].photos = list(fu.u[fu.part].photos).concat([u0]); await conSaveUnits(fu.c, fu.units); render(); toast('Photo ajoutée par lien'); return; }
   if (t.hasAttribute('data-conuadd')) { var c4 = S.consoles.find(function(x){ return x.id === t.getAttribute('data-conuadd'); }); if (!c4) return; var us = JSON.parse(JSON.stringify(conUnits(c4))); us.push({id:'u' + Date.now().toString(36), console:{owned:false, state:'', photos:[], note:''}, box:{owned:false, state:'', photos:[], note:''}}); await conSaveUnits(c4, us); render(); return; }
   if (t.hasAttribute('data-conudel')) { var q3 = t.getAttribute('data-conudel').split('|'), c5 = S.consoles.find(function(x){ return x.id === q3[0]; }); if (!c5) return; var us2 = JSON.parse(JSON.stringify(conUnits(c5))); us2.splice(+q3[1], 1); await conSaveUnits(c5, us2); render(); return; }
 });
@@ -7896,11 +7945,11 @@ document.addEventListener('click', function(e){
 }, true);
 
 /* ---------- iPhone / app installée : barre d'onglets en bas + menu tiroir ---------- */
-var MTABS = [['home', 'Accueil', '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'], ['news', 'Actus', '<path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h5M8 13h5"/>'], ['consoles', 'Consoles', '<path d="M6 8h12a4 4 0 0 1 4 4v1a3 3 0 0 1-5.4 1.8L15 13H9l-1.6 1.8A3 3 0 0 1 2 13v-1a4 4 0 0 1 4-4zM7 10v4M5 12h4"/>'], ['licences', 'Collection', '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>']];
+var MTABS = [['news', 'Actus', '<path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h5M8 13h5"/>'], ['consoles', 'Consoles', '<path d="M6 8h12a4 4 0 0 1 4 4v1a3 3 0 0 1-5.4 1.8L15 13H9l-1.6 1.8A3 3 0 0 1 2 13v-1a4 4 0 0 1 4-4zM7 10v4M5 12h4"/>'], ['home', 'Accueil', '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'], ['licences', 'Collection', '<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/>']];
 function mtabInit(){
   if (document.getElementById('mtab')) return;
   var n = document.createElement('nav'); n.id = 'mtab'; n.className = 'mtab'; n.setAttribute('aria-label', 'Navigation rapide');
-  n.innerHTML = MTABS.map(function(t){ return '<button type="button" data-mtab="' + t[0] + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + t[2] + '</svg><span>' + t[1] + '</span></button>'; }).join('') + '<button type="button" data-mtab="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Plus</span></button>';
+  n.innerHTML = MTABS.map(function(t){ return '<button type="button" data-mtab="' + t[0] + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + t[2] + '</svg><span>' + t[1] + '</span></button>'; }).join('') + '<button type="button" data-mtab="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Rechercher</span></button>';
   document.body.appendChild(n);
   var bd = document.createElement('div'); bd.className = 'mside-bd'; bd.setAttribute('data-mtab', 'close'); document.body.appendChild(bd);
   mtabSync();
@@ -7917,13 +7966,14 @@ function mdrawerToggle(force){
 function mtabSync(){
   var n = document.getElementById('mtab'); if (!n) return;
   var v = S.view === 'licence' ? 'licences' : S.view === 'console' ? 'consoles' : S.view;
-  n.querySelectorAll('[data-mtab]').forEach(function(b){ var k = b.getAttribute('data-mtab'); b.setAttribute('aria-current', k === v || (k === 'more' && MTABS.every(function(t){ return t[0] !== v; })) ? 'page' : 'false'); });
+  n.querySelectorAll('[data-mtab]').forEach(function(b){ var k = b.getAttribute('data-mtab'); b.setAttribute('aria-current', k === v ? 'page' : 'false'); b.classList.toggle('home', k === 'home'); });
 }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-mtab]');
   if (!t) { if (document.body.classList.contains('mside-open') && e.target.closest && e.target.closest('#mdrawer [data-nav]')) setTimeout(function(){ mdrawerToggle(false); }, 0); else if (document.body.classList.contains('mside-open') && e.target.closest && e.target.closest('#mdrawer')) setTimeout(function(){ if (document.body.classList.contains('mside-open')) mdrawerToggle(true); }, 30); return; }
   var k = t.getAttribute('data-mtab');
   if (k === 'more') { mdrawerToggle(); return; }
+  if (k === 'search') { msearchOpen(); return; }
   mdrawerToggle(false);
   if (k === 'close') return;
   if (typeof go === 'function') go(k); else { S.view = k; render(); }
@@ -7956,6 +8006,62 @@ document.addEventListener('click', function(e){
 var RELARCH = [];
 function relArchLoad(){ if (!db || relArchLoad.done) return; relArchLoad.done = true; db.collection('releases_day').onSnapshot(function(s){ var out = []; snapList(s).forEach(function(d){ (Array.isArray(d.items) ? d.items : []).forEach(function(r){ out.push(r); }); }); RELARCH = out; if (typeof ncalDlgDraw === 'function') ncalDlgDraw(); }, function(){}); }
 function relMerged(cur){ var seen = {}, out = []; (Array.isArray(cur) ? cur : []).concat(RELARCH).forEach(function(r){ if (!r || !r.title || !r.date) return; var k = String(r.title).toLowerCase() + '|' + String(r.date).slice(0, 10); if (seen[k]) return; seen[k] = 1; out.push(r); }); return out; }
+
+/* ---------- Actus : lu / non lu ---------- */
+function renderSoon(){ clearTimeout(renderSoon.t); renderSoon.t = setTimeout(function(){ render(); }, 60); }
+var NREAD = {};
+function nKey(a){ var u = String((a && (a.url || (a.links && a.links[0] && a.links[0].url) || a.title)) || ''), h = 0; for (var i = 0; i < u.length; i++) h = (h * 31 + u.charCodeAt(i)) | 0; return 'k' + (h >>> 0).toString(36); }
+function nReadTag(a){ return NREAD[nKey(a)] ? '<span class="nrd lu">✓ Lu</span>' : '<span class="nrd nl">Non lu</span>'; }
+function nReadLoad(){ if (!db || nReadLoad.done) return; nReadLoad.done = true; try { db.doc('meta/newsread').onSnapshot(function(d){ NREAD = (d && d.exists && d.data().ids) || {}; if (S.view === 'news') renderSoon(); }, function(){}); } catch (x) {} }
+function nMarkRead(a){ var k = nKey(a); if (NREAD[k] || S.readOnly) return; NREAD[k] = Date.now(); var keep = {}, ks = Object.keys(NREAD).sort(function(x, y){ return NREAD[y] - NREAD[x]; }).slice(0, 1500); ks.forEach(function(x){ keep[x] = NREAD[x]; }); try { db.doc('meta/newsread').set({ids:keep}); } catch (x) {} }
+
+/* ---------- Photos : compression avant envoi + liens externes ---------- */
+function phSrc(id){ return /^https?:\/\//.test(String(id)) ? String(id) : blob(id); }
+async function shrinkImage(file){
+  try {
+    if (!file || !/^image\/(jpeg|png|webp|heic|heif)/i.test(file.type) || file.size < 350 * 1024) return file;
+    var url = URL.createObjectURL(file), img = new Image();
+    await new Promise(function(ok, ko){ img.onload = ok; img.onerror = ko; img.src = url; });
+    var max = 1600, r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * r); c.height = Math.round(img.naturalHeight * r); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+    var b = await new Promise(function(ok){ c.toBlob(ok, 'image/webp', 0.82); }); if (!b || b.size >= file.size) return file;
+    return new File([b], String(file.name || 'photo').replace(/\.[^.]+$/, '') + '.webp', {type:'image/webp'});
+  } catch (x) { return file; }
+}
+(function(){ var _up = uploadFile; uploadFile = async function(file){ return _up(await shrinkImage(file)); }; })();
+
+/* ---------- iPhone : recherche plein écran dans mes jeux ---------- */
+function isMob(){ try { return window.matchMedia('(max-width:820px) and (pointer:coarse), (display-mode:standalone) and (max-width:820px)').matches; } catch (x) { return false; } }
+var MSRCH_T;
+function msearchResults(q){
+  var nq = norm(q || ''), gs = S.games.slice();
+  if (nq) gs = gs.filter(function(g){ return norm(g.name).indexOf(nq) >= 0 || norm(g.licence || '').indexOf(nq) >= 0 || list(g.consoles).some(function(c){ return norm(c).indexOf(nq) >= 0; }); });
+  gs.sort(function(a, b){ return String(a.name).localeCompare(String(b.name), 'fr'); });
+  if (!gs.length) return '<p class="ms-empty">Aucun jeu ne correspond à « ' + esc(q) + ' »</p>';
+  return '<div class="mgrid">' + gs.slice(0, 120).map(mTile).join('') + '</div>' + (gs.length > 120 ? '<p class="ms-empty">' + (gs.length - 120) + ' autres jeux : précise ta recherche</p>' : '');
+}
+function mTile(g){ var cv = g.coverId ? blob(g.coverId) : genCover(g.name, list(g.consoles)[0] || ''); return '<button type="button" class="mtile' + (g.kind === 'wish' ? ' wish' : '') + '" data-game="' + esc(g.id) + '"><span class="mt-cv"><img src="' + esc(cv) + '" alt="" loading="lazy"></span><span class="mt-l">' + esc(list(g.consoles).map(function(c){ var cs = S.consoles.find(function(x){ return norm(x.name) === norm(c); }); return cs && cs.short ? cs.short : c; }).join(' · ') || (g.kind === 'demat' ? 'Dématérialisé' : '')) + (g.kind === 'wish' ? ' · ♥' : '') + '</span><span class="sr">' + esc(g.name) + '</span></button>'; }
+function msearchOpen(){
+  var d = document.getElementById('msearch'); if (!d) { d = document.createElement('div'); d.id = 'msearch'; d.className = 'msearch'; document.body.appendChild(d); }
+  d.innerHTML = '<div class="ms-h"><label class="ms-in">' + ICON_SEARCH + '<input id="msq" type="search" placeholder="Rechercher dans mes jeux" autocomplete="off" enterkeyhint="search"></label><button type="button" class="ms-x" data-msx="1">Annuler</button></div><div class="ms-r" id="msr">' + msearchResults('') + '</div>';
+  document.body.classList.add('ms-open'); setTimeout(function(){ var i = document.getElementById('msq'); if (i) i.focus(); }, 60);
+}
+function msearchClose(){ document.body.classList.remove('ms-open'); }
+document.addEventListener('input', function(e){ if (e.target.id !== 'msq') return; clearTimeout(MSRCH_T); var v = e.target.value; MSRCH_T = setTimeout(function(){ var r = document.getElementById('msr'); if (r) r.innerHTML = msearchResults(v); }, 140); });
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-msx],.msearch [data-game],[data-mmenu]'); if (!t) return;
+  if (t.hasAttribute('data-msx')) { msearchClose(); return; }
+  if (t.hasAttribute('data-mmenu')) { mdrawerToggle(); return; }
+  setTimeout(msearchClose, 0);
+});
+/* bouton menu flottant (en haut à gauche) */
+(function(){ var b = document.createElement('button'); b.type = 'button'; b.className = 'mmenu-btn'; b.setAttribute('data-mmenu', '1'); b.setAttribute('aria-label', 'Plus de pages et réglages'); b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg>'; document.body.appendChild(b); })();
+/* recherche de l'accueil : pas de saut de page sur iPhone */
+document.addEventListener('input', function(e){
+  if (e.target.id !== 'homeSearch' || !isMob()) return;
+  e.stopImmediatePropagation(); clearTimeout(qT); var v = e.target.value;
+  qT = setTimeout(function(){ var y = window.scrollY, st = e.target.selectionStart; S.home.q = v; S.home.swap = true; render(); var i = document.getElementById('homeSearch'); if (i) { i.focus({preventScroll:true}); try { i.setSelectionRange(st, st); } catch (x) {} } window.scrollTo(0, y); }, 450);
+}, true);
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
@@ -7996,6 +8102,42 @@ async function importArchive(file, imagesOnly){
 document.addEventListener('change', function(e){ if (e.target.id === 'impZip' && e.target.files[0]) importArchive(e.target.files[0], false); if (e.target.id === 'impZipImg' && e.target.files[0]) importArchive(e.target.files[0], true); });
 document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-act="impClose"]'); if (t) { IMPA = null; render(); } });
 
+/* ---------- (version hébergée) Compression des anciennes photos ---------- */
+var CMPA = null;
+function compressCard(){
+  if (!window.PS_HOSTED || S.readOnly) return '';
+  var p = CMPA, h = '<section class="card nimp"><div class="rowhead"><div><h2>Compresser mes anciennes photos</h2><div class="sub">Réduit à 1600 px et convertit en WebP toutes les images déjà stockées de plus de 350 Ko (jaquettes, photos de jeux et de consoles, fonds). Elles gardent la même adresse : rien ne change dans tes fiches.</div></div></div>';
+  if (!p) h += '<div class="nimp-act"><button type="button" class="btn" data-cmpgo="1">🗜 Compresser mes anciennes photos</button></div>';
+  else if (p.phase === 'busy') h += '<div class="nimp-prog"><p>' + esc(p.msg) + ' <b id="cmpN">' + p.done + '</b> / ' + (p.max || '…') + '</p><div class="nimp-bar"><span id="cmpBar" style="width:' + (p.max ? Math.round(p.done / p.max * 100) : 0) + '%"></span></div><p class="nimp-note">Laisse cette page ouverte jusqu\u2019à la fin.</p></div>';
+  else h += '<div class="nimp-done"><p><b>' + p.ok + '</b> photo' + (p.ok > 1 ? 's compressées' : ' compressée') + ' · <b>' + (p.saved / 1048576).toFixed(1) + ' Mo</b> libérés' + (p.skip ? ' · ' + p.skip + ' déjà légère' + (p.skip > 1 ? 's' : '') : '') + (p.fail ? ' · ' + p.fail + ' échec' + (p.fail > 1 ? 's' : '') : '') + '.</p><button type="button" class="btn ghost small" data-cmpreset="1">OK</button></div>';
+  return h + '</section>';
+}
+async function compressOld(){
+  var st = window.PS_SB.storage.from('assets'); CMPA = {phase:'busy', msg:'Inventaire des images…', done:0}; render();
+  try {
+    var all = [];
+    for (var off = 0; off < 20000; off += 1000) { var r = await st.list('', {limit:1000, offset:off, sortBy:{column:'name', order:'asc'}}); if (r.error) throw r.error; all = all.concat(r.data || []); if (!r.data || r.data.length < 1000) break; }
+    var big = all.filter(function(o){ var m = o.metadata || {}; return (m.size || 0) > 350 * 1024 && /^image\/(jpeg|png|webp|heic|heif)/i.test(m.mimetype || ''); });
+    CMPA = {phase:'busy', msg:'Compression des photos…', done:0, max:big.length, ok:0, skip:0, fail:0, saved:0}; render();
+    for (var i = 0; i < big.length; i++) {
+      var o = big[i];
+      try {
+        var d = await st.download(o.name); if (d.error) throw d.error;
+        var f = new File([d.data], o.name, {type:(o.metadata && o.metadata.mimetype) || d.data.type || 'image/jpeg'});
+        var s2 = await shrinkImage(f);
+        if (s2 === f || s2.size >= f.size * 0.9) { CMPA.skip++; }
+        else { var u = await st.upload(o.name, s2, {upsert:true, contentType:'image/webp', cacheControl:'31536000'}); if (u.error) throw u.error; CMPA.ok++; CMPA.saved += f.size - s2.size; }
+      } catch (x) { CMPA.fail++; }
+      CMPA.done = i + 1; var n = document.getElementById('cmpN'), b = document.getElementById('cmpBar'); if (n) n.textContent = CMPA.done; if (b) b.style.width = Math.round(CMPA.done / big.length * 100) + '%';
+    }
+    CMPA.phase = 'done'; render();
+  } catch (x) { CMPA = null; render(); toast('Compression impossible : ' + (x && x.message || 'erreur')); }
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-cmpgo],[data-cmpreset]'); if (!t) return;
+  if (t.hasAttribute('data-cmpreset')) { CMPA = null; render(); return; }
+  if (CMPA && CMPA.phase === 'busy') return; compressOld();
+});
 /* ---------- Events ---------- */
 document.addEventListener('click', async function(e){
   var t = e.target.closest('[data-palette],[data-nav],[data-act],[data-hkind],[data-hbrand],[data-hconsole],[data-hclear],[data-ymode],[data-nmode],[data-htoggle],[data-brand],[data-brandtab],[data-toggle],[data-console],[data-sort],[data-game]');
