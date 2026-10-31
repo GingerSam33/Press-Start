@@ -7817,7 +7817,7 @@ async function newsTranslate(ed){
 var CK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>', XX_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
 var CON_STATES = ['Neuf', 'Comme neuf', 'Très bon', 'Bon', 'Correct', 'Abîmé', 'Pour pièces'];
 function conStag(lab, ok, attrs){ return '<button type="button" class="cstag ' + (ok ? 'ok' : 'no') + '"' + (attrs || '') + '><i>' + (ok ? CK_SVG : XX_SVG) + '</i>' + lab + '</button>'; }
-function conUnits(c){ var u = list(c.units); if (u.length) return u; return [{id:'u1', console:{owned:!!c.owned, state:'', photos:[], note:''}, box:{owned:!!c.boxed, state:'', photos:[], note:''}}]; }
+function conUnits(c){ var u = Array.isArray(c.units) ? c.units.filter(function(x){ return x && typeof x === 'object'; }) : []; if (u.length) return u; return [{id:'u1', console:{owned:!!c.owned, state:'', photos:[], note:''}, box:{owned:!!c.boxed, state:'', photos:[], note:''}}]; }
 function conGames(c){ return S.games.filter(function(g){ return list(g.consoles).some(function(x){ return norm(x) === norm(c.name) || (c.short && norm(x) === norm(c.short)); }); }).length; }
 function conSwStyle(){ var t = crtTheme(); return '--sw-top:' + t.bg + ';--sw-glow:' + t.glow + ';--sw-kick:' + t.kick; }
 function conCardHtml(c, sec){
@@ -7954,8 +7954,8 @@ document.addEventListener('click', function(e){
 
 /* ---------- Calendrier : historique des sorties (archive jour par jour) ---------- */
 var RELARCH = [];
-function relArchLoad(){ if (!db || relArchLoad.done) return; relArchLoad.done = true; db.collection('releases_day').onSnapshot(function(s){ var out = []; snapList(s).forEach(function(d){ list(d.items).forEach(function(r){ out.push(r); }); }); RELARCH = out; if (typeof ncalDlgDraw === 'function') ncalDlgDraw(); }, function(){}); }
-function relMerged(cur){ var seen = {}, out = []; list(cur).concat(RELARCH).forEach(function(r){ if (!r || !r.title || !r.date) return; var k = String(r.title).toLowerCase() + '|' + String(r.date).slice(0, 10); if (seen[k]) return; seen[k] = 1; out.push(r); }); return out; }
+function relArchLoad(){ if (!db || relArchLoad.done) return; relArchLoad.done = true; db.collection('releases_day').onSnapshot(function(s){ var out = []; snapList(s).forEach(function(d){ (Array.isArray(d.items) ? d.items : []).forEach(function(r){ out.push(r); }); }); RELARCH = out; if (typeof ncalDlgDraw === 'function') ncalDlgDraw(); }, function(){}); }
+function relMerged(cur){ var seen = {}, out = []; (Array.isArray(cur) ? cur : []).concat(RELARCH).forEach(function(r){ if (!r || !r.title || !r.date) return; var k = String(r.title).toLowerCase() + '|' + String(r.date).slice(0, 10); if (seen[k]) return; seen[k] = 1; out.push(r); }); return out; }
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
@@ -8039,7 +8039,7 @@ document.addEventListener('click', async function(e){
   if (t.hasAttribute('data-toggle')) {
     var cid = t.getAttribute('data-id'), field = t.getAttribute('data-toggle'), c = S.consoles.find(function(x){ return x.id === cid; });
     if (!c) return; var patch = {}; patch[field] = !c[field];
-    if (list(c.units).length) { var usT = JSON.parse(JSON.stringify(c.units)); if (field === 'owned') usT[0].console = Object.assign({photos:[], note:''}, usT[0].console, {owned:patch.owned}); else usT[0].box = Object.assign({photos:[], note:''}, usT[0].box, {owned:patch.boxed}); patch.units = usT; patch.owned = usT.some(function(u){ return u.console && u.console.owned; }); patch.boxed = usT.some(function(u){ return u.box && u.box.owned; }); }
+    if (Array.isArray(c.units) && c.units.length) { var usT = JSON.parse(JSON.stringify(c.units)); if (field === 'owned') usT[0].console = Object.assign({photos:[], note:''}, usT[0].console, {owned:patch.owned}); else usT[0].box = Object.assign({photos:[], note:''}, usT[0].box, {owned:patch.boxed}); patch.units = usT; patch.owned = usT.some(function(u){ return u.console && u.console.owned; }); patch.boxed = usT.some(function(u){ return u.box && u.box.owned; }); }
     t.disabled = true;
     try { await withRetry(function(){ return db.collection('consoles').doc(cid).update(patch); }); } catch (x) { toast(failMsg(x)); }
     t.disabled = false; return;
