@@ -122,7 +122,7 @@ try {
   /* sorties : 60 prochains jours sur les plateformes suivies */
   const now = Math.floor(Date.now() / 1000), end = now + 60 * 86400, rel = new Map();
   for (let off = 0; off < 2000; off += 500) {
-    const rows = await igdb('release_dates', `fields date,game.id,game.name,game.url,game.cover.image_id,game.genres.name,platform.name,platform.abbreviation; where date >= ${now - 86400} & date <= ${end} & game.hypes > 0; sort date asc; limit 500; offset ${off};`);
+    const rows = await igdb('release_dates', `fields date,game.id,game.name,game.url,game.cover.image_id,game.genres.name,platform.name,platform.abbreviation; where date >= ${now - 30 * 86400} & date <= ${end} & game.hypes > 0; sort date asc; limit 500; offset ${off};`);
     for (const r of rows) {
       if (!r.game || !r.date) continue;
       const k = key(r.game.name) + '|' + new Date(r.date * 1000).toISOString().slice(0, 10);
@@ -135,7 +135,14 @@ try {
   }
   const releasesRaw = [...rel.values()];
   const releases = releasesRaw.map(({_id, _cover, _genre, _full, ...x}) => ({...x, ig: _id ? String(_id) : '', cvu: _cover ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${_cover}.jpg` : ''}));
-  log(`${releases.length} sorties à venir`);
+  log(`${releases.length} sorties (30 derniers jours + 60 prochains)`);
+  /* archive jour par jour pour l'historique du calendrier (les jours plus anciens sont conservés) */
+  try {
+    const byDay = new Map(); for (const r of releases) { const d = String(r.date).slice(0, 10); if (!byDay.has(d)) byDay.set(d, []); byDay.get(d).push(r); }
+    const rowsD = [...byDay.entries()].map(([d, items]) => ({col: 'releases_day', id: d, data: {day: d, items}}));
+    for (let i = 0; i < rowsD.length; i += 100) await upsert(rowsD.slice(i, i + 100));
+    log(`${rowsD.length} jours de sorties archivés`);
+  } catch (e) { log('⚠ archive des sorties : ' + e.message); }
   /* ajout des sorties à la Base de jeux, pour les plateformes que tu suis */
   try {
     let MAP = {}; try { MAP = JSON.parse(readFileSync(new URL('./platform-map.json', import.meta.url), 'utf8')); } catch {}
