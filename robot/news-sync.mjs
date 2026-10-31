@@ -103,8 +103,9 @@ try {
     const en = articles.map((a, i) => [i, a]).filter(([, a]) => a.lang !== 'fr');
     let n = 0;
     for (let k = 0; k < en.length; k += 10) {
+      if (k) await sleep(1500);
       const batch = en.slice(k, k + 10);
-      for (let attempt = 0; attempt < 3; attempt++) {
+      for (let attempt = 0; attempt < 6; attempt++) {
         try {
           const r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers: {'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json'}, body: JSON.stringify({model: env.ANTHROPIC_MODEL_FAST || 'claude-haiku-5-5', max_tokens: 6000, messages: [{role: 'user', content: 'Traduis en français naturel ces titres et résumés d\'articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement avec un JSON valide, sans texte autour : {"items":[{"i":0,"title":"…","summary":"…","excerpt":"…"}]}.\n\n' + JSON.stringify(batch.map(([i, a]) => ({i, title: a.title, summary: a.summary, excerpt: a.excerpt})))}]})});
           const d = await r.json();
@@ -113,7 +114,7 @@ try {
           const obj = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1));
           for (const t of obj.items || []) { const a = articles[t.i]; if (a && t.title) { a.titleEn = a.title; a.title = t.title; if (t.summary) { a.summaryEn = a.summary; a.summary = t.summary; } if (t.excerpt) { a.excerptEn = a.excerpt; a.excerpt = t.excerpt; } a.lang = 'fr'; n++; } }
           break;
-        } catch (e) { log(`⚠ traduction (lot ${k / 10 + 1}, essai ${attempt + 1}) : ${e.message}`); await sleep(3000); }
+        } catch (e) { log(`⚠ traduction (lot ${k / 10 + 1}, essai ${attempt + 1}) : ${e.message}`); await sleep(/overload|rate|429|529|busy/i.test(e.message) ? 15000 * (attempt + 1) : 4000 * (attempt + 1)); }
       }
     }
     log(`${n} sujets traduits en français sur ${en.length}`);
