@@ -1,0 +1,21 @@
+[
+  {"name": "Dealabs · Jeux vidéo", "url": "https://www.dealabs.com/rss/groupe/jeux-video", "hint": "jeux"},
+  {"name": "Dealabs · Consoles & Jeux vidéo", "url": "https://www.dealabs.com/rss/groupe/consoles-jeux-video", "hint": "jeux, consoles"},
+  {"name": "Dealabs · Accessoires gaming", "url": "https://www.dealabs.com/rss/groupe/accessoires-gaming", "hint": "accessoires"},
+  {"name": "Dealabs · Jeux Nintendo Switch", "url": "https://www.dealabs.com/rss/groupe/jeux-nintendo-switch", "hint": "jeux Switch"},
+  {"name": "Dealabs · Jeux PS5", "url": "https://www.dealabs.com/rss/groupe/jeux-ps5", "hint": "jeux PS5"},
+  {"name": "Dealabs · Nintendo", "url": "https://www.dealabs.com/rss/groupe/nintendo", "hint": "Nintendo"},
+  {"name": "Dealabs · PlayStation", "url": "https://www.dealabs.com/rss/groupe/playstation", "hint": "PlayStation"},
+  {"name": "Dealabs · Xbox", "url": "https://www.dealabs.com/rss/groupe/xbox", "hint": "Xbox"},
+  {"name": "ActuGaming · Bons plans", "url": "https://www.actugaming.net/bons-plans/feed/", "filter": true},
+  {"name": "Jeuxvideo.com", "url": "https://www.jeuxvideo.com/rss/rss.xml", "filter": true, "gaming": true},
+  {"name": "Gameblog", "url": "https://www.gameblog.fr/rss.php", "filter": true, "gaming": true},
+  {"name": "Frandroid · Bons plans", "url": "https://www.frandroid.com/bons-plans/feed", "filter": true, "gaming": true},
+  {"name": "Les Numériques", "url": "https://www.lesnumeriques.com/rss.xml", "filter": true, "gaming": true},
+  {"name": "Clubic", "url": "https://www.clubic.com/feed/news.rss", "filter": true, "gaming": true},
+  {"name": "Numerama", "url": "https://www.numerama.com/feed/", "filter": true, "gaming": true},
+  {"name": "Reddit · r/GameDeals", "url": "https://www.reddit.com/r/GameDeals/.rss", "hint": "jeux dématérialisés (prix souvent en $ ou €)", "maxDays": 4},
+  {"name": "Reddit · r/NintendoSwitchDeals", "url": "https://www.reddit.com/r/NintendoSwitchDeals/.rss", "hint": "jeux Switch", "maxDays": 4},
+  {"name": "Retro Handhelds", "url": "https://retrohandhelds.gg/feed/", "hint": "consoles portables d'émulation", "maxDays": 14},
+  {"name": "Retro Dodo", "url": "https://retrododo.com/feed/", "hint": "consoles rétro et d'émulation", "maxDays": 14}
+]
