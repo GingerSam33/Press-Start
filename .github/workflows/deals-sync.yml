@@ -1,0 +1,30 @@
+name: Bons plans (Dealabs + presse + gratuits)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Test sans rien enregistrer (1 = oui)"
+        required: false
+        default: '0'
+
+concurrency:
+  group: deals-sync
+  cancel-in-progress: false
+
+jobs:
+  deals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Mettre a jour les bons plans
+        run: node robot/deals-sync.mjs
+        env:
+          SUPABASE_URL: https://qsdkfewldohenndiftkb.supabase.co
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
