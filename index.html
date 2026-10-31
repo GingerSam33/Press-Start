@@ -3451,7 +3451,7 @@ html[data-tone-dark] .ncal-in .ncal-wd{color:color-mix(in srgb,var(--wd) 55%,#ff
   dialog.con-dlg .con-dlg-in{max-height:94dvh;border-radius:24px 24px 0 0}
   dialog#dlg::before,dialog.con-dlg::before{content:'';position:absolute;top:8px;left:50%;width:42px;height:5px;margin-left:-21px;border-radius:3px;background:rgba(255,255,255,.75);z-index:30;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 }
-</style>
+.ntr-all{margin-left:8px}</style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -6217,7 +6217,7 @@ function viewNews(){
     + '</div>'
     + (N ? '<span>' + (N.sources || []).length + ' sources croisées · ' + nAgo(N.updatedAt) + '</span>' : '<span>Aucune édition pour l\u2019instant</span>')
     + (!isLatest ? '<button type="button" class="link" data-nday="' + latest.id + '">Revenir à la dernière édition</button>' : '')
-    + (N && N.updatedAt ? '<span class="nupd">Mis à jour le ' + new Date(N.updatedAt).toLocaleDateString('fr-FR', {day:'numeric', month:'long'}) + ' à ' + new Date(N.updatedAt).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) + '</span>' : '') + '</div></header>';
+    + (N && N.updatedAt ? '<span class="nupd">Mis à jour le ' + new Date(N.updatedAt).toLocaleDateString('fr-FR', {day:'numeric', month:'long'}) + ' à ' + new Date(N.updatedAt).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) + '</span>' : '') + (N && !S.readOnly ? '<button type="button" class="btn ghost small ntr-all" data-ntrall="1"' + (NTR_BUSY ? ' disabled' : '') + '>' + (NTR_BUSY ? '<span class="nimp-spin"></span> Traduction en cours…' : '🌐 Tout traduire en français') + '</button>' : '') + '</div></header>';
   if (!N) return h + '<div class="card empty"><strong>Pas encore d\u2019actus</strong><span>Clique sur « Mettre à jour » : la demande est copiée, colle-la dans une conversation avec Claude. Il cherche les actus du jour sur au moins 10 sources et les enregistre ici.</span></div>';
   var arts = (N.articles || []), hl = N.headline || arts[0], rest = arts.filter(function(a){ return a !== hl; });
   var f = S.newsCat || '';
@@ -6225,7 +6225,7 @@ function viewNews(){
   var shown = f ? rest.filter(function(a){ return ncatOf(a.category) === f; }) : rest;
   h += '<div class="nlayout"><div class="nmain">';
   h += nrelsStrip(N, ref) + nConfBanner(N, ref, isLatest);
-  S._nArts = [hl].concat(shown); nReadLoad(); setTimeout(function(){ newsTranslate(N); }, 500);
+  S._nArts = [hl].concat(shown); S._newsEd = N; nReadLoad(); setTimeout(function(){ newsTranslate(N); }, 500);
   if (hl) h += '<article class="card nhero is-click" data-nart="0">' + nReadTag(hl) + nArtVis(hl, 0, true) + '<div class="nh-body"><div class="nmeta">' + ncat(hl.category) + nconf(hl.confirmations) + '</div><h2>' + esc(hl.title) + '</h2>' + (hl.summary ? '<p>' + esc(hl.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(hl) + (hl.others ? '<span>et ' + esc(hl.others) + ' autres</span>' : '') + '</div></div></article>';
   if (cats.length > 1) h += '<div class="nfilters" role="group" aria-label="Filtrer par type"><button type="button" data-ncat="" aria-pressed="' + !f + '">Tout <span>' + rest.length + '</span></button>' + cats.map(function(c){ return '<button type="button" data-ncat="' + c + '" aria-pressed="' + (f === c) + '" style="--nc:' + NCAT[c][0] + '">' + c + ' <span>' + rest.filter(function(a){ return ncatOf(a.category) === c; }).length + '</span></button>'; }).join('') + '</div>';
   h += '<div class="ngrid">' + shown.map(function(a, i){ return '<article class="card nart is-click" data-nart="' + (i + 1) + '" style="--i:' + i + '">' + nReadTag(a) + nArtVis(a, i + 1) + '<div class="nmeta">' + ncat(a.category) + nconf(a.confirmations) + '</div><h3>' + esc(a.title) + '</h3>' + (a.summary ? '<p>' + esc(a.summary) + '</p>' : '') + '<div class="nfoot">' + nlink(a) + '</div></article>'; }).join('') + '</div></div>';
@@ -7871,12 +7871,12 @@ document.addEventListener('click', function(e){
 
 /* ---------- Actus : traduction des articles restés en anglais (une fois par édition, enregistrée) ---------- */
 var NTR_BUSY = false;
-async function newsTranslate(ed){
-  if (NTR_BUSY || S.readOnly || !ed || !window.PS_SB || !Array.isArray(ed.articles)) return;
+async function newsTranslate(ed, force){
+  if (NTR_BUSY || S.readOnly || !ed || !window.PS_SB || !Array.isArray(ed.articles)) { if (force && !window.PS_SB) toast('La traduction fonctionne sur ton site hébergé.'); return; }
   var isEn = function(a){ return a && (a.lang === 'en' || (a.lang == null && !a.titleEn && /^[\x00-\x7F’'“”–—…]+$/.test(String(a.title || '')) && /\b(the|and|of|is|has|with|for|new|to|in)\b/i.test(String(a.title || '')))); };
-  var todo = ed.articles.map(function(a, i){ return [i, a]; }).filter(function(x){ return isEn(x[1]); });
-  if (!todo.length) return;
-  NTR_BUSY = true; var done = 0;
+  var todo = ed.articles.map(function(a, i){ return [i, a]; }).filter(function(x){ return force ? (x[1] && x[1].lang !== 'fr') || isEn(x[1]) : isEn(x[1]); });
+  if (!todo.length) { if (force) toast('Tous les articles sont déjà en français'); return; }
+  NTR_BUSY = true; var done = 0; if (force) render();
   for (var k = 0; k < todo.length; k += 5) {
     var batch = todo.slice(k, k + 5);
     for (var att = 0; att < 2; att++) {
@@ -7894,8 +7894,9 @@ async function newsTranslate(ed){
     try { if (ed.day) await db.collection('news_editions').doc(ed.day).update(upd); } catch (x) {}
     try { var cur = await db.doc('news/edition').get(); if (cur.exists && cur.data().day === ed.day) await db.doc('news/edition').update(upd); } catch (x) {}
   }
-  NTR_BUSY = false;
+  NTR_BUSY = false; if (force) { render(); toast(done ? done + ' article' + (done > 1 ? 's traduits' : ' traduit') : 'Traduction indisponible pour le moment'); }
 }
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-ntrall]'); if (!t || NTR_BUSY) return; var ed = S._newsEd; if (ed) newsTranslate(ed, true); });
 
 /* ---------- Consoles : cartes premium + fiche détaillée par exemplaire ---------- */
 var CK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>', XX_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
