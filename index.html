@@ -3501,6 +3501,22 @@ html[data-tone-dark] .ncal-in .ncal-wd{color:color-mix(in srgb,var(--wd) 55%,#ff
 .dl-dh h3{margin:6px 0;font-size:20px;color:var(--text)}
 .dl-dh>div{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 @media (max-width:820px){.dl-two{grid-template-columns:1fr}.dl-grid{grid-template-columns:1fr}.dl-dh{flex-direction:column}.dl-dh img{width:100%}}
+/* calendrier : mois figé en haut, puis les jours */
+.ncal-in .ncal-h{position:sticky;top:0;z-index:7;margin:0 -18px !important;padding:10px 18px !important;min-height:56px;box-sizing:border-box;background:var(--card);box-shadow:0 8px 12px -12px rgba(0,0,0,.35)}
+.ncal-in .ncal-wd{top:56px !important}
+/* jaquette agrandie flottante */
+.tk-cv:hover img{transform:none !important;box-shadow:0 6px 12px -6px rgba(0,0,0,.5) !important}
+.cvzoom{position:fixed;z-index:2147483000;object-fit:cover;border-radius:12px;box-shadow:0 24px 50px -16px rgba(0,0,0,.65);pointer-events:none;opacity:0;transform:scale(.9);transition:opacity .18s,transform .22s cubic-bezier(.3,1.5,.5,1)}
+.cvzoom.on{opacity:1;transform:none}
+dialog.dragclose{animation:none !important;transition:none !important}
+dialog.dragclose.closing{animation:none !important}
+@media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){
+  body.scroll-lock{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+  .msearch{transform:none !important;visibility:hidden;opacity:0;transition:opacity .2s,visibility 0s .2s !important}
+  body.ms-open .msearch{visibility:visible;opacity:1;transition:opacity .2s !important}
+  .ms-r{overflow-y:scroll !important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;min-height:0}
+  .msearch{height:100dvh;box-sizing:border-box}
+}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -7928,12 +7944,12 @@ async function newsTranslate(ed, force){
   var isEn = function(a){ return a && (a.lang === 'en' || (a.lang == null && !a.titleEn && /^[\x00-\x7F’'“”–—…]+$/.test(String(a.title || '')) && /\b(the|and|of|is|has|with|for|new|to|in)\b/i.test(String(a.title || '')))); };
   var todo = ed.articles.map(function(a, i){ return [i, a]; }).filter(function(x){ return force ? (x[1] && x[1].lang !== 'fr') || isEn(x[1]) : isEn(x[1]); });
   if (!todo.length) { if (force) toast('Tous les articles sont déjà en français'); return; }
-  NTR_BUSY = true; var done = 0; if (force) render();
+  NTR_BUSY = true; var done = 0; if (S.view === 'news') renderSoon();
   for (var k = 0; k < todo.length; k += 5) {
     var batch = todo.slice(k, k + 5);
     for (var att = 0; att < 2; att++) {
       try {
-        var r = await giAsk('Traduis en français naturel ces titres et résumés d\u2019articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement en JSON : {"items":[{"i":0,"title":"…","summary":"…","excerpt":"…"}]}.\n\n' + JSON.stringify(batch.map(function(x){ return {i:x[0], title:x[1].title, summary:x[1].summary || '', excerpt:String(x[1].excerpt || '').slice(0, 900)}; })));
+        var r = await Promise.race([new Promise(function(_, ko){ setTimeout(function(){ ko(new Error('délai dépassé')); }, 60000); }), giAsk('Traduis en français naturel ces titres et résumés d\u2019articles de presse jeu vidéo. Garde les noms de jeux, de studios et de consoles tels quels. Réponds uniquement en JSON : {"items":[{"i":0,"title":"…","summary":"…","excerpt":"…"}]}.\n\n' + JSON.stringify(batch.map(function(x){ return {i:x[0], title:x[1].title, summary:x[1].summary || '', excerpt:String(x[1].excerpt || '').slice(0, 900)}; })))]);
         (r.items || []).forEach(function(t){ var a = ed.articles[t.i]; if (!a || !t.title) return; ed.articles[t.i] = Object.assign({}, a, {titleEn:a.title, title:t.title, summaryEn:a.summary, summary:t.summary || a.summary, excerptEn:a.excerpt, excerpt:t.excerpt || a.excerpt, lang:'fr'}); done++; });
         break;
       } catch (x) { await new Promise(function(ok){ setTimeout(ok, 2500); }); }
@@ -7946,9 +7962,9 @@ async function newsTranslate(ed, force){
     try { if (ed.day) await db.collection('news_editions').doc(ed.day).update(upd); } catch (x) {}
     try { var cur = await db.doc('news/edition').get(); if (cur.exists && cur.data().day === ed.day) await db.doc('news/edition').update(upd); } catch (x) {}
   }
-  NTR_BUSY = false; if (force) { render(); toast(done ? done + ' article' + (done > 1 ? 's traduits' : ' traduit') : 'Traduction indisponible pour le moment'); }
+  NTR_BUSY = false; if (S.view === 'news') renderSoon(); if (force) { toast(done ? done + ' article' + (done > 1 ? 's traduits' : ' traduit') : 'Traduction indisponible pour le moment'); }
 }
-document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-ntrall]'); if (!t || NTR_BUSY) return; var ed = S._newsEd; if (ed) newsTranslate(ed, true); });
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-ntrall]'); if (!t) return; if (NTR_BUSY) { toast('Traduction déjà en cours…'); t.disabled = true; t.innerHTML = '<span class="nimp-spin"></span> Traduction en cours…'; return; } var ed = S._newsEd; if (!ed) { toast('Aucune édition à traduire'); return; } t.disabled = true; t.innerHTML = '<span class="nimp-spin"></span> Traduction en cours…'; newsTranslate(ed, true); });
 
 /* ---------- Consoles : cartes premium + fiche détaillée par exemplaire ---------- */
 var CK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>', XX_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
@@ -8173,7 +8189,7 @@ function sheetDrag(dlgEl, scrollSel, close){
   var sy = 0, dy = 0, drag = false, box = null;
   dlgEl.addEventListener('touchstart', function(e){ if (!isMob()) return; box = dlgEl.querySelector(scrollSel) || dlgEl; if ((box.scrollTop || 0) > 2) { drag = false; return; } drag = true; sy = e.touches[0].clientY; dy = 0; dlgEl.style.transition = 'none'; }, {passive:true});
   dlgEl.addEventListener('touchmove', function(e){ if (!drag) return; dy = e.touches[0].clientY - sy; if (dy < 0) { dy = 0; return; } if ((box.scrollTop || 0) > 2) { drag = false; dlgEl.style.transform = ''; return; } dlgEl.style.transform = 'translateY(' + dy + 'px)'; }, {passive:true});
-  dlgEl.addEventListener('touchend', function(){ if (!drag) return; drag = false; dlgEl.style.transition = 'transform .28s cubic-bezier(.2,.8,.2,1)'; if (dy > 120) { dlgEl.style.transform = 'translateY(100%)'; setTimeout(function(){ dlgEl.style.transform = ''; dlgEl.style.transition = ''; close(); }, 260); } else { dlgEl.style.transform = ''; } }, {passive:true});
+  dlgEl.addEventListener('touchend', function(){ if (!drag) return; drag = false; dlgEl.style.transition = 'transform .28s cubic-bezier(.2,.8,.2,1)'; if (dy > 120) { dlgEl.style.transform = 'translateY(100%)'; dlgEl.style.opacity = '0'; setTimeout(function(){ dlgEl.classList.add('dragclose'); close(); setTimeout(function(){ dlgEl.classList.remove('dragclose'); dlgEl.style.transform = ''; dlgEl.style.transition = ''; dlgEl.style.opacity = ''; }, 260); }, 240); } else { dlgEl.style.transform = ''; } }, {passive:true});
 }
 setTimeout(function(){
   try { var d1 = document.getElementById('dlg') || (typeof dlg !== 'undefined' ? dlg : null); if (d1 && !d1._drag) { d1._drag = 1; sheetDrag(d1, '.body', function(){ closeDlg(); }); } } catch (x) {}
@@ -8244,6 +8260,30 @@ document.addEventListener('click', function(e){
   var v = t.getAttribute('data-deal'), d = String(v).charAt(0) === 'm' ? ((DEALS && DEALS.deals) || [])[+String(v).slice(1)] : (S._deals || [])[+v]; if (!d) return;
   openDlg(dealDlg(d));
 });
+
+
+/* ---------- Agrandissement des jaquettes (au-dessus de tout) ---------- */
+var CVZ = null;
+document.addEventListener('mouseover', function(e){
+  var im = e.target.closest && e.target.closest('.tk-cv img'); if (!im || isMob()) return;
+  if (!CVZ) { CVZ = document.createElement('img'); CVZ.className = 'cvzoom'; CVZ.alt = ''; CVZ.referrerPolicy = 'no-referrer'; }
+  var host = im.closest('dialog') || document.body; if (CVZ.parentNode !== host) host.appendChild(CVZ);
+  CVZ.src = im.src; var r = im.getBoundingClientRect(), w = 200, hh = Math.round(w * (im.naturalHeight && im.naturalWidth ? im.naturalHeight / im.naturalWidth : 1.33));
+  var left = r.left - w - 12; if (left < 8) left = Math.min(window.innerWidth - w - 8, r.right + 12); var top = Math.max(8, Math.min(window.innerHeight - hh - 8, r.top + r.height / 2 - hh / 2));
+  CVZ.style.cssText = 'left:' + left + 'px;top:' + top + 'px;width:' + w + 'px;height:' + hh + 'px'; CVZ.classList.add('on');
+});
+document.addEventListener('mouseout', function(e){ if (CVZ && e.target.closest && e.target.closest('.tk-cv img')) CVZ.classList.remove('on'); });
+/* ---------- iPhone : la page derrière une fenêtre ne défile plus ---------- */
+(function(){
+  var locked = false, y = 0;
+  function sync(){
+    var open = !!document.querySelector('dialog[open]') || document.body.classList.contains('ms-open') || document.body.classList.contains('mside-open');
+    if (!isMob()) open = false;
+    if (open && !locked) { y = window.scrollY; document.body.style.top = -y + 'px'; document.body.classList.add('scroll-lock'); locked = true; }
+    else if (!open && locked) { document.body.classList.remove('scroll-lock'); document.body.style.top = ''; window.scrollTo(0, y); locked = false; }
+  }
+  new MutationObserver(sync).observe(document.body, {attributes:true, subtree:true, attributeFilter:['open', 'class']});
+})();
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
