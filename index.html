@@ -6,7 +6,7 @@
 <title>Press Start — Collection gaming</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&family=Press+Start+2P&family=Audiowide&family=Fredoka:wght@500;600&family=Righteous&family=Russo+One&family=Orbitron:wght@600;700&family=VT323&family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&family=Press+Start+2P&family=Monoton&family=Audiowide&family=Fredoka:wght@500;600&family=Righteous&family=Russo+One&family=Orbitron:wght@600;700&family=VT323&family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
   box-sizing:border-box;
@@ -3570,6 +3570,60 @@ html.scroll-lock-d,html.scroll-lock-d body{overflow:hidden !important}
 .lg-card .lg-cov .fgi{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .lg-card:hover .lg-cov .fgi{transform:scale(1.05) rotate(-1.5deg)}
 .lg-card:not(.own):hover{box-shadow:0 18px 32px -20px rgba(20,18,40,.55) !important}
+
+/* fiche console : sections Boîte (ambre) et Console (bleu) */
+.csx{border-width:2px !important;padding:0 !important;overflow:hidden}
+.csx.box{border-color:#E8B86A !important;background:color-mix(in srgb,#FFF3DC 55%,var(--card)) !important}
+.csx.console{border-color:#8FAEF0 !important;background:color-mix(in srgb,#E6EEFF 55%,var(--card)) !important}
+.csx header{padding:10px 12px;border-bottom:1px solid transparent}
+.csx.box header{background:linear-gradient(90deg,#F7D9A0,color-mix(in srgb,#FFF3DC 60%,var(--card)));border-bottom-color:#E8B86A}
+.csx.console header{background:linear-gradient(90deg,#C9D8FF,color-mix(in srgb,#E6EEFF 60%,var(--card)));border-bottom-color:#8FAEF0}
+.csx h4{display:flex;align-items:center;gap:8px;font-size:15px !important}
+.csx.box h4{color:#7A4A0E !important}.csx.console h4{color:#23408E !important}
+.csx-ic{display:flex;width:30px;height:30px;padding:3px;border-radius:9px;background:#fff;box-shadow:0 3px 8px -4px rgba(0,0,0,.35)}
+.csx-ic svg{width:100%;height:100%}
+.csx .cphs,.csx .cnote{margin:0 12px}.csx .cnote{margin-bottom:12px;width:calc(100% - 24px)}
+.csx.box .cph.add{border-color:#E8B86A;color:#9A5B13}.csx.console .cph.add{border-color:#8FAEF0;color:#2E4FA8}
+.upill{display:inline-block;padding:2px 10px;border-radius:999px;background:color-mix(in srgb,var(--uc) 15%,var(--card));color:var(--uc);font-weight:700;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--uc) 35%,transparent)}
+.udd .cdd-btn b{display:inline-flex}
+.udd .cdd-opt .upill{font-size:12.5px}
+
+/* ===== étagère en noyer (fiche jeu) ===== */
+.shf{position:relative;height:360px;border-radius:26px;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;border:2px solid var(--card-border);box-shadow:0 8px 0 var(--card-border)}
+.shf-wall{position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 50% 0%,rgba(255,190,110,.35),transparent 70%),radial-gradient(ellipse 30% 40% at 20% 30%,rgba(255,62,165,.25),transparent 70%),linear-gradient(180deg,#2A1A12,#1A100B)}
+.shf-deco{position:absolute;inset:0;pointer-events:none}
+.shf-neon{position:absolute;left:6%;top:12%;transform:rotate(-4deg);font-family:'Monoton','Press Start 2P',sans-serif;font-size:30px;color:#fff;letter-spacing:.06em;white-space:nowrap;text-shadow:0 0 4px #fff,0 0 10px var(--n),0 0 22px var(--n),0 0 40px var(--n);animation:shfFlick 5s infinite}
+.shf-neon.sm{left:auto;right:7%;top:14%;font-size:28px;transform:rotate(6deg)}
+@keyframes shfFlick{0%,92%,100%{opacity:1}93%{opacity:.55}94%{opacity:1}96%{opacity:.7}}
+.shf-lights{position:absolute;left:-2%;right:-2%;top:0;height:46px;display:flex;justify-content:space-between;border-top:2px solid rgba(40,30,20,.6)}
+.shf-lights i{display:block;width:9px;height:12px;margin-top:14px;border-radius:50% 50% 45% 45%;background:var(--c);box-shadow:0 0 10px 3px var(--c);animation:shfTw 2.6s ease-in-out infinite;animation-delay:var(--d)}
+.shf-lights i:nth-child(odd){margin-top:22px}.shf-lights i:nth-child(3n){margin-top:30px}
+@keyframes shfTw{0%,100%{opacity:1}50%{opacity:.45}}
+.shf-row{position:relative;z-index:2;display:flex;align-items:flex-end;gap:7px;margin-bottom:46px;max-width:100%;padding:0 12px;overflow:visible}
+.shf-plank{position:absolute;left:0;right:0;bottom:22px;height:26px;z-index:3;background:repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 40px),repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 4px),linear-gradient(180deg,#6B3F22,#4A2A16 60%,#2E1A0D);box-shadow:0 -2px 0 #8A5530 inset}
+.shf-plank::after{content:'';position:absolute;left:4%;right:4%;top:100%;height:14px;background:linear-gradient(180deg,rgba(255,62,165,.55),transparent);filter:blur(5px)}
+.shf-shadow{position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(180deg,rgba(0,0,0,.6),#1A100B)}
+.shf-box{position:relative;flex:none;width:150px;border-radius:6px;overflow:hidden;background:#0B1020;box-shadow:0 10px 18px -8px rgba(0,0,0,.6),inset -3px 0 0 rgba(255,255,255,.15);transition:transform .35s cubic-bezier(.3,1.5,.5,1);z-index:4}
+.shf-box:hover{transform:translateY(-10px) rotate(-1deg)}
+.shf-band{height:24px;background:var(--band);color:#fff;font-weight:800;font-size:11px;letter-spacing:.14em;display:flex;align-items:center;padding:0 8px;text-transform:uppercase;white-space:nowrap;overflow:hidden}
+.shf-box img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}
+.shf-gloss{position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.16) 50%,transparent 60%);pointer-events:none}
+.shf-spine{position:relative;flex:none;width:26px;padding:0;border:0;border-radius:3px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 70%,#000),var(--c) 30%,color-mix(in srgb,var(--c) 75%,#fff) 60%,var(--c));box-shadow:0 8px 12px -8px rgba(0,0,0,.6);transform-origin:bottom center;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:translate .25s cubic-bezier(.3,1.5,.5,1)}
+.shf-spine::before{content:'';position:absolute;top:0;left:0;right:0;height:12%;background:var(--band);border-radius:3px 3px 0 0}
+.shf-spine:hover{translate:0 -8px}
+.shf-spine span{writing-mode:vertical-rl;transform:rotate(180deg);color:#fff;font-size:8.5px;font-weight:700;letter-spacing:.1em;white-space:nowrap;overflow:hidden;max-height:82%;text-overflow:ellipsis}
+.shf-lean{flex:none;width:112px;padding:0;border:0;border-radius:5px;overflow:hidden;transform:rotate(-11deg);transform-origin:bottom right;margin-left:-4px;box-shadow:0 10px 16px -8px rgba(0,0,0,.6);cursor:pointer;transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.shf-lean:hover{transform:rotate(-6deg) translateY(-6px)}
+.shf-lean img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}
+.shf-pad{width:90px;flex:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.4))}
+.shf-fig{width:42px;flex:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.4))}
+.shf-coins{width:38px;flex:none}
+.shf-cup{position:relative;flex:none;width:32px;height:34px;border-radius:0 0 8px 8px;background:#F2E8D8;box-shadow:inset -4px 0 0 rgba(0,0,0,.08);margin-right:10px}
+.shf-cup::before{content:'';position:absolute;right:-9px;top:8px;width:10px;height:14px;border:3px solid #F2E8D8;border-left:0;border-radius:0 8px 8px 0}
+.shf-cup::after{content:'';position:absolute;left:8px;top:-22px;width:14px;height:20px;border-radius:50%;border-left:2px solid rgba(255,255,255,.55);filter:blur(1px);animation:shfSteam 2.4s ease-in-out infinite}
+@keyframes shfSteam{0%{opacity:0;transform:translateY(6px)}50%{opacity:.8}100%{opacity:0;transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){.shf-neon,.shf-lights i,.shf-cup::after{animation:none}}
+@media (max-width:820px){.shf{height:300px}.shf-neon{font-size:20px}.shf-box{width:118px}.shf-lean{width:86px}.shf-pad,.shf-coins,.shf-cup{display:none}.shf-spine{width:20px}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4314,6 +4368,7 @@ function viewGame(){
     + '<div class="gh-side"><div class="gh-card"><span>Statut</span>' + combo({key:'status', value:g.status || 'Pas commencé', save:g.id + '|status', id:'ghStatus', cell:true}) + '</div>'
     + ((['En cours', 'Terminé', 'Abandonné'].indexOf(g.status) >= 0 || g.rating) && g.kind !== 'wish' ? '<button type="button" class="gh-card gh-eval" data-act="rate" data-id="' + esc(g.id) + '"' + writeGuard() + '><span>Évaluation</span><span class="ge-btn">' + ICON_SPARK + (g.rating ? 'Revoir mon évaluation' : (S.rateDraft && S.rateDraft[g.id] ? 'Reprendre l\u2019évaluation' : 'Noter le jeu')) + '</span><small>8 critères, pas à pas</small></button>' : '')
     + '<div class="gh-card"><span>Ma note</span><div class="gh-note">' + (hasNote ? (ensureStarDefs(), shinyStars(g.note / 2)) : '') + '<b id="noteVal" class="n-' + (hasNote ? noteTier(g.note) : 'none') + '">' + (hasNote ? noteFmt(g.note / 2) + '<small>/5</small>' : '–') + '</b>' + (hasNote ? '' : '<span class="nhint">via l\u2019évaluation</span>') + '</div></div></div></div></section>';
+  h += shelfHtml(g);
   if (g.kind === 'wish') h += wishCard(g); else {
   // --- exemplaires en cartes (piste B)
   h += covSuggestCard(g) + concordCard(g);
@@ -8039,13 +8094,13 @@ function conCardHtml(c, sec){
 }
 function uddHtml(key, label, opts, val, okFn){
   var open = S.uddOpen === key, cur = opts.filter(function(o){ return o[0] === val; })[0] || opts[0], ok = okFn ? okFn(cur[0]) : null;
-  return '<div class="cdd udd' + (open ? ' open' : '') + '"><button type="button" class="cdd-btn" data-udd="' + esc(key) + '" aria-haspopup="listbox" aria-expanded="' + open + '"' + writeGuard() + '><small>' + esc(label) + '</small>' + (ok == null ? '' : '<i class="ci ' + (ok ? 'ok' : 'no') + '">' + (ok ? CK_SVG : XX_SVG) + '</i>') + '<b>' + esc(cur[1]) + '</b><svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg></button>'
-    + (open ? '<div class="cdd-pop" role="listbox">' + opts.map(function(o){ return '<button type="button" role="option" class="cdd-opt" data-uddv="' + esc(key) + '|' + esc(o[0]) + '" aria-selected="' + (o[0] === val) + '"><span class="cdd-l">' + esc(o[1]) + '</span>' + (o[0] === val ? '<svg class="cdd-ck" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>' : '') + '</button>'; }).join('') + '</div>' : '') + '</div>';
+  return '<div class="cdd udd' + (open ? ' open' : '') + '"><button type="button" class="cdd-btn" data-udd="' + esc(key) + '" aria-haspopup="listbox" aria-expanded="' + open + '"' + writeGuard() + '><small>' + esc(label) + '</small>' + (ok == null ? '' : '<i class="ci ' + (ok ? 'ok' : 'no') + '">' + (ok ? CK_SVG : XX_SVG) + '</i>') + '<b>' + uddPill(cur[1], key, cur[0]) + '</b><svg class="chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"></path></svg></button>'
+    + (open ? '<div class="cdd-pop" role="listbox">' + opts.map(function(o){ return '<button type="button" role="option" class="cdd-opt" data-uddv="' + esc(key) + '|' + esc(o[0]) + '" aria-selected="' + (o[0] === val) + '"><span class="cdd-l">' + uddPill(o[1], key, o[0]) + '</span>' + (o[0] === val ? '<svg class="cdd-ck" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>' : '') + '</button>'; }).join('') + '</div>' : '') + '</div>';
 }
 function conPartHtml(c, u, ui, part){
   var p = u[part] || {}, isBox = part === 'box', key = c.id + '|' + ui + '|' + part;
   var photos = list(p.photos);
-  return '<section class="csx ' + part + '"><header><h4>' + (isBox ? '📦 Boîte' : '🎮 Console') + '</h4><div class="cmb">'
+  return '<section class="csx ' + part + '"><header><h4><span class="csx-ic">' + (isBox ? ICON_BOX : ICON_PAD) + '</span>' + (isBox ? 'Boîte' : 'Console') + '</h4><div class="cmb">'
     + uddHtml(key + '|owned', 'Possédée', isBox ? [['1', 'En boîte'], ['', 'Pas de boîte']] : [['1', 'Possédée'], ['', 'Non possédée']], p.owned ? '1' : '', function(v){ return v === '1'; })
     + uddHtml(key + '|state', 'État', [['', 'Non renseigné']].concat(CON_STATES.map(function(x){ return [x, x]; })), p.state || '')
     + '</div></header><div class="cphs">' + photos.map(function(id, k){ return '<span class="cph"><button type="button" class="cph-img" data-conph="' + esc(key) + '|' + k + '" aria-label="Agrandir la photo"><img src="' + esc(phSrc(id)) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></button>' + (S.readOnly ? '' : '<button type="button" class="cph-x" data-conphdel="' + esc(key) + '|' + k + '" aria-label="Supprimer la photo">✕</button>') + '</span>'; }).join('')
@@ -8343,7 +8398,7 @@ document.addEventListener('mouseout', function(e){ if (CVZ && e.target.closest &
     var open = !!document.querySelector('dialog[open]') || document.body.classList.contains('mside-open');
     document.documentElement.classList.toggle('ms-lock', document.body.classList.contains('ms-open'));
     var mob = isMob();
-    if (open && !locked) { y = window.scrollY; if (mob) { document.body.style.top = -y + 'px'; document.body.classList.add('scroll-lock'); } else document.documentElement.classList.add('scroll-lock-d'); locked = true; }
+    if (open && !locked) { y = window.scrollY; if (mob) { document.body.style.top = -y + 'px'; document.body.classList.add('scroll-lock'); } locked = true; }
     else if (!open && locked) { if (document.body.classList.contains('scroll-lock')) { document.body.classList.remove('scroll-lock'); document.body.style.top = ''; window.scrollTo(0, y); } document.documentElement.classList.remove('scroll-lock-d'); locked = false; }
   }
   new MutationObserver(sync).observe(document.body, {attributes:true, subtree:true, attributeFilter:['open', 'class']});
@@ -8392,6 +8447,50 @@ function conBgCard(){
   return '<section class="card cbg-card"><div class="rowhead"><div><h2>Fond des consoles</h2><div class="sub">Le décor derrière les consoles, sur leurs cartes et dans leurs fiches.</div></div></div><div class="cbg-grid">' + CONBGS.map(function(b){ return '<button type="button" class="cbg-opt" data-conbg="' + b[0] + '" aria-pressed="' + (CONBG === b[0]) + '" style="' + conSwStyle() + '"><span class="cbg-prev"><span class="swbg sw-' + b[0] + '"></span></span><b>' + esc(b[1]) + '</b><small>' + esc(b[2]) + '</small></button>'; }).join('') + '</div></section>';
 }
 document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-conbg]'); if (!t || S.readOnly) return; CONBG = t.getAttribute('data-conbg'); try { db.doc('meta/conbg').set({v:CONBG}); } catch (x) {} toast('Fond des consoles changé'); render(); });
+
+
+/* ---------- Ordinateur : la molette sur le fond d'une fenêtre ne fait pas défiler la page ---------- */
+document.addEventListener('wheel', function(e){
+  var dg = e.target.closest && e.target.closest('dialog[open]'); if (!dg) return;
+  var sc = e.target.closest('.con-dlg-in,.gi-body,.body,.ncal-scroll,.nrg-grid,.cfy-body');
+  if (!sc || e.target === dg) { e.preventDefault(); return; }
+  var atTop = sc.scrollTop <= 0, atEnd = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
+  if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atEnd)) e.preventDefault();
+}, {passive:false});
+
+/* ---------- Fiche console : couleurs des états dans les menus ---------- */
+var CON_STATE_COL = {'Neuf':'#1A7A45', 'Comme neuf':'#16796A', 'Très bon':'#2E6FE0', 'Bon':'#5B4AA8', 'Correct':'#B7791F', 'Abîmé':'#C2410C', 'Pour pièces':'#C2304A'};
+function uddPill(label, key, val){
+  var col = '';
+  if (/\|owned$/.test(key)) col = val === '1' ? '#1A7A45' : '#8A92A3';
+  else if (/\|state$/.test(key)) col = CON_STATE_COL[val] || '#8A92A3';
+  return col ? '<span class="upill" style="--uc:' + col + '">' + esc(label) + '</span>' : esc(label);
+}
+var ICON_BOX = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 10l12-6 12 6v12l-12 6-12-6z" fill="#F3C77B"/><path d="M4 10l12 6 12-6" fill="none" stroke="#9A5B13" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 16v12" stroke="#9A5B13" stroke-width="1.8"/><path d="M4 10l12-6 12 6v12l-12 6-12-6z" fill="none" stroke="#9A5B13" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 7l12 6v4" fill="none" stroke="#C9822B" stroke-width="2.4" stroke-linecap="round"/></svg>';
+var ICON_PAD = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 10h14a7 7 0 0 1 7 7v1.5a4.5 4.5 0 0 1-8.2 2.6L20 19h-8l-1.8 2.1A4.5 4.5 0 0 1 2 18.5V17a7 7 0 0 1 7-7z" fill="#9DB7F5" stroke="#2E4FA8" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13.5v5M6.5 16h5" stroke="#2E4FA8" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="14.5" r="1.6" fill="#E2304A"/><circle cx="25.2" cy="17.5" r="1.6" fill="#2FA34A"/><path d="M13 10V7.5a3 3 0 0 1 6 0" fill="none" stroke="#2E4FA8" stroke-width="1.6"/></svg>';
+
+/* ---------- Fiche d'un jeu : la boîte posée sur une étagère en noyer (piste 1) ---------- */
+function shHue(t){ var h = 0; t = String(t || ''); for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 360; return h; }
+function shelfHtml(g){
+  if (!g || g.kind === 'wish') return '';
+  var con = list(g.consoles)[0] || (getVersions(g)[0] || {}).console || '';
+  var band = con ? (CBRAND_COL[brandOfConsole(con)] || '#1F5FD6') : '#1F5FD6';
+  var cv = g.coverId ? blob(g.coverId) : genCover(g.name, con);
+  var peers = S.games.filter(function(x){ return x.id !== g.id && x.kind !== 'wish' && con && list(x.consoles).some(function(c){ return norm(c) === norm(con); }); }).sort(function(a, b){ return String(a.name).localeCompare(String(b.name), 'fr'); });
+  var withCover = peers.filter(function(x){ return x.coverId; }), lean = withCover[0] || null;
+  var spines = peers.filter(function(x){ return x !== lean; }).slice(0, 4);
+  var sp = function(x, k){ var hh = shHue(x.name); return '<button type="button" class="shf-spine" data-game="' + esc(x.id) + '" title="' + esc(x.name) + '" style="--c:hsl(' + hh + ',45%,32%);--band:' + band + ';height:' + (172 - (k % 2) * 6) + 'px' + (k === spines.length - 1 && spines.length > 2 ? ';transform:rotate(-5deg)' : '') + '"><span>' + esc(String(x.name).toUpperCase()) + '</span></button>'; };
+  var lights = ''; for (var i = 0; i < 22; i++) lights += '<i style="--d:' + (i * 0.17).toFixed(2) + 's;--c:' + ['#FFD36B', '#FF6FA8', '#6FE3FF', '#B97CFF'][i % 4] + '"></i>';
+  return '<section class="shf" aria-label="Mon étagère"><div class="shf-wall"></div><div class="shf-deco"><span class="shf-neon" style="--n:#FF3EA5">PRESS START</span><span class="shf-neon sm" style="--n:#FFD36B">★</span><div class="shf-lights">' + lights + '</div></div>'
+    + '<div class="shf-row">' + spines.slice(0, Math.ceil(spines.length / 2) + 1).map(sp).join('')
+    + '<div class="shf-box" style="--band:' + band + '"><div class="shf-band">' + esc(con ? (S.consoles.find(function(c){ return norm(c.name) === norm(con); }) || {}).short || con : '') + '</div><img src="' + esc(cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span></div>'
+    + (lean ? '<button type="button" class="shf-lean" data-game="' + esc(lean.id) + '" title="' + esc(lean.name) + '"><img src="' + esc(blob(lean.coverId)) + '" alt="' + esc(lean.name) + '" loading="lazy"></button>' : '')
+    + spines.slice(Math.ceil(spines.length / 2) + 1).map(sp).join('')
+    + '<svg class="shf-pad" viewBox="0 0 120 70" aria-hidden="true"><path d="M30 12h60a26 26 0 0 1 26 26v4a16 16 0 0 1-29 9.5L80 42H40l-7 9.5A16 16 0 0 1 4 42v-4a26 26 0 0 1 26-26z" fill="#E9EBF0" stroke="#9AA1AE" stroke-width="2"/><path d="M28 30v14M21 37h14" stroke="#3A3F4A" stroke-width="4" stroke-linecap="round"/><circle cx="86" cy="30" r="4" fill="#E2304A"/><circle cx="95" cy="38" r="4" fill="#2FA34A"/><circle cx="77" cy="38" r="4" fill="#2E6FE0"/><circle cx="86" cy="46" r="4" fill="#E2A400"/><circle cx="46" cy="48" r="7" fill="#2B2F38"/><circle cx="74" cy="48" r="7" fill="#2B2F38"/></svg>'
+    + '<svg class="shf-fig" viewBox="0 0 60 110" aria-hidden="true"><ellipse cx="30" cy="104" rx="22" ry="5" fill="#1B1B22"/><path d="M18 100l4-36h16l4 36z" fill="#3E6BD6"/><rect x="16" y="40" width="28" height="30" rx="8" fill="#5A86F0"/><circle cx="30" cy="26" r="15" fill="#F2D3B1"/><path d="M15 24a15 15 0 0 1 30 0c0-4-6-10-15-10s-15 6-15 10z" fill="#3A2A20"/><circle cx="25" cy="27" r="2" fill="#222"/><circle cx="35" cy="27" r="2" fill="#222"/><rect x="40" y="44" width="10" height="24" rx="5" fill="#5A86F0"/><rect x="10" y="44" width="10" height="24" rx="5" fill="#5A86F0"/></svg>'
+    + '<svg class="shf-coins" viewBox="0 0 50 50" aria-hidden="true"><g fill="#F2C14E" stroke="#B8862A" stroke-width="2"><ellipse cx="25" cy="42" rx="18" ry="6"/><ellipse cx="25" cy="36" rx="18" ry="6"/><ellipse cx="25" cy="30" rx="18" ry="6"/><ellipse cx="25" cy="24" rx="18" ry="6"/></g><text x="25" y="27" font-size="8" font-family="monospace" font-weight="700" fill="#8A5A00" text-anchor="middle">1UP</text></svg>'
+    + '<span class="shf-cup" aria-hidden="true"></span></div><div class="shf-plank"></div><div class="shf-shadow"></div></section>';
+}
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
