@@ -3668,9 +3668,8 @@ html.scroll-lock-d,html.scroll-lock-d body{overflow:hidden !important}
 
 /* étagère composée : décor gauche + centre extensible + décor droit */
 .shf3{position:relative;margin-top:64px;border-radius:26px;overflow:hidden;border:2px solid var(--card-border);box-shadow:0 8px 0 var(--card-border);width:100%}
-.shf3>div{position:absolute;top:0;bottom:0;background-repeat:no-repeat;background-size:100% 100%}
 .shf3-l{left:0}.shf3-r{right:0}
-.shf3-m{background-repeat:repeat-x !important;background-position:0 0}
+.shf3-m{background-position:0 0}
 .shf3 .shf2-slot{top:28.55%;height:44.14%}
 .shf3:has(.pb-open){overflow:visible}
 .shf2-ed{position:absolute;left:50%;top:calc(100% + 26%);transform:translateX(-50%);white-space:nowrap;padding:2px 10px;border-radius:999px;background:rgba(20,10,30,.75);color:#FFE7B0;font-size:clamp(9px,.8vw,12px);font-weight:700;box-shadow:0 0 12px rgba(255,180,90,.35);pointer-events:none}
@@ -3731,6 +3730,14 @@ html.scroll-lock-d,html.scroll-lock-d body{overflow:hidden !important}
 .ned-dlg footer .spacer{flex:1}
 .btn.confirm{background:#C2304A !important;color:#fff !important}
 @media (max-width:820px){.ned-grid{grid-template-columns:1fr}.shf-tb{min-height:32px;padding:0 10px;font-size:12px}}
+
+.shf3>div.shf3-l,.shf3>div.shf3-m,.shf3>div.shf3-r{position:absolute;top:0;bottom:0;background-repeat:no-repeat;background-size:100% 100%}
+.shf3>div.shf3-m{background-repeat:repeat-x}
+.shf3>.shf-tools{position:absolute !important;top:12px !important;right:12px !important;bottom:auto !important;left:auto !important;background:none !important}
+.vsec .shf3{margin-top:14px;margin-bottom:18px}
+dialog:has(.ned-dlg){width:min(640px,calc(100vw - 24px)) !important;max-width:640px !important}
+.ned-dlg{max-width:none !important;width:100%}
+.ned-h{margin:0;border-radius:0}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4475,11 +4482,10 @@ function viewGame(){
     + '<div class="gh-side"><div class="gh-card"><span>Statut</span>' + combo({key:'status', value:g.status || 'Pas commencé', save:g.id + '|status', id:'ghStatus', cell:true}) + '</div>'
     + ((['En cours', 'Terminé', 'Abandonné'].indexOf(g.status) >= 0 || g.rating) && g.kind !== 'wish' ? '<button type="button" class="gh-card gh-eval" data-act="rate" data-id="' + esc(g.id) + '"' + writeGuard() + '><span>Évaluation</span><span class="ge-btn">' + ICON_SPARK + (g.rating ? 'Revoir mon évaluation' : (S.rateDraft && S.rateDraft[g.id] ? 'Reprendre l\u2019évaluation' : 'Noter le jeu')) + '</span><small>8 critères, pas à pas</small></button>' : '')
     + '<div class="gh-card"><span>Ma note</span><div class="gh-note">' + (hasNote ? (ensureStarDefs(), shinyStars(g.note / 2)) : '') + '<b id="noteVal" class="n-' + (hasNote ? noteTier(g.note) : 'none') + '">' + (hasNote ? noteFmt(g.note / 2) + '<small>/5</small>' : '–') + '</b>' + (hasNote ? '' : '<span class="nhint">via l\u2019évaluation</span>') + '</div></div></div></div></section>';
-  h += shelfHtml(g);
   if (g.kind === 'wish') h += wishCard(g); else {
   // --- exemplaires en cartes (piste B)
   h += covSuggestCard(g) + concordCard(g);
-  h += '<section class="vsec"><div class="vs-head"><h2>Mes exemplaires</h2><span class="vs-sub">' + vs.length + ' version' + (vs.length > 1 ? 's' : '') + ' de ce jeu' + ((parseInt(g.nombre, 10) || 1) > vs.length ? ' · ' + (parseInt(g.nombre, 10) || 1) + ' exemplaires au total' : '') + '</span><span class="vp-saved" id="vpSaved" aria-live="polite"></span></div><div class="vs-grid">';
+  h += '<section class="vsec"><div class="vs-head"><h2>Mes exemplaires</h2><span class="vs-sub">' + vs.length + ' version' + (vs.length > 1 ? 's' : '') + ' de ce jeu' + ((parseInt(g.nombre, 10) || 1) > vs.length ? ' · ' + (parseInt(g.nombre, 10) || 1) + ' exemplaires au total' : '') + '</span><span class="vp-saved" id="vpSaved" aria-live="polite"></span></div>' + shelfHtml(g) + '<div class="vs-grid">';
   vs.forEach(function(v, i){
     if (pbIsPS5(v.console) && !S.boxEdit[v.id]) { if (getVersions(g).indexOf(v) < 4) { return; } h += ps5Box(g, v, i); return; }
     var sv = function(f){ return g.id + '|v:' + v.id + ':' + f; };
@@ -4505,7 +4511,7 @@ function viewGame(){
     if (!v.photos.length) h += '<span class="vph-empty vc2-nophoto">Aucune photo</span>';
     h += '</dd></div></dl></article>';
   });
-  if (!S.readOnly) h += '<button type="button" class="vcard2-add" data-vadd="' + esc(g.id) + '">' + ICON_PLUS + '<b>Ajouter un exemplaire</b><span>Je l\u2019ai aussi sur une autre plateforme</span></button>';
+
   h += '</div></section>';
   if (['En cours', 'Terminé', 'Abandonné'].indexOf(g.status) >= 0 || (g.journal || []).length) h += journalCard(g);
   }
@@ -8559,8 +8565,9 @@ document.addEventListener('click', function(e){ var t = e.target.closest && e.ta
 /* ---------- Ordinateur : la molette sur le fond d'une fenêtre ne fait pas défiler la page ---------- */
 document.addEventListener('wheel', function(e){
   var dg = e.target.closest && e.target.closest('dialog[open]'); if (!dg) return;
-  var sc = e.target.closest('.con-dlg-in,.gi-body,.body,.ncal-scroll,.nrg-grid,.cfy-body');
-  if (!sc || e.target === dg) { e.preventDefault(); return; }
+  var el = e.target, sc = null;
+  while (el && el !== dg) { if (el.nodeType === 1) { var cs = getComputedStyle(el); if (/(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1) { sc = el; break; } } el = el.parentNode; }
+  if (!sc) { e.preventDefault(); return; }
   var atTop = sc.scrollTop <= 0, atEnd = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
   if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atEnd)) e.preventDefault();
 }, {passive:false});
