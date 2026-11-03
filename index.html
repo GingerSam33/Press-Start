@@ -3745,6 +3745,22 @@ dialog:has(.ned-dlg){width:min(640px,calc(100vw - 24px)) !important;max-width:64
 dialog:has(.ned-dlg){border-radius:26px !important;overflow:hidden !important;padding:0 !important}
 .ned-dlg{border-radius:26px;overflow:hidden}
 .ned-h{border-radius:26px 26px 0 0 !important}
+
+/* étagère : coins toujours arrondis, boîte ouverte au premier plan */
+.shf3,.shf3:has(.is-open),.shf3:has(.pb-open){overflow:visible !important}
+.shf3>div.shf3-l{border-radius:24px 0 0 24px}
+.shf3>div.shf3-r{border-radius:0 24px 24px 0}
+.shf3>.shf-tools .btn.shf-new{min-height:38px;height:38px;padding:0 16px;font-size:13.5px;white-space:nowrap}
+.shf-ctl button.del.confirm{width:auto !important;padding:0 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;background:#C2304A}
+.shf-bub-act{position:absolute;top:6px;right:6px;display:flex;gap:4px}
+.shf-bub-act .iconbtn{width:30px;height:30px}
+.shf-bub-act svg{width:14px;height:14px}
+.shf-bub b{padding-right:72px}
+/* fiche d'édition : les menus passent devant */
+dialog:has(.ned-dlg){overflow:visible !important}
+.ned-dlg{overflow:visible !important}
+.ned-dlg .body{overflow:visible !important;max-height:none !important}
+.ned-dlg footer{border-radius:0 0 26px 26px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -8608,16 +8624,18 @@ function shelfHtml(g){
     var ctl = S.shfEdit && !S.readOnly && v.id !== '_' ? '<span class="shf-ctl"><button type="button" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Modifier cette édition">' + ICON_PEN + '</button>' + (vs.length > 1 ? '<button type="button" class="del" data-shfdel="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Supprimer cette édition">' + ICON_TRASH + '</button>' : '') + '</span>' : '';
     return '<div class="shf2-slot' + (S.pbOpen && S.pbOpen[v.id] ? ' is-open' : '') + '" data-gid="' + esc(g.id) + '" data-vid="' + esc(v.id) + '" style="left:' + pc(left, midW) + ';width:' + pc(BW, midW) + '"' + (v.edition ? ' title="' + esc(v.edition) + '"' : '') + '>' + ctl + inner + (v.edition ? '<span class="shf2-ed">' + esc(v.edition) + '</span>' : '') + '</div>';
   }).join('');
-  var tools = S.readOnly ? '' : '<div class="shf-tools"><button type="button" class="shf-tb' + (S.shfEdit ? ' on' : '') + '" data-shfedit="1" aria-pressed="' + !!S.shfEdit + '" title="Modifier ou supprimer une édition">' + ICON_PEN + (S.shfEdit ? ' Terminer' : '') + '</button><button type="button" class="shf-tb main" data-newed="' + esc(g.id) + '">＋ Nouveau jeu</button></div>';
+  var tools = S.readOnly ? '' : '<div class="shf-tools"><button type="button" class="shf-tb' + (S.shfEdit ? ' on' : '') + '" data-shfedit="1" aria-pressed="' + !!S.shfEdit + '" title="Modifier ou supprimer une édition">' + ICON_PEN + (S.shfEdit ? ' Terminer' : '') + '</button><button type="button" class="btn shf-new" data-newed="' + esc(g.id) + '">+ Nouveau jeu</button></div>';
   return '<section class="shf3" aria-label="Mon étagère" style="aspect-ratio:' + TW + '/725">' + tools + '<div class="shf3-l" style="width:' + pc(LW, TW) + ';background-image:url(' + SHELF_L + ')"></div><div class="shf3-m" style="left:' + pc(LW, TW) + ';width:' + pc(midW, TW) + ';background-image:url(' + SHELF_M + ');background-size:' + pc(TILE, midW) + ' 100%">' + slots + '</div><div class="shf3-r" style="width:' + pc(RW, TW) + ';background-image:url(' + SHELF_R + ')"></div></section>';
 }
+var SHFIT = {};
 function shelfFit(){ document.querySelectorAll('.shf2-ps5 .ps5box').forEach(function(bx){
-  var slot = bx.closest('.shf2-slot'); if (!slot) return; var cs = bx.querySelector('.pb-case'); if (!cs || cs.classList.contains('pb-open')) return;
-  var prevT = bx.style.transform; bx.style.transform = 'none'; bx.style.left = '0px'; bx.style.top = '0px';
-  var br = bx.getBoundingClientRect(), cr = cs.getBoundingClientRect(); if (!cr.width || !cr.height) { bx.style.transform = prevT; return; }
-  var sw = slot.clientWidth, sh = slot.clientHeight, k = Math.max(sw / cr.width, sh / cr.height);
-  var dx = cr.left - br.left, dy = cr.top - br.top;
-  bx.style.left = (-dx * k + (sw - cr.width * k) / 2) + 'px'; bx.style.top = (-dy * k + (sh - cr.height * k)) + 'px'; bx.style.transform = 'scale(' + k.toFixed(4) + ')';
+  var slot = bx.closest('.shf2-slot'); if (!slot) return; var key = slot.getAttribute('data-vid') + '|' + slot.clientWidth, cs = bx.querySelector('.pb-case'); if (!cs) return;
+  if (cs.classList.contains('pb-open') || slot.classList.contains('is-open')) { var c0 = SHFIT[key]; if (c0) { bx.style.left = c0.l; bx.style.top = c0.t; bx.style.transform = c0.tr; } return; }
+  bx.style.transform = 'none'; bx.style.left = '0px'; bx.style.top = '0px';
+  var br = bx.getBoundingClientRect(), cr = cs.getBoundingClientRect(); if (!cr.width || !cr.height) return;
+  var sw = slot.clientWidth, sh = slot.clientHeight, k = Math.max(sw / cr.width, sh / cr.height), dx = cr.left - br.left, dy = cr.top - br.top;
+  var fit = {l:(-dx * k + (sw - cr.width * k) / 2) + 'px', t:(-dy * k + (sh - cr.height * k)) + 'px', tr:'scale(' + k.toFixed(4) + ')'};
+  SHFIT[key] = fit; bx.style.left = fit.l; bx.style.top = fit.t; bx.style.transform = fit.tr;
 }); }
 (function(){ var _r6 = render; render = function(){ var r = _r6.apply(this, arguments); setTimeout(shelfFit, 0); setTimeout(shelfFit, 300); return r; }; })();
 window.addEventListener('resize', function(){ shelfFit(); });
@@ -8646,7 +8664,7 @@ function shelfBubble(slot){
   var v = getVersions(g).find(function(x){ return x.id === slot.getAttribute('data-vid'); }); if (!v) return;
   var tags = (v.format ? optTag('format', v.format) : '') + v.etat.map(function(e){ return optTag('etat', e); }).join('') + (g.langue ? optTag('langue', g.langue) : '');
   var b = document.createElement('div'); b.className = 'shf-bub'; b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', 'Infos de l\u2019édition');
-  b.innerHTML = '<button type="button" class="iconbtn shf-bubx" data-shfbubx="1" aria-label="Fermer">✕</button><b>' + esc(v.edition || g.name) + '</b><small>' + esc([v.console ? consoleFullName(v.console) : '', v.edition ? g.name : ''].filter(Boolean).join(' · ')) + '</small>'
+  b.innerHTML = '<span class="shf-bub-act">' + (S.readOnly ? '' : '<button type="button" class="iconbtn" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Modifier cette édition" title="Modifier">' + ICON_PEN + '</button>') + '<button type="button" class="iconbtn" data-shfbubx="1" aria-label="Fermer">✕</button></span><b>' + esc(v.edition || g.name) + '</b><small>' + esc([v.console ? consoleFullName(v.console) : '', v.edition ? g.name : ''].filter(Boolean).join(' · ')) + '</small>'
     + (tags ? '<div class="tags">' + tags + '</div>' : '<p class="gi-note">Aucun tag pour cette édition.</p>')
     + (v.photos.length ? '<div class="shf-bub-ph">' + v.photos.map(function(id, k){ return '<button type="button" data-shfph="' + k + '"><img src="' + esc(blob(id)) + '" alt="" loading="lazy"></button>'; }).join('') + '</div>' : '<p class="gi-note">Pas encore de photo : ajoute-en avec le crayon ✎.</p>');
   b._ph = v.photos.map(function(id){ return blob(id); });
@@ -8689,7 +8707,7 @@ document.addEventListener('click', async function(e){
     var gid = t.hasAttribute('data-shfdel') ? t.getAttribute('data-shfdel').split('|')[0] : NED.gid, vid2 = t.hasAttribute('data-shfdel') ? t.getAttribute('data-shfdel').split('|')[1] : NED.vid;
     var gg = S.games.find(function(x){ return x.id === gid; }); if (!gg) return;
     if (getVersions(gg).length < 2) { toast('Il faut garder au moins une édition'); return; }
-    if (t.getAttribute('data-confirm') !== '1') { t.setAttribute('data-confirm', '1'); t.classList.add('confirm'); t.textContent = 'Confirmer la suppression ?'; return; }
+    if (t.getAttribute('data-confirm') !== '1') { t.setAttribute('data-confirm', '1'); t.classList.add('confirm'); t.textContent = t.hasAttribute('data-shfdel') ? 'Supprimer ?' : 'Confirmer la suppression'; return; }
     if (t.hasAttribute('data-neddel')) closeDlg(); shelfBubbleClose();
     saveVersions(gid, function(vs){ var i = vs.findIndex(function(v){ return v.id === vid2; }); if (i < 0) return false; vs.splice(i, 1); }, true); toast('Édition supprimée'); return;
   }
