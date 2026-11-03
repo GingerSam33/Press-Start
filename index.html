@@ -4093,8 +4093,9 @@ function gameGroups(){
   S.games.forEach(function(g){ if (g.kind === 'wish') return; var k = norm(g.name).replace(/[^a-z0-9]+/g, ' ').trim(); (byName[k] = byName[k] || []).push(g); });
   return byName;
 }
+function gameDupN(g){ var gc = gameCopies(g), u = {}; gc.cons.forEach(function(c){ u[norm(c)] = 1; }); return Math.max(0, gc.n - Math.max(1, Object.keys(u).length)); }
 function isDup(g, groups){
-  if ((parseInt(g.nombre, 10) || 1) >= 2) return true;
+  if (gameDupN(g) > 0) return true;
   var k = norm(g.name).replace(/[^a-z0-9]+/g, ' ').trim(), same = groups[k] || [];
   if (same.length < 2) return false;
   var mine = list(g.consoles).map(norm);
@@ -4282,9 +4283,18 @@ function homeBase(){
 }
 function gameCopies(g, brand){
   var vs = Array.isArray(g.versions) && g.versions.length ? getVersions(g) : null;
-  if (vs) { var f = vs.filter(function(v){ return !brand || !v.console || brandOfConsole(v.console) === brand; }); return {n:f.length, cons:f.map(function(v){ return v.console || list(g.consoles)[0] || ''; })}; }
-  var nb = Math.max(1, parseInt(g.nombre, 10) || 1), cs = list(g.consoles).filter(function(c){ return !brand || brandOfConsole(c) === brand; }), out = [];
-  (cs.length ? cs : ['']).forEach(function(c){ for (var k = 0; k < nb; k++) out.push(c); });
+  var gcs = list(g.consoles);
+  if (vs) {
+    /* une édition sans console renseignée est rattachée à une console du jeu pas encore utilisée (pas de faux doublon) */
+    var used = {}, out2 = [];
+    vs.forEach(function(v){ if (v.console) used[norm(v.console)] = (used[norm(v.console)] || 0) + 1; });
+    vs.forEach(function(v){ var c = v.console; if (!c) { c = gcs.filter(function(x){ return !used[norm(x)]; })[0] || gcs[0] || ''; if (c) used[norm(c)] = (used[norm(c)] || 0) + 1; } if (!brand || !c || brandOfConsole(c) === brand) out2.push(c); });
+    return {n:out2.length, cons:out2};
+  }
+  /* sans éditions détaillées : « nombre » = nombre total d'exemplaires, répartis sur les consoles du jeu */
+  var nb = Math.max(1, parseInt(g.nombre, 10) || 1), cs = gcs.length ? gcs : [''], tot = Math.max(nb, cs.length), out = [];
+  for (var k = 0; k < tot; k++) out.push(cs[k % cs.length]);
+  out = out.filter(function(c){ return !brand || !c || brandOfConsole(c) === brand; });
   return {n:out.length, cons:out};
 }
 function viewHome(counts){
