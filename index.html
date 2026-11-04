@@ -3788,6 +3788,21 @@ dialog:has(.ned-dlg){overflow:visible !important}
 .tip-pop.tp-wide .tip-row{display:grid !important;grid-template-columns:minmax(0,150px) minmax(0,1fr);column-gap:12px;padding:8px 0;break-inside:avoid;border-bottom:1px solid var(--card-border)}
 .tip-pop.tp-wide .tip-row dt{min-width:0}.tip-pop.tp-wide .tip-row dt .tag{max-width:100%;white-space:normal}
 .tip-pop.tp-wide .tip-row dd{font-size:12.5px;line-height:1.45}
+.c-box{color:#9A5B13}
+.dupq-btn{margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1.5px dashed #E3A400;background:color-mix(in srgb,#FFE07A 18%,var(--card));color:#7A5200;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.dupq-btn:hover{border-style:solid}
+.dupq-dlg .body{display:flex;flex-direction:column;gap:10px}
+.dupq-row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;background:var(--sunken);border:1px solid var(--card-border);flex-wrap:wrap}
+.dupq-row img{width:42px;height:56px;object-fit:cover;border-radius:6px;flex:none}
+.dupq-i{flex:1;min-width:160px}.dupq-i b{display:block;font-size:14px;color:var(--text)}.dupq-i small{font-size:12px;color:var(--muted)}
+.dupq-a{display:flex;gap:6px;flex-wrap:wrap}
+.dupq-row.done{opacity:.7}.dupq-ok{font-weight:700;color:#1A7A45;font-size:13px}
+.ned-kind{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ned-ch{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px;border-radius:16px;border:2px solid var(--card-border);background:var(--sunken);color:var(--text);text-align:left;font:inherit;cursor:pointer;transition:border-color .2s,background-color .2s,transform .2s cubic-bezier(.3,1.5,.5,1)}
+.ned-ch:hover{transform:translateY(-2px)}
+.ned-ch span{font-size:22px}.ned-ch b{font-size:14px}.ned-ch small{font-size:12px;color:var(--muted);line-height:1.4}
+.ned-ch.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+@media (max-width:620px){.ned-kind{grid-template-columns:1fr}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4301,28 +4316,41 @@ function homeBase(){
   });
 }
 function gameCopies(g, brand){
-  var vs = Array.isArray(g.versions) && g.versions.length ? getVersions(g) : null;
-  var gcs = list(g.consoles);
+  var vs = Array.isArray(g.versions) && g.versions.length ? getVersions(g) : null, gcs = list(g.consoles);
   if (vs) {
-    /* une édition sans console renseignée est rattachée à une console du jeu pas encore utilisée (pas de faux doublon) */
-    var used = {}, out2 = [];
-    vs.forEach(function(v){ if (v.console) used[norm(v.console)] = (used[norm(v.console)] || 0) + 1; });
-    vs.forEach(function(v){ var c = v.console; if (!c) { c = gcs.filter(function(x){ return !used[norm(x)]; })[0] || gcs[0] || ''; if (c) used[norm(c)] = (used[norm(c)] || 0) + 1; } if (!brand || !c || brandOfConsole(c) === brand) out2.push(c); });
-    return {n:out2.length, cons:out2};
+    var used = {}, out2 = [], boxes = 0;
+    vs.forEach(function(v){ if (v.console && v.kind !== 'box') used[norm(v.console)] = (used[norm(v.console)] || 0) + 1; });
+    vs.forEach(function(v){ var c = v.console; if (!c) { c = gcs.filter(function(x){ return !used[norm(x)]; })[0] || gcs[0] || ''; if (c && v.kind !== 'box') used[norm(c)] = (used[norm(c)] || 0) + 1; } if (brand && c && brandOfConsole(c) !== brand) return; if (v.kind === 'box') boxes++; else out2.push(c); });
+    return {n:out2.length, cons:out2, boxes:boxes};
   }
-  /* sans éditions détaillées : « nombre » = nombre total d'exemplaires, répartis sur les consoles du jeu */
-  var nb = Math.max(1, parseInt(g.nombre, 10) || 1), cs = gcs.length ? gcs : [''], tot = Math.max(nb, cs.length), out = [];
+  var nb = Math.max(1, parseInt(g.nombre, 10) || 1), cs = gcs.length ? gcs : [''], extra = Math.max(0, nb - cs.length), tot = g.dupMode === 'boxes' ? cs.length : Math.max(nb, cs.length), out = [];
   for (var k = 0; k < tot; k++) out.push(cs[k % cs.length]);
   out = out.filter(function(c){ return !brand || !c || brandOfConsole(c) === brand; });
-  return {n:out.length, cons:out};
+  return {n:out.length, cons:out, boxes:g.dupMode === 'boxes' ? extra : 0};
 }
+/* jeux où l'on ne sait pas si l'élément en plus est un vrai doublon ou une boîte seule */
+function dupUnclear(g){
+  if (g.kind === 'wish') return null;
+  if (Array.isArray(g.versions) && g.versions.length) {
+    var vs = getVersions(g), by = {}, gcs = list(g.consoles), used = {};
+    vs.forEach(function(v){ if (v.console) used[norm(v.console)] = 1; });
+    vs.forEach(function(v){ var c = v.console; if (!c) { c = gcs.filter(function(x){ return !used[norm(x)]; })[0] || gcs[0] || ''; used[norm(c)] = 1; } var k = norm(c); (by[k] = by[k] || []).push(v); });
+    for (var k in by) { var grp = by[k]; if (grp.length > 1 && grp.slice(1).some(function(v){ return !v.kind; })) return {type:'v', console:grp[0].console || list(g.consoles)[0] || '', n:grp.length, ids:grp.slice(1).map(function(v){ return v.id; })}; }
+    return null;
+  }
+  var nb = Math.max(1, parseInt(g.nombre, 10) || 1), nc = Math.max(1, list(g.consoles).length);
+  if (nb > nc && !g.dupMode) return {type:'n', console:list(g.consoles)[0] || '', n:nb, extra:nb - nc};
+  return null;
+}
+
 function viewHome(counts){
   var H = S.home, base = homeBase(), swap = H.swap; H.swap = false;
   // répartition par console
   var byC = {};
   var cp = {copies:0, dup:0, multi:0};
+  cp.boxes = 0;
   base.forEach(function(g){
-    var gc = gameCopies(g, H.brand), uniq = {};
+    var gc = gameCopies(g, H.brand), uniq = {}; cp.boxes += gc.boxes || 0;
     gc.cons.forEach(function(c){ if (c) { byC[c] = (byC[c] || 0) + 1; uniq[norm(c)] = 1; } });
     var nu = Math.max(1, Object.keys(uniq).length);
     cp.copies += gc.n; cp.dup += Math.max(0, gc.n - nu); cp.multi += nu - 1;
@@ -4373,7 +4401,7 @@ function viewHome(counts){
     var items = top.filter(function(d){ return d[1] > 0 || H.console.indexOf(d[0]) >= 0; }).map(function(d, i){ return {k:d[0], v:d[1], lab:d[2], col:segColor(d[0], i)}; });
     items = items.filter(function(d){ return CHART_HIDE_BRANDS.indexOf(brandOfConsole(d.k)) < 0; });
     h += (S.chartView === 'bars' ? chartBars(items, total, H) : chartRing(items.filter(function(d){ return d.v > 0; }), total, cNum, cLab, H))
-      + '<div class="copies" aria-label="Détail du total"><span class="cpi"><b>' + base.length + '</b> jeu' + (base.length > 1 ? 'x' : '') + '</span><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-dup cpf' + (H.dup ? ' on' : '') + '" data-htoggle="dup" aria-pressed="' + !!H.dup + '" title="Afficher uniquement mes jeux en doublon (' + (H.dupN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.dup + '</b> en doublon</button><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-multi cpf' + (H.multi ? ' on' : '') + '" data-htoggle="multi" aria-pressed="' + !!H.multi + '" title="Afficher uniquement mes jeux multi-plateformes (' + (H.multiN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.multi + '</b> multi-plateforme' + (cp.multi > 1 ? 's' : '') + '</button><span class="cpo" aria-hidden="true">=</span><span class="cpi c-tot"><b>' + cp.copies + '</b> exemplaire' + (cp.copies > 1 ? 's' : '') + '</span></div><p class="cp-hint">Clique sur « en doublon » ou « multi-plateforme » pour n\u2019afficher que ces jeux.</p>';
+      + '<div class="copies" aria-label="Détail du total"><span class="cpi"><b>' + base.length + '</b> jeu' + (base.length > 1 ? 'x' : '') + '</span><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-dup cpf' + (H.dup ? ' on' : '') + '" data-htoggle="dup" aria-pressed="' + !!H.dup + '" title="Afficher uniquement mes jeux en doublon (' + (H.dupN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.dup + '</b> en doublon</button><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-multi cpf' + (H.multi ? ' on' : '') + '" data-htoggle="multi" aria-pressed="' + !!H.multi + '" title="Afficher uniquement mes jeux multi-plateformes (' + (H.multiN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.multi + '</b> multi-plateforme' + (cp.multi > 1 ? 's' : '') + '</button><span class="cpo" aria-hidden="true">=</span><span class="cpi c-tot"><b>' + cp.copies + '</b> exemplaire' + (cp.copies > 1 ? 's' : '') + '</span>' + (cp.boxes ? '<span class="cpi c-box" title="Boîtes en plus (steelbook, sleeve…) sans jeu supplémentaire">+ <b>' + cp.boxes + '</b> boîte' + (cp.boxes > 1 ? 's' : '') + ' en plus</span>' : '') + '</div>' + (function(){ var unc = S.games.filter(function(g){ return dupUnclear(g); }).length; return unc && !S.readOnly ? '<button type="button" class="dupq-btn" data-dupq="1">❓ ' + unc + ' jeu' + (unc > 1 ? 'x' : '') + ' à vérifier : vrai doublon ou boîte en plus ?</button>' : ''; })() + '<p class="cp-hint">Clique sur « en doublon » ou « multi-plateforme » pour n\u2019afficher que ces jeux.</p>';
   } else h += '<div class="empty"><span>Ajoute des jeux pour voir la répartition.</span></div>';
   h += '</div>' + discCard() + '</section>';
   var chips = [];
@@ -5579,7 +5607,7 @@ function scheduleSave(cb){
 /* ---------- Versions d'un jeu (une par plateforme) ---------- */
 function vid(){ return 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function getVersions(g){
-  if (Array.isArray(g.versions) && g.versions.length) return g.versions.map(function(v){ return {id:String(v.id || vid()), console:v.console || '', edition:String(v.edition || ''), format:v.format || '', etat:list(v.etat), photos:Array.isArray(v.photos) ? v.photos.filter(function(x){ return !!safeId(x); }) : [], insertNote:String(v.insertNote || '')}; });
+  if (Array.isArray(g.versions) && g.versions.length) return g.versions.map(function(v){ return {id:String(v.id || vid()), console:v.console || '', edition:String(v.edition || ''), kind:v.kind === 'box' ? 'box' : (v.kind === 'copy' ? 'copy' : ''), format:v.format || '', etat:list(v.etat), photos:Array.isArray(v.photos) ? v.photos.filter(function(x){ return !!safeId(x); }) : [], insertNote:String(v.insertNote || '')}; });
   var cs = list(g.consoles); if (!cs.length) cs = [''];
   return cs.map(function(c, i){ return {id:'v' + i, console:c, format:g.format || '', etat:list(g.etat), photos:[]}; });
 }
@@ -8672,7 +8700,7 @@ function shelfHtml(g){
     var cv = g.coverId ? blob(g.coverId) : genCover(g.name, con), left = (midW - (n * BW + (n - 1) * GAP)) / 2 + i * (BW + GAP);
     var inner = (v.id !== '_' && typeof pbIsPS5 === 'function' && pbIsPS5(v.console) && !(S.boxEdit && S.boxEdit[v.id])) ? '<div class="shf2-ps5">' + ps5Box(g, v, i) + '</div>' : '<div class="shf2-box"' + (v.id !== '_' && !S.readOnly ? ' data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" role="button" tabindex="0" title="Modifier cette édition"' : '') + ' style="--band:' + band + '"><div class="shf2-band">' + esc(short) + '</div><img src="' + esc(cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span></div>';
     var ctl = false ? '<span class="shf-ctl"><button type="button" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Modifier cette édition">' + ICON_PEN + '</button>' + (vs.length > 1 ? '<button type="button" class="del" data-shfdel="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Supprimer cette édition">' + ICON_TRASH + '</button>' : '') + '</span>' : '';
-    return '<div class="shf2-slot' + (S.pbOpen && S.pbOpen[v.id] ? ' is-open' : '') + '" data-gid="' + esc(g.id) + '" data-vid="' + esc(v.id) + '" style="left:' + pc(left, midW) + ';width:' + pc(BW, midW) + '"' + (v.edition ? ' title="' + esc(v.edition) + '"' : '') + '>' + ctl + inner + (v.edition ? '<span class="shf2-ed">' + esc(v.edition) + '</span>' : '') + '</div>';
+    return '<div class="shf2-slot' + (S.pbOpen && S.pbOpen[v.id] ? ' is-open' : '') + '" data-gid="' + esc(g.id) + '" data-vid="' + esc(v.id) + '" style="left:' + pc(left, midW) + ';width:' + pc(BW, midW) + '"' + (v.edition ? ' title="' + esc(v.edition) + '"' : '') + '>' + ctl + inner + ((v.edition || v.kind === 'box') ? '<span class="shf2-ed">' + (v.kind === 'box' ? '📦 ' : '') + esc(v.edition || 'Boîte en plus') + '</span>' : '') + '</div>';
   }).join('');
   var tools = S.readOnly ? '' : '<div class="shf-tools"><button type="button" class="btn shf-new" data-newed="' + esc(g.id) + '">+ Nouveau jeu</button></div>';
   return '<section class="shf3" aria-label="Mon étagère" style="aspect-ratio:' + TW + '/725">' + tools + '<div class="shf3-l" style="width:calc(' + pc(LW, TW) + ' + 1px);background-image:url(' + SHELF_L + ')"></div><div class="shf3-m" style="left:' + pc(LW, TW) + ';width:' + pc(midW, TW) + '">' + tiles + slots + '</div><div class="shf3-r" style="width:calc(' + pc(RW, TW) + ' + 1px);background-image:url(' + SHELF_R + ')"></div></section>';
@@ -8736,8 +8764,9 @@ document.addEventListener('click', function(e){
 var NED = null;
 function nedDlg(g, v){
   var cur = v ? v.console : (list(g.consoles)[0] || ''), cv = g.coverId ? blob(g.coverId) : genCover(g.name, cur);
-  NED = {gid:g.id, vid:v ? v.id : '', photos:v ? v.photos.slice() : [], files:[]};
+  NED = {gid:g.id, vid:v ? v.id : '', photos:v ? v.photos.slice() : [], files:[], kind:v ? (v.kind || 'copy') : 'copy'};
   return '<div class="dlg ned-dlg"><header class="ned-h"><img src="' + esc(cv) + '" alt=""><div><span class="ned-k">' + (v ? 'Modifier une édition' : 'Nouvelle édition') + '</span><h2>' + esc(g.name) + '</h2></div><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="nedForm">'
+    + '<div class="ned-kind" role="radiogroup" aria-label="Type d\u2019ajout"><button type="button" class="ned-ch' + (NED.kind !== 'box' ? ' on' : '') + '" data-nedkind="copy" role="radio" aria-checked="' + (NED.kind !== 'box') + '"><span>🎮</span><b>Une version / un doublon</b><small>J\u2019ai un jeu de plus (un autre disque ou une autre cartouche). Compte comme un doublon.</small></button><button type="button" class="ned-ch' + (NED.kind === 'box' ? ' on' : '') + '" data-nedkind="box" role="radio" aria-checked="' + (NED.kind === 'box') + '"><span>📦</span><b>Une boîte en plus</b><small>Même jeu, rangé dans une autre boîte (steelbook, sleeve…). Ne compte pas comme un doublon.</small></button></div>'
     + '<div class="ned-grid"><div class="field full"><label for="nedName">Nom de l\u2019édition</label><input type="text" id="nedName" maxlength="60" value="' + esc(v && v.edition || '') + '" placeholder="Ex. Édition collector, Director\u2019s Cut, édition japonaise…"></div>'
     + cfield('nedCon', 'Console', {key:'consoles', name:'nedCon', value:cur, placeholder:'Choisir une console', clearable:true}, true)
     + cfield('nedFmt', 'Format', {key:'format', name:'nedFmt', value:v ? v.format : '', placeholder:'Choisir un format'})
@@ -8748,6 +8777,7 @@ function nedDlg(g, v){
 function nedPhHtml(){ return NED.photos.map(function(id, k){ return '<span class="ned-p"><img src="' + esc(blob(id)) + '" alt=""><button type="button" data-nedphx="o' + k + '" aria-label="Retirer">✕</button></span>'; }).join('') + NED.files.map(function(f, k){ return '<span class="ned-p"><img src="' + esc(f.url) + '" alt=""><button type="button" data-nedphx="n' + k + '" aria-label="Retirer">✕</button></span>'; }).join('') + '<label class="ned-p add"><input type="file" accept="image/*" multiple hidden id="nedFiles">＋<small>Photo</small></label>'; }
 document.addEventListener('change', function(e){ if (e.target.id !== 'nedFiles' || !NED) return; Array.prototype.forEach.call(e.target.files, function(f){ NED.files.push({file:f, url:URL.createObjectURL(f)}); }); var p = document.getElementById('nedPh'); if (p) p.innerHTML = nedPhHtml(); });
 document.addEventListener('click', async function(e){
+  var kb = e.target.closest && e.target.closest('[data-nedkind]'); if (kb && NED) { e.preventDefault(); NED.kind = kb.getAttribute('data-nedkind'); kb.parentNode.querySelectorAll('.ned-ch').forEach(function(x){ var on = x === kb; x.classList.toggle('on', on); x.setAttribute('aria-checked', on); }); return; }
   var t = e.target.closest && e.target.closest('[data-newed],[data-nedsave],[data-nedphx],[data-neddel],[data-shfedit],[data-shfed],[data-shfdel]'); if (!t || S.readOnly) return;
   e.preventDefault(); e.stopImmediatePropagation();
   if (t.hasAttribute('data-newed')) { var g = S.games.find(function(x){ return x.id === t.getAttribute('data-newed'); }); if (g) openDlg(nedDlg(g)); return; }
@@ -8769,7 +8799,7 @@ document.addEventListener('click', async function(e){
   var ids = NED.photos.slice();
   try { for (var i = 0; i < NED.files.length; i++) { var id = await uploadFile(NED.files[i].file); if (id) ids.push(id); } } catch (x) { toast(failMsg(x)); }
   var N2 = NED; closeDlg();
-  saveVersions(N2.gid, function(vs){ if (N2.vid) { var v = vs.find(function(x){ return x.id === N2.vid; }); if (!v) return false; v.edition = name; v.console = con; v.format = fmt; v.etat = etat; v.photos = ids; } else vs.push({id:vid(), console:con, format:fmt, etat:etat, photos:ids, edition:name}); }, true);
+  saveVersions(N2.gid, function(vs){ if (N2.vid) { var v = vs.find(function(x){ return x.id === N2.vid; }); if (!v) return false; v.edition = name; v.console = con; v.format = fmt; v.etat = etat; v.photos = ids; v.kind = N2.kind; } else vs.push({id:vid(), console:con, format:fmt, etat:etat, photos:ids, edition:name, kind:N2.kind}); }, true);
   toast(N2.vid ? 'Édition mise à jour' : 'Nouvelle édition posée sur l\u2019étagère');
 }, true);
 
@@ -8786,6 +8816,25 @@ function fbackSync(){
 }
 window.addEventListener('scroll', fbackSync, {passive:true});
 (function(){ var _r7 = render; render = function(){ var r = _r7.apply(this, arguments); setTimeout(fbackSync, 0); return r; }; })();
+
+/* ---------- Doublon ou boîte en plus : questions pour les cas ambigus ---------- */
+function dupqDlg(){
+  var rows = S.games.map(function(g){ var u = dupUnclear(g); return u ? {g:g, u:u} : null; }).filter(Boolean);
+  if (!rows.length) return '<div class="dlg"><header><h2>Tout est clair !</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body"><p>Plus aucun jeu à vérifier.</p></div></div>';
+  return '<div class="dlg dupq-dlg"><header><h2>Doublon ou boîte en plus ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body"><p class="gi-note">Pour chaque jeu, dis-moi si tu as vraiment plusieurs jeux (plusieurs disques ou cartouches), ou un seul jeu rangé dans plusieurs boîtes (steelbook, sleeve…).</p>'
+    + rows.map(function(r){ var g = r.g, u = r.u, cv = g.coverId ? blob(g.coverId) : genCover(g.name, u.console); return '<div class="dupq-row"><img src="' + esc(cv) + '" alt=""><div class="dupq-i"><b>' + esc(g.name) + '</b><small>' + u.n + ' éléments sur ' + esc(u.console ? consoleFullName(u.console) : 'la même console') + '</small></div><div class="dupq-a"><button type="button" class="btn small ghost" data-dupset="' + esc(g.id) + '|copy">🎮 ' + u.n + ' jeux (doublon)</button><button type="button" class="btn small" data-dupset="' + esc(g.id) + '|box">📦 1 jeu + ' + (u.n - 1) + ' boîte' + (u.n > 2 ? 's' : '') + '</button></div></div>'; }).join('') + '</div></div>';
+}
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-dupq],[data-dupset]'); if (!t || S.readOnly) return;
+  if (t.hasAttribute('data-dupq')) { openDlg(dupqDlg()); return; }
+  var p = t.getAttribute('data-dupset').split('|'), g = S.games.find(function(x){ return x.id === p[0]; }); if (!g) return; var u = dupUnclear(g); if (!u) return;
+  var row = t.closest('.dupq-row'); if (row) { row.classList.add('done'); row.querySelector('.dupq-a').innerHTML = '<span class="dupq-ok">' + (p[1] === 'box' ? '📦 Boîte en plus' : '🎮 Doublon') + ' ✓</span>'; }
+  try {
+    if (u.type === 'v') { var vs = getVersions(g); vs.forEach(function(v){ if (u.ids.indexOf(v.id) >= 0 && !v.kind) v.kind = p[1]; }); var patch = versionsPatch(vs); Object.assign(g, patch); await withRetry(function(){ return db.collection('games').doc(g.id).update(patch); }); }
+    else { g.dupMode = p[1] === 'box' ? 'boxes' : 'copies'; await withRetry(function(){ return db.collection('games').doc(g.id).update({dupMode:g.dupMode}); }); }
+    toast('Noté pour « ' + g.name + ' »');
+  } catch (x) { toast(failMsg(x)); }
+});
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
