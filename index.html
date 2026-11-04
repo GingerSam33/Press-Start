@@ -3769,6 +3769,25 @@ dialog:has(.ned-dlg){overflow:visible !important}
 .cdd-pop::-webkit-scrollbar-track{background:transparent;margin:12px 0}
 .cdd-pop::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--muted) 45%,transparent);border-radius:999px;border:3px solid var(--card)}
 .cdd-pop::-webkit-scrollbar-button{display:none;height:0}
+
+/* info-bulles « i » : toujours entières, arrondies */
+.tip-pop{max-height:none !important;overflow:visible !important;border-radius:18px !important}
+.tip-pop.tp-wide .tip-list{display:block !important;column-count:2;column-gap:28px}
+.tip-pop.tp-side::before{display:none}
+.tip-pop.tp-scroll{max-height:calc(100vh - 24px) !important;overflow-y:auto !important;scrollbar-width:thin}
+.tip-pop.tp-scroll::-webkit-scrollbar{width:10px}.tip-pop.tp-scroll::-webkit-scrollbar-track{margin:14px 0;background:transparent}.tip-pop.tp-scroll::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--muted) 45%,transparent);border:3px solid var(--card)}
+/* bouton Retour flottant */
+.fback{position:fixed;top:14px;left:calc(var(--side-w,0px) + 16px);z-index:520;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--card-border);background:color-mix(in srgb,var(--card) 92%,transparent);color:var(--text);font:inherit;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 10px 24px -12px rgba(0,0,0,.45);opacity:0;transform:translateY(-12px);pointer-events:none;transition:opacity .2s,transform .25s cubic-bezier(.3,1.5,.5,1)}
+.fback.on{opacity:1;transform:none;pointer-events:auto}
+.fback:hover{transform:translateY(-2px)}
+@media (min-width:900px){.fback{left:232px}}
+@media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){.fback{top:calc(env(safe-area-inset-top,0px) + 8px);left:62px}}
+.shf2-box[data-shfed]{cursor:pointer}
+
+.tip-pop.tp-wide3 .tip-list{column-count:3 !important}
+.tip-pop.tp-wide .tip-row{display:grid !important;grid-template-columns:minmax(0,150px) minmax(0,1fr);column-gap:12px;padding:8px 0;break-inside:avoid;border-bottom:1px solid var(--card-border)}
+.tip-pop.tp-wide .tip-row dt{min-width:0}.tip-pop.tp-wide .tip-row dt .tag{max-width:100%;white-space:normal}
+.tip-pop.tp-wide .tip-row dd{font-size:12.5px;line-height:1.45}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4742,13 +4761,17 @@ function showTip(trigger){
   var html = '<div class="tip-title">' + esc(tp.title) + '</div><dl class="tip-list">' + tp.rows.map(function(d){ return '<div class="tip-row"><dt>' + optTag(tk, d[0]) + '</dt><dd>' + esc(d[1]) + '</dd></div>'; }).join('') + '</dl>';
   tipEl = document.createElement('div'); tipEl.className = 'tip-pop'; tipEl.id = 'tip-' + tk; tipEl.setAttribute('role', 'tooltip'); tipEl.innerHTML = html;
   document.body.appendChild(tipEl); tipFor = trigger;
-  var r = trigger.getBoundingClientRect(), w = Math.min(470, window.innerWidth - 24);
-  tipEl.style.width = w + 'px';
-  var left = Math.max(12, Math.min(r.left - 12, window.innerWidth - w - 12));
-  var h = tipEl.offsetHeight, up = window.innerHeight - r.bottom < h + 20 && r.top > h + 20;
-  tipEl.style.left = left + 'px'; tipEl.style.top = (up ? r.top - h - 10 : r.bottom + 10) + 'px';
-  tipEl.style.setProperty('--ax', (r.left + Math.min(r.width, 60) / 2 - left) + 'px');
-  tipEl.classList.add(up ? 'up' : 'down');
+  var place = function(){
+    if (!tipEl) return; var r = trigger.getBoundingClientRect(), VW = window.innerWidth, VH = window.innerHeight, w = Math.min(470, VW - 24);
+    tipEl.classList.remove('tp-wide', 'tp-wide3', 'tp-scroll', 'tp-side', 'up', 'down'); tipEl.style.width = w + 'px';
+    var h = tipEl.scrollHeight, below = VH - r.bottom - 22, above = r.top - 22;
+    if (h > below && h > above) { tipEl.classList.add('tp-wide'); w = Math.min(860, VW - 24); tipEl.style.width = w + 'px'; h = tipEl.scrollHeight; }
+    if (h > Math.max(below, above) && h > VH * 0.7 && VW > 900) { tipEl.classList.add('tp-wide3'); w = Math.min(1240, VW - 24); tipEl.style.width = w + 'px'; h = tipEl.scrollHeight; }
+    var left = Math.max(12, Math.min(r.left - 12, VW - w - 12)), pl = h <= below ? 'down' : h <= above ? 'up' : 'side';
+    if (pl === 'side') { var top = Math.max(12, Math.min(VH - h - 12, r.top + r.height / 2 - h / 2)); if (h > VH - 24) { top = 12; tipEl.classList.add('tp-scroll'); } tipEl.style.top = top + 'px'; tipEl.style.left = left + 'px'; tipEl.classList.add('tp-side'); }
+    else { tipEl.style.left = left + 'px'; tipEl.style.top = (pl === 'up' ? r.top - h - 10 : r.bottom + 10) + 'px'; tipEl.style.setProperty('--ax', (r.left + Math.min(r.width, 60) / 2 - left) + 'px'); tipEl.classList.add(pl); }
+  };
+  place(); requestAnimationFrame(place); setTimeout(place, 120);
 }
 function hideTip(){ clearTimeout(tipHideT); if (tipEl) { var el = tipEl; el.classList.add('out'); setTimeout(function(){ el.remove(); }, 140); } tipEl = null; tipFor = null; }
 var tipHideT = null;
@@ -8647,11 +8670,11 @@ function shelfHtml(g){
     var con = v.console || list(g.consoles)[0] || '', band = con ? (CBRAND_COL[brandOfConsole(con)] || '#1F5FD6') : '#1F5FD6';
     var short = con ? ((S.consoles.find(function(c){ return norm(c.name) === norm(con); }) || {}).short || con) : '';
     var cv = g.coverId ? blob(g.coverId) : genCover(g.name, con), left = (midW - (n * BW + (n - 1) * GAP)) / 2 + i * (BW + GAP);
-    var inner = (v.id !== '_' && typeof pbIsPS5 === 'function' && pbIsPS5(v.console) && !(S.boxEdit && S.boxEdit[v.id])) ? '<div class="shf2-ps5">' + ps5Box(g, v, i) + '</div>' : '<div class="shf2-box" style="--band:' + band + '"><div class="shf2-band">' + esc(short) + '</div><img src="' + esc(cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span></div>';
-    var ctl = S.shfEdit && !S.readOnly && v.id !== '_' ? '<span class="shf-ctl"><button type="button" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Modifier cette édition">' + ICON_PEN + '</button>' + (vs.length > 1 ? '<button type="button" class="del" data-shfdel="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Supprimer cette édition">' + ICON_TRASH + '</button>' : '') + '</span>' : '';
+    var inner = (v.id !== '_' && typeof pbIsPS5 === 'function' && pbIsPS5(v.console) && !(S.boxEdit && S.boxEdit[v.id])) ? '<div class="shf2-ps5">' + ps5Box(g, v, i) + '</div>' : '<div class="shf2-box"' + (v.id !== '_' && !S.readOnly ? ' data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" role="button" tabindex="0" title="Modifier cette édition"' : '') + ' style="--band:' + band + '"><div class="shf2-band">' + esc(short) + '</div><img src="' + esc(cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span></div>';
+    var ctl = false ? '<span class="shf-ctl"><button type="button" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Modifier cette édition">' + ICON_PEN + '</button>' + (vs.length > 1 ? '<button type="button" class="del" data-shfdel="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Supprimer cette édition">' + ICON_TRASH + '</button>' : '') + '</span>' : '';
     return '<div class="shf2-slot' + (S.pbOpen && S.pbOpen[v.id] ? ' is-open' : '') + '" data-gid="' + esc(g.id) + '" data-vid="' + esc(v.id) + '" style="left:' + pc(left, midW) + ';width:' + pc(BW, midW) + '"' + (v.edition ? ' title="' + esc(v.edition) + '"' : '') + '>' + ctl + inner + (v.edition ? '<span class="shf2-ed">' + esc(v.edition) + '</span>' : '') + '</div>';
   }).join('');
-  var tools = S.readOnly ? '' : '<div class="shf-tools"><button type="button" class="shf-tb' + (S.shfEdit ? ' on' : '') + '" data-shfedit="1" aria-pressed="' + !!S.shfEdit + '" title="Modifier ou supprimer une édition">' + ICON_PEN + (S.shfEdit ? ' Terminer' : '') + '</button><button type="button" class="btn shf-new" data-newed="' + esc(g.id) + '">+ Nouveau jeu</button></div>';
+  var tools = S.readOnly ? '' : '<div class="shf-tools"><button type="button" class="btn shf-new" data-newed="' + esc(g.id) + '">+ Nouveau jeu</button></div>';
   return '<section class="shf3" aria-label="Mon étagère" style="aspect-ratio:' + TW + '/725">' + tools + '<div class="shf3-l" style="width:calc(' + pc(LW, TW) + ' + 1px);background-image:url(' + SHELF_L + ')"></div><div class="shf3-m" style="left:' + pc(LW, TW) + ';width:' + pc(midW, TW) + '">' + tiles + slots + '</div><div class="shf3-r" style="width:calc(' + pc(RW, TW) + ' + 1px);background-image:url(' + SHELF_R + ')"></div></section>';
 }
 var SHFIT = {};
@@ -8749,6 +8772,20 @@ document.addEventListener('click', async function(e){
   saveVersions(N2.gid, function(vs){ if (N2.vid) { var v = vs.find(function(x){ return x.id === N2.vid; }); if (!v) return false; v.edition = name; v.console = con; v.format = fmt; v.etat = etat; v.photos = ids; } else vs.push({id:vid(), console:con, format:fmt, etat:etat, photos:ids, edition:name}); }, true);
   toast(N2.vid ? 'Édition mise à jour' : 'Nouvelle édition posée sur l\u2019étagère');
 }, true);
+
+
+/* ---------- Bouton « Retour » qui suit le défilement + retour à la même position ---------- */
+var SCROLLMEM = {};
+(function(){ var _go = go; go = function(view, opts){ var from = S.view; try { SCROLLMEM[from + (from === 'game' ? ':' + S.gameId : '')] = window.scrollY; } catch (x) {} var back = from === 'game' || from === 'licence' || from === 'console'; var r = _go.apply(this, arguments); var key = view + (view === 'game' ? ':' + (opts && opts.id || '') : ''); if (back && SCROLLMEM[key] != null && view !== 'game') { var y = SCROLLMEM[key]; requestAnimationFrame(function(){ window.scrollTo(0, y); setTimeout(function(){ window.scrollTo(0, y); }, 60); }); } return r; }; })();
+function fbackSync(){
+  var src = S.view === 'game' ? document.querySelector('.gh-top [data-nav]') : (S.view === 'licence' ? document.querySelector('[data-nav="licences"].btn, .lic-back') : null);
+  var fb = document.getElementById('fback');
+  if (!src) { if (fb) fb.classList.remove('on'); return; }
+  if (!fb) { fb = document.createElement('button'); fb.type = 'button'; fb.id = 'fback'; fb.className = 'fback'; fb.innerHTML = '← Retour'; document.body.appendChild(fb); fb.addEventListener('click', function(){ var s2 = S.view === 'game' ? document.querySelector('.gh-top [data-nav]') : document.querySelector('[data-nav="licences"].btn, .lic-back'); if (s2) s2.click(); }); }
+  var r = src.getBoundingClientRect(); fb.classList.toggle('on', r.bottom < 0);
+}
+window.addEventListener('scroll', fbackSync, {passive:true});
+(function(){ var _r7 = render; render = function(){ var r = _r7.apply(this, arguments); setTimeout(fbackSync, 0); return r; }; })();
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
