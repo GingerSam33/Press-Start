@@ -3809,6 +3809,20 @@ dialog:has(.ned-dlg){overflow:visible !important}
 .btn.ex-pill{display:inline-flex;align-items:center;justify-content:center;min-width:34px;min-height:30px;height:30px;padding:0 10px;border-radius:999px;font-size:14px;font-weight:800;pointer-events:none;cursor:default;vertical-align:middle}
 .ex-box{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#E3A400 14%,var(--card));color:#7A5200;font-size:11.5px;font-weight:700;vertical-align:middle}
 .ex-none{color:var(--muted)}
+
+/* pastille exemplaires : couleur selon le nombre, info-bulle au survol */
+.ex-wrap{position:relative;display:inline-flex;align-items:center;gap:6px;cursor:default}
+.btn.ex-pill{pointer-events:none}
+.btn.ex-pill.ex-1{background:linear-gradient(135deg,#5B8CFF,#2E5FD6) !important;color:#fff !important;box-shadow:0 3px 0 #1F43A8 !important}
+.btn.ex-pill.ex-2{background:linear-gradient(135deg,#FFB547,#F08A1C) !important;color:#fff !important;box-shadow:0 3px 0 #B8610A !important}
+.btn.ex-pill.ex-3{background:linear-gradient(135deg,#FF6B6B,#D92B3A) !important;color:#fff !important;box-shadow:0 3px 0 #9A1424 !important;animation:exPulse 2.4s ease-in-out infinite}
+@keyframes exPulse{0%,100%{box-shadow:0 3px 0 #9A1424,0 0 0 0 rgba(217,43,58,.45)}50%{box-shadow:0 3px 0 #9A1424,0 0 0 6px rgba(217,43,58,0)}}
+.ex-box{display:inline-flex;align-items:center;gap:4px;margin-left:0 !important;padding:2px 8px 2px 4px !important}
+.ex-box i{display:flex;width:18px;height:18px}.ex-box i svg{width:100%;height:100%}
+.ex-tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translate(-50%,4px);z-index:40;padding:6px 10px;border-radius:10px;background:#1E2A44;color:#fff;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 10px 20px -10px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s}
+.ex-tip::after{content:'';position:absolute;top:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:#1E2A44}
+.ex-wrap:hover .ex-tip,.ex-wrap:focus-visible .ex-tip{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){.btn.ex-pill.ex-3{animation:none}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4527,7 +4541,8 @@ function table(rows, sortable, kind){
     h += '<tr class="click' + (g.kind === 'wish' ? ' wish' : '') + '" data-game="' + esc(g.id) + '"><td><button class="gname" data-game="' + esc(g.id) + '"><span class="thumb"' + (cv ? ' data-cover="' + cv + '"' : '') + '>' + (cv ? '<img src="' + cv + '" alt="">' : esc(initials(g.name))) + '</span>' + esc(g.name) + (g.kind === 'wish' ? '<span class="wishb">' + ICON_HEART.replace('width="14" height="14"', 'width="10" height="10"') + 'Wishlist</span>' : '') + '</button></td>' + clipCell(g)
       + (showFmt ? '<td><div class="tags">' + (bestFormat(g) ? fmtTag(bestFormat(g)) : '') + '</div></td><td><div class="tags">' + bestEtats(g).map(function(e){ return optTag('etat', e); }).join('') + '</div></td>' : '')
       + '<td><div class="tags">' + list(g.consoles).map(consoleTag).join('') + '</div></td>'
-      + '<td class="td-ex">' + (function(){ if (g.kind === 'wish') return '<span class="ex-none">—</span>'; var gc = gameCopies(g); return '<span class="btn ex-pill" title="' + gc.n + ' exemplaire' + (gc.n > 1 ? 's' : '') + (gc.boxes ? ' + ' + gc.boxes + ' boîte' + (gc.boxes > 1 ? 's' : '') + ' en plus' : '') + '">' + gc.n + '</span>' + (gc.boxes ? '<span class="ex-box" title="Boîte en plus">+' + gc.boxes + ' 📦</span>' : ''); })() + '</td>'
+      + '<td class="td-ex">' + (function(){ if (g.kind === 'wish') return '<span class="ex-none">—</span>'; var gc = gameCopies(g); var lv = gc.n >= 3 ? 3 : gc.n, tip = gc.n + ' exemplaire' + (gc.n > 1 ? 's' : '') + (gc.n > 1 ? ' (' + (gc.n - 1) + ' doublon' + (gc.n > 2 ? 's' : '') + ' ou version' + (gc.n > 2 ? 's' : '') + ')' : '') + (gc.boxes ? ' + ' + gc.boxes + ' boîte' + (gc.boxes > 1 ? 's' : '') + ' en plus' : '');
+          return '<span class="ex-wrap" tabindex="0" aria-label="' + esc(tip) + '"><span class="btn ex-pill ex-' + lv + '">' + gc.n + '</span>' + (gc.boxes ? '<span class="ex-box"><i>' + ICON_BOX + '</i>+' + gc.boxes + '</span>' : '') + '<span class="ex-tip" role="tooltip">' + esc(tip) + '</span></span>'; })() + '</td>'
       + '<td><div class="tags">' + list(g.types).map(function(t){ return tag(t, hashColor(t)); }).join('') + '</div></td>'
       + '<td>' + esc(g.year || '') + '</td><td>' + statusTag(g.status) + '</td>'
       + '<td>' + (g.note === '' || g.note == null ? '' : noteBadge(g.note)) + '</td></tr>';
