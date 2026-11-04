@@ -3803,6 +3803,12 @@ dialog:has(.ned-dlg){overflow:visible !important}
 .ned-ch span{font-size:22px}.ned-ch b{font-size:14px}.ned-ch small{font-size:12px;color:var(--muted);line-height:1.4}
 .ned-ch.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card));box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
 @media (max-width:620px){.ned-kind{grid-template-columns:1fr}}
+
+/* colonne Exemplaires */
+.th-ex,.td-ex{text-align:center;white-space:nowrap}
+.btn.ex-pill{display:inline-flex;align-items:center;justify-content:center;min-width:34px;min-height:30px;height:30px;padding:0 10px;border-radius:999px;font-size:14px;font-weight:800;pointer-events:none;cursor:default;vertical-align:middle}
+.ex-box{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,#E3A400 14%,var(--card));color:#7A5200;font-size:11.5px;font-weight:700;vertical-align:middle}
+.ex-none{color:var(--muted)}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4513,7 +4519,7 @@ function table(rows, sortable, kind){
   var showFmt = kind !== 'demat';
   var h = '<div class="tablewrap"><table><thead><tr>'
     + (sortable ? sortHead('Nom du jeu', 'name') : '<th>Nom du jeu</th>') + '<th class="th-clip" title="Photos">' + ICON_CLIP + '<span class="sr">Photos</span></th>'
-    + (showFmt ? '<th><span class="thtip" tabindex="0" data-tip="format" aria-describedby="tip-format">Format<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 11v6"></path><path d="M12 7.5h.01" stroke-width="3"></path></svg></span></th><th><span class="thtip" tabindex="0" data-tip="etat" aria-describedby="tip-etat">État<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 11v6"></path><path d="M12 7.5h.01" stroke-width="3"></path></svg></span></th>' : '') + '<th>Console</th><th>Type</th>'
+    + (showFmt ? '<th><span class="thtip" tabindex="0" data-tip="format" aria-describedby="tip-format">Format<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 11v6"></path><path d="M12 7.5h.01" stroke-width="3"></path></svg></span></th><th><span class="thtip" tabindex="0" data-tip="etat" aria-describedby="tip-etat">État<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 11v6"></path><path d="M12 7.5h.01" stroke-width="3"></path></svg></span></th>' : '') + '<th>Console</th><th class="th-ex">Exemplaires</th><th>Type</th>'
     + (sortable ? sortHead('Sortie', 'year') : '<th>Sortie</th>')
     + '<th>Statut</th>' + (sortable ? sortHead('Note', 'note') : '<th>Note</th>') + '</tr></thead><tbody>';
   rows.forEach(function(g){
@@ -4521,6 +4527,7 @@ function table(rows, sortable, kind){
     h += '<tr class="click' + (g.kind === 'wish' ? ' wish' : '') + '" data-game="' + esc(g.id) + '"><td><button class="gname" data-game="' + esc(g.id) + '"><span class="thumb"' + (cv ? ' data-cover="' + cv + '"' : '') + '>' + (cv ? '<img src="' + cv + '" alt="">' : esc(initials(g.name))) + '</span>' + esc(g.name) + (g.kind === 'wish' ? '<span class="wishb">' + ICON_HEART.replace('width="14" height="14"', 'width="10" height="10"') + 'Wishlist</span>' : '') + '</button></td>' + clipCell(g)
       + (showFmt ? '<td><div class="tags">' + (bestFormat(g) ? fmtTag(bestFormat(g)) : '') + '</div></td><td><div class="tags">' + bestEtats(g).map(function(e){ return optTag('etat', e); }).join('') + '</div></td>' : '')
       + '<td><div class="tags">' + list(g.consoles).map(consoleTag).join('') + '</div></td>'
+      + '<td class="td-ex">' + (function(){ if (g.kind === 'wish') return '<span class="ex-none">—</span>'; var gc = gameCopies(g); return '<span class="btn ex-pill" title="' + gc.n + ' exemplaire' + (gc.n > 1 ? 's' : '') + (gc.boxes ? ' + ' + gc.boxes + ' boîte' + (gc.boxes > 1 ? 's' : '') + ' en plus' : '') + '">' + gc.n + '</span>' + (gc.boxes ? '<span class="ex-box" title="Boîte en plus">+' + gc.boxes + ' 📦</span>' : ''); })() + '</td>'
       + '<td><div class="tags">' + list(g.types).map(function(t){ return tag(t, hashColor(t)); }).join('') + '</div></td>'
       + '<td>' + esc(g.year || '') + '</td><td>' + statusTag(g.status) + '</td>'
       + '<td>' + (g.note === '' || g.note == null ? '' : noteBadge(g.note)) + '</td></tr>';
