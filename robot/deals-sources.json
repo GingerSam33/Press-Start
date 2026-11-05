@@ -1,21 +1,203 @@
 [
-  {"name": "Dealabs · Jeux vidéo", "url": "https://www.dealabs.com/rss/groupe/jeux-video", "hint": "jeux"},
-  {"name": "Dealabs · Consoles & Jeux vidéo", "url": "https://www.dealabs.com/rss/groupe/consoles-jeux-video", "hint": "jeux, consoles"},
-  {"name": "Dealabs · Accessoires gaming", "url": "https://www.dealabs.com/rss/groupe/accessoires-gaming", "hint": "accessoires"},
-  {"name": "Dealabs · Jeux Nintendo Switch", "url": "https://www.dealabs.com/rss/groupe/jeux-nintendo-switch", "hint": "jeux Switch"},
-  {"name": "Dealabs · Jeux PS5", "url": "https://www.dealabs.com/rss/groupe/jeux-ps5", "hint": "jeux PS5"},
-  {"name": "Dealabs · Nintendo", "url": "https://www.dealabs.com/rss/groupe/nintendo", "hint": "Nintendo"},
-  {"name": "Dealabs · PlayStation", "url": "https://www.dealabs.com/rss/groupe/playstation", "hint": "PlayStation"},
-  {"name": "Dealabs · Xbox", "url": "https://www.dealabs.com/rss/groupe/xbox", "hint": "Xbox"},
-  {"name": "ActuGaming · Bons plans", "url": "https://www.actugaming.net/bons-plans/feed/", "filter": true},
-  {"name": "Jeuxvideo.com", "url": "https://www.jeuxvideo.com/rss/rss.xml", "filter": true, "gaming": true},
-  {"name": "Gameblog", "url": "https://www.gameblog.fr/rss.php", "filter": true, "gaming": true},
-  {"name": "Frandroid · Bons plans", "url": "https://www.frandroid.com/bons-plans/feed", "filter": true, "gaming": true},
-  {"name": "Les Numériques", "url": "https://www.lesnumeriques.com/rss.xml", "filter": true, "gaming": true},
-  {"name": "Clubic", "url": "https://www.clubic.com/feed/news.rss", "filter": true, "gaming": true},
-  {"name": "Numerama", "url": "https://www.numerama.com/feed/", "filter": true, "gaming": true},
-  {"name": "Reddit · r/GameDeals", "url": "https://www.reddit.com/r/GameDeals/.rss", "hint": "jeux dématérialisés (prix souvent en $ ou €)", "maxDays": 4},
-  {"name": "Reddit · r/NintendoSwitchDeals", "url": "https://www.reddit.com/r/NintendoSwitchDeals/.rss", "hint": "jeux Switch", "maxDays": 4},
-  {"name": "Retro Handhelds", "url": "https://retrohandhelds.gg/feed/", "hint": "consoles portables d'émulation", "maxDays": 14},
-  {"name": "Retro Dodo", "url": "https://retrododo.com/feed/", "hint": "consoles rétro et d'émulation", "maxDays": 14}
+  {
+    "name": "Dealabs · Jeux vidéo",
+    "url": "https://www.dealabs.com/rss/groupe/jeux-video",
+    "hint": "jeux"
+  },
+  {
+    "name": "Dealabs · Consoles & Jeux vidéo",
+    "url": "https://www.dealabs.com/rss/groupe/consoles-jeux-video",
+    "hint": "jeux, consoles"
+  },
+  {
+    "name": "Dealabs · Accessoires gaming",
+    "url": "https://www.dealabs.com/rss/groupe/accessoires-gaming",
+    "hint": "accessoires"
+  },
+  {
+    "name": "Dealabs · Jeux Nintendo Switch",
+    "url": "https://www.dealabs.com/rss/groupe/jeux-nintendo-switch",
+    "hint": "jeux Switch"
+  },
+  {
+    "name": "Dealabs · Jeux PS5",
+    "url": "https://www.dealabs.com/rss/groupe/jeux-ps5",
+    "hint": "jeux PS5"
+  },
+  {
+    "name": "Dealabs · Nintendo",
+    "url": "https://www.dealabs.com/rss/groupe/nintendo",
+    "hint": "Nintendo"
+  },
+  {
+    "name": "Dealabs · PlayStation",
+    "url": "https://www.dealabs.com/rss/groupe/playstation",
+    "hint": "PlayStation"
+  },
+  {
+    "name": "Dealabs · Xbox",
+    "url": "https://www.dealabs.com/rss/groupe/xbox",
+    "hint": "Xbox"
+  },
+  {
+    "name": "ActuGaming · Bons plans",
+    "url": "https://www.actugaming.net/bons-plans/feed/",
+    "filter": true
+  },
+  {
+    "name": "Jeuxvideo.com",
+    "url": "https://www.jeuxvideo.com/rss/rss.xml",
+    "filter": true,
+    "gaming": true
+  },
+  {
+    "name": "Gameblog",
+    "url": "https://www.gameblog.fr/rss.php",
+    "filter": true,
+    "gaming": true
+  },
+  {
+    "name": "Frandroid · Bons plans",
+    "url": "https://www.frandroid.com/bons-plans/feed",
+    "filter": true,
+    "gaming": true
+  },
+  {
+    "name": "Les Numériques",
+    "url": "https://www.lesnumeriques.com/rss.xml",
+    "filter": true,
+    "gaming": true
+  },
+  {
+    "name": "Clubic",
+    "url": "https://www.clubic.com/feed/news.rss",
+    "filter": true,
+    "gaming": true
+  },
+  {
+    "name": "Numerama",
+    "url": "https://www.numerama.com/feed/",
+    "filter": true,
+    "gaming": true
+  },
+  {
+    "name": "Reddit · r/GameDeals",
+    "url": "https://www.reddit.com/r/GameDeals/.rss",
+    "hint": "jeux dématérialisés (prix souvent en $ ou €)",
+    "maxDays": 4
+  },
+  {
+    "name": "Reddit · r/NintendoSwitchDeals",
+    "url": "https://www.reddit.com/r/NintendoSwitchDeals/.rss",
+    "hint": "jeux Switch",
+    "maxDays": 4
+  },
+  {
+    "name": "Retro Handhelds",
+    "url": "https://retrohandhelds.gg/feed/",
+    "hint": "consoles portables d'émulation",
+    "maxDays": 14
+  },
+  {
+    "name": "Retro Dodo",
+    "url": "https://retrododo.com/feed/",
+    "hint": "consoles rétro et d'émulation",
+    "maxDays": 14
+  },
+  {
+    "name": "Limited Run Games",
+    "type": "shopify",
+    "url": "https://limitedrungames.com",
+    "currency": "$",
+    "hint": "éditions limitées et collectors (précommandes)",
+    "maxDays": 30
+  },
+  {
+    "name": "Strictly Limited Games",
+    "type": "shopify",
+    "url": "https://www.strictlylimitedgames.com",
+    "currency": "€",
+    "hint": "éditions limitées et collectors",
+    "maxDays": 30
+  },
+  {
+    "name": "Super Rare Games",
+    "type": "shopify",
+    "url": "https://superraregames.com",
+    "currency": "£",
+    "hint": "éditions limitées Switch/PS",
+    "maxDays": 30
+  },
+  {
+    "name": "Red Art Games",
+    "type": "shopify",
+    "url": "https://www.redartgames.com",
+    "currency": "€",
+    "hint": "éditions limitées et collectors (éditeur français)",
+    "maxDays": 30
+  },
+  {
+    "name": "Signature Edition Games",
+    "type": "shopify",
+    "url": "https://www.signatureeditiongames.com",
+    "currency": "€",
+    "hint": "éditions signature et collectors",
+    "maxDays": 30
+  },
+  {
+    "name": "Special Reserve Games",
+    "type": "shopify",
+    "url": "https://www.specialreservegames.com",
+    "currency": "$",
+    "hint": "éditions collector",
+    "maxDays": 30
+  },
+  {
+    "name": "Premium Edition Games",
+    "type": "shopify",
+    "url": "https://premiumeditiongames.com",
+    "currency": "€",
+    "hint": "éditions limitées PlayStation",
+    "maxDays": 30
+  },
+  {
+    "name": "Fangamer",
+    "type": "shopify",
+    "url": "https://www.fangamer.com",
+    "currency": "$",
+    "hint": "goodies, figurines, éditions physiques",
+    "maxDays": 21
+  },
+  {
+    "name": "iam8bit",
+    "type": "shopify",
+    "url": "https://iam8bit.com",
+    "currency": "$",
+    "hint": "vinyles, éditions collector, goodies",
+    "maxDays": 21
+  },
+  {
+    "name": "Chocobonplan",
+    "url": "https://www.chocobonplan.com/feed/",
+    "hint": "bons plans jeux vidéo, collectors et précommandes (France)",
+    "maxDays": 7
+  },
+  {
+    "name": "NintendHOME",
+    "url": "https://www.nintendhome.fr/feed/",
+    "filter": true,
+    "hint": "actus Nintendo, éditions physiques",
+    "maxDays": 10
+  },
+  {
+    "name": "Dealabs · Collectors",
+    "url": "https://www.dealabs.com/rss/groupe/editions-collectors",
+    "hint": "éditions collector"
+  },
+  {
+    "name": "Nintendo Life · Limited Run",
+    "url": "https://www.nintendolife.com/feeds/tags/limited-run-games",
+    "hint": "annonces d'éditions limitées",
+    "maxDays": 21
+  }
 ]

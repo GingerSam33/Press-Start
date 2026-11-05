@@ -56,6 +56,17 @@ async function readRss(src) {
   const items = blocks.map(b => { const it = parseFeed('<rss>' + b + '</rss>')[0]; return it ? {...it, ...pepperInfo(b), source: src.name, kind: src.kind || 'deal', hint: src.hint || ''} : null; }).filter(Boolean);
   return src.filter ? items.filter(it => DEAL_WORDS.test(it.title + ' ' + it.summary) && (!src.gaming || /(jeu|jeux|game|switch|ps5|ps4|playstation|xbox|nintendo|steam|console|manette|controller|zelda|mario|pok[ée]mon|collector|gaming|retro|anbernic|retroid|ayn|miyoo)/i.test(it.title + ' ' + it.summary))) : items;
 }
+/* boutiques Shopify des éditeurs d'éditions limitées (Limited Run, Strictly Limited, Super Rare…) */
+async function readShopify(src) {
+  const base = src.url.replace(/\/+$/, '');
+  const data = await get(`${base}/products.json?limit=60`, true);
+  const now = Date.now(), maxAge = (src.maxDays || 21) * 86400000;
+  return (data?.products || []).map(p => {
+    const date = Date.parse(p.published_at || p.created_at || '') || 0;
+    const v = (p.variants || [])[0] || {}, img = (p.images || [])[0]?.src || '';
+    return {title: p.title, url: `${base}/products/${p.handle}`, date, summary: strip(p.body_html || '').slice(0, 260), excerpt: strip(p.body_html || '').slice(0, 600), img: img.startsWith('//') ? 'https:' + img : img, price: v.price ? `${v.price} ${src.currency || '$'}` : '', merchant: src.name.replace(/ ·.*$/, ''), source: src.name, kind: 'deal', hint: src.hint || 'éditions limitées, collectors et précommandes'};
+  }).filter(it => it.title && (!it.date || now - it.date < maxAge));
+}
 async function freeGames() {
   const out = [];
   try {
@@ -105,7 +116,7 @@ ${JSON.stringify(batch.map(([i, it]) => ({i, title: it.title, text: String(it.su
   const now = Date.now(), maxAge = 7 * 86400000;
   let raw = [];
   for (const s of SOURCES) {
-    try { const items = (await readRss(s)).filter(it => !it.date || now - it.date < (s.maxDays || 7) * 86400000); raw = raw.concat(items); report.push({name: s.name, count: items.length, ok: true}); log(`${s.name} : ${items.length}`); }
+    try { const items = (s.type === 'shopify' ? await readShopify(s) : await readRss(s)).filter(it => !it.date || now - it.date < (s.maxDays || 7) * 86400000); raw = raw.concat(items); report.push({name: s.name, count: items.length, ok: true}); log(`${s.name} : ${items.length}`); }
     catch (e) { report.push({name: s.name, count: 0, ok: false, err: e.message}); log(`⚠ ${s.name} : ${e.message}`); }
   }
   const seen = new Set(); raw = raw.filter(it => { const k = it.url.split('?')[0]; if (seen.has(k)) return false; seen.add(k); return true; });
