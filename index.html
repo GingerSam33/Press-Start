@@ -3924,6 +3924,8 @@ dialog:has(.roul-dlg){width:min(1040px,calc(100vw - 24px)) !important;max-width:
 
 .roul-dlg .body{max-width:none !important;width:100% !important;box-sizing:border-box;display:block !important}
 .roul.in-dlg{width:100%}
+
+.roul-con .combo{min-width:240px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -9033,7 +9035,7 @@ function roulFilters(){
   var chip = function(grp, val, lab, on){ return '<button type="button" class="chip roul-chip' + (on ? ' on' : '') + '" data-roulf="' + grp + '|' + esc(val) + '">' + lab + '</button>'; };
   return '<div class="roul-f"><div class="roul-fg"><span>Statut</span>' + chip('st', 'all', 'Tous', ROUL.st === 'all') + chip('st', 'todo', 'Pas commencés', ROUL.st === 'todo') + chip('st', 'cur', 'En cours', ROUL.st === 'cur') + '</div>'
     + '<div class="roul-fg"><span>Type</span>' + chip('kind', '', 'Tous', !ROUL.kind) + chip('kind', 'physique', 'Physiques', ROUL.kind === 'physique') + chip('kind', 'demat', 'Démat', ROUL.kind === 'demat') + '</div>'
-    + '<div class="roul-fg"><span>Console</span><select class="roul-sel" data-roulcon="1"><option value="">Toutes les consoles</option>' + Object.keys(cons).sort(function(a, b){ return a.localeCompare(b, 'fr'); }).map(function(c){ return '<option value="' + esc(c) + '"' + (ROUL.con === c ? ' selected' : '') + '>' + esc(consoleFullName(c) || c) + '</option>'; }).join('') + '</select></div></div>';
+    + '<div class="roul-fg roul-con"><span>Console</span>' + combo({key:'consoles', value:ROUL.con, compact:true, clearable:true, placeholder:'Toutes les consoles', id:'roulConC', label:'Console du tirage'}) + '</div></div>';
 }
 function roulStage(){
   var n = roulPool().length;
@@ -9085,10 +9087,13 @@ document.addEventListener('click', function(e){
   if (t.hasAttribute('data-roulmode')) { ROUL.mode = t.getAttribute('data-roulmode'); try { localStorage.setItem('ps-roul', ROUL.mode); } catch (x) {} roulRefresh(); return; }
   if (t.hasAttribute('data-roulf')) { var p = t.getAttribute('data-roulf').split('|'); ROUL[p[0]] = p[1]; roulRefresh(); return; }
   if (t.hasAttribute('data-roulgo')) { roulSpin(); return; }
-  if (t.hasAttribute('data-roulplay')) { var g = S.games.find(function(x){ return x.id === t.getAttribute('data-roulplay'); }); if (!g || S.readOnly) return; g.status = 'En cours'; t.disabled = true; t.textContent = '✓ C’est parti !'; withRetry(function(){ return db.collection('games').doc(g.id).update({status:'En cours'}); }).then(function(){ toast('« ' + g.name + ' » est maintenant en cours'); }).catch(function(x){ toast(failMsg(x)); }); }
+  if (t.hasAttribute('data-roulplay')) { var g = S.games.find(function(x){ return x.id === t.getAttribute('data-roulplay'); }); if (!g || S.readOnly) return; g.status = 'En cours'; t.disabled = true; withRetry(function(){ return db.collection('games').doc(g.id).update({status:'En cours'}); }).then(function(){ toast('« ' + g.name + ' » est maintenant en cours'); }).catch(function(x){ toast(failMsg(x)); }); if (t.closest('dialog')) closeDlg(); go('game', {id:g.id}); }
 });
 document.addEventListener('change', function(e){ if (!e.target.hasAttribute || !e.target.hasAttribute('data-roulcon') || ROUL.busy) return; ROUL.con = e.target.value; roulRefresh(); });
 (function(){ var _r9 = render; render = function(){ var r = _r9.apply(this, arguments); if (S.view === 'roulette' && !ROUL.busy) setTimeout(roulPrep, 0); return r; }; })();
+
+
+(function(){ var _sv = setVal; setVal = function(cb, val){ var r = _sv.apply(this, arguments); if (cb && cb.closest && cb.closest('#roulRoot') && cb.getAttribute('data-key') === 'consoles' && !ROUL.busy) { var v = Array.isArray(val) ? (val[0] || '') : String(val || ''); if (v !== ROUL.con) { ROUL.con = v; setTimeout(function(){ closeCombo(); roulRefresh(); }, 0); } } return r; }; })();
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
