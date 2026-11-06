@@ -3903,6 +3903,27 @@ dialog:has(.roul-dlg){width:min(760px,calc(100vw - 24px)) !important;max-width:7
 .home-roul{white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.rw-lights i{animation:none}}
 @media (max-width:620px){.roul-slot{padding:40px 44px 24px 12px}.rs-reel{height:150px}.rs-cell{height:150px}.rs-cell img{width:72px;height:98px}.rs-lever{right:-32px}}
+
+/* bouton roulette : même forme que « Nouveau jeu », sa propre couleur */
+html .main .btn.home-roul,html[data-bgfull] .main .btn.home-roul,html[data-bgfull] body .main .btn.home-roul{background:linear-gradient(135deg,#FF5FB8,#B23BE0) !important;background-image:linear-gradient(135deg,#FF5FB8,#B23BE0) !important;color:#fff !important;border-color:transparent !important;box-shadow:0 4px 0 #7A1E9A !important;text-shadow:none !important}
+html .main .btn.home-roul:hover{filter:brightness(1.06)}
+/* fenêtre de la roulette, plus large et bien remplie */
+dialog:has(.roul-dlg){width:min(1040px,calc(100vw - 24px)) !important;max-width:1040px !important}
+.dlg.roul-dlg{width:100% !important;max-width:none !important}
+.roul-dlg .body{padding-top:4px}
+.roul.in-dlg .roul-head>div:first-child{display:none}
+.roul.in-dlg .roul-head{justify-content:flex-start}
+.roul.in-dlg .roul-stage{min-height:280px}
+.roul.in-dlg .roul-f{gap:8px 16px}
+/* défilé infini */
+.rf-track{padding:0 !important}
+.roul-flow{overflow:hidden}
+.roul-flow::before,.roul-flow::after{content:'';position:absolute;top:0;bottom:0;width:12%;z-index:2;pointer-events:none}
+.roul-flow::before{left:0;background:linear-gradient(90deg,#0E1226,transparent)}
+.roul-flow::after{right:0;background:linear-gradient(270deg,#0E1226,transparent)}
+
+.roul-dlg .body{max-width:none !important;width:100% !important;box-sizing:border-box;display:block !important}
+.roul.in-dlg{width:100%}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4524,7 +4545,7 @@ function viewHome(counts){
   if (H.multi) chips.push(['multi', 'Affichage', 'Multi-plateformes', FCOL.multi]);
   if (H.q) chips.push(['q', 'Recherche', H.q, FCOL.q]);
   h += '<section class="card' + (swap ? ' swap' : '') + '" id="homeList" style="display:flex;flex-direction:column;gap:14px"><div class="rowhead"><div><h2>' + (chips.length ? 'Jeux filtrés' : 'Tous les jeux') + '</h2><div class="sub" role="status">' + rows.length + ' jeu' + (rows.length > 1 ? 'x' : '') + (chips.length ? ' sur ' + S.games.length : '') + '</div></div>'
-    + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><button type="button" class="btn ghost home-roul" data-roulopen="1">🎲 À quoi je joue ?</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
+    + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><button type="button" class="btn home-roul" data-roulopen="1">🎲 À quoi je joue ?</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
   h += homeFilters(H);
   if (chips.length) h += '<div class="activef"><span class="af-label">Filtres actifs :</span>' + chips.map(function(c){ return '<button class="fchip" style="--fc:' + c[3] + '" data-hclear="' + c[0] + '"' + (c[4] != null ? ' data-hval="' + esc(c[4]) + '"' : '') + '><span class="fk">' + esc(c[1]) + ' :</span><b>' + esc(c[2]) + '</b><span aria-hidden="true" class="fx">×</span><span class="sr">Retirer ce filtre</span></button>'; }).join('') + '<button class="af-clear" data-hclear="all">Effacer tous les filtres</button></div>';
   h += (S.games.length ? (rows.length ? (isMob() ? '<div class="mgrid">' + rows.map(function(g){ return mTile(g.g || g); }).join('') + '</div>' : table(rows, true)) : '<div class="empty"><strong>Aucun jeu ne correspond</strong><span>Retire un filtre pour voir plus de jeux.</span></div>') : emptyGames()) + '</section>';
@@ -9032,8 +9053,9 @@ function roulHtml(inDlg){
 }
 function viewRoulette(){ return crtPage({kick:'RANDOM SELECT', title:'À QUOI JE JOUE ?', sub:'Laisse le hasard choisir ta prochaine partie', blink:'INSERT COIN', sc:[['JEUX', crtPad(S.games.filter(function(g){ return g.kind !== 'wish'; }).length)], ['PAS COMMENCÉS', crtPad(S.games.filter(function(g){ return g.kind !== 'wish' && (g.status || 'Pas commencé') === 'Pas commencé'; }).length)], ['EN COURS', crtPad(S.games.filter(function(g){ return g.status === 'En cours'; }).length)]]}) + '<section class="card">' + roulHtml(false) + '</section>'; }
 function roulShuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-function roulPrep(){
+function roulPrep(force){
   var pool = roulPool(); if (!pool.length) return;
+  if (!force) { var probe = document.getElementById(ROUL.mode === 'wheel' ? 'rwSvg' : ROUL.mode === 'slot' ? 'rsR1' : 'rfTrack'); if (probe && probe.innerHTML) return; }
   if (ROUL.mode === 'wheel') { var svg = document.getElementById('rwSvg'); if (!svg) return; ROUL.seg = roulShuffle(pool).slice(0, 12); var n = ROUL.seg.length, h = '';
     ROUL.seg.forEach(function(g, i){ var a0 = i / n * 2 * Math.PI - Math.PI / 2, a1 = (i + 1) / n * 2 * Math.PI - Math.PI / 2, am = (a0 + a1) / 2, pal = roulPal(i), tx = 58 * Math.cos(am), ty = 58 * Math.sin(am), nm = String(g.name); if (nm.length > 18) nm = nm.slice(0, 17) + '…';
       h += (n === 1 ? '<circle r="100" fill="' + pal[0] + '"/>' : '<path d="M0 0 L' + (100 * Math.cos(a0)).toFixed(2) + ' ' + (100 * Math.sin(a0)).toFixed(2) + ' A100 100 0 ' + (a1 - a0 > Math.PI ? 1 : 0) + ' 1 ' + (100 * Math.cos(a1)).toFixed(2) + ' ' + (100 * Math.sin(a1)).toFixed(2) + ' Z" fill="' + (i % 2 ? pal[1] : pal[0]) + '" stroke="#140B30" stroke-width="1.5"/>') + '<text x="' + tx.toFixed(2) + '" y="' + ty.toFixed(2) + '" fill="#fff" font-size="7" font-weight="700" font-family="Poppins,sans-serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + (am * 180 / Math.PI).toFixed(1) + ' ' + tx.toFixed(2) + ' ' + ty.toFixed(2) + ')">' + esc(nm) + '</text>'; });
@@ -9043,18 +9065,19 @@ function roulPrep(){
 }
 function roulSlotCell(t, g){ if (t === 2) return '<div class="rs-cell"><img src="' + esc(roulCv(g)) + '" alt=""></div>'; var v = t === 0 ? (consoleFullName(list(g.consoles)[0] || '') || list(g.consoles)[0] || 'Console') : (list(g.types)[0] || 'Jeu'); return '<div class="rs-cell"><span class="rs-ico">' + (t === 0 ? '🕹️' : '✨') + '</span><b>' + esc(v) + '</b><small>' + (t === 0 ? 'console' : 'ambiance') + '</small></div>'; }
 function roulSlotFill(win, pool){ ['rsR1', 'rsR2', 'rsR3'].forEach(function(id, t){ var r = document.getElementById(id); if (!r) return; var h = ''; for (var i = 0; i < 18; i++) h += roulSlotCell(t, pool[Math.floor(Math.random() * pool.length)]); h += roulSlotCell(t, win); r.style.transition = 'none'; r.style.transform = 'translateY(0)'; r.innerHTML = h; }); }
-function roulFlowFill(pool, win){ var tr = document.getElementById('rfTrack'); if (!tr) return; var arr = []; for (var i = 0; i < 34; i++) arr.push(pool[Math.floor(Math.random() * pool.length)]); arr[30] = win; tr.innerHTML = arr.map(function(g, i){ return '<div class="rf-c" data-i="' + i + '"><img src="' + esc(roulCv(g)) + '" alt="" loading="lazy"><span>' + esc(g.name) + '</span></div>'; }).join(''); tr.style.transition = 'none'; tr.style.transform = 'translateX(-60px)'; }
+function roulFlowPos(tr, idx){ var st = tr.parentNode, cw = ((tr.querySelector('.rf-c') || {offsetWidth:120}).offsetWidth || 120) + 14; return (st.clientWidth / 2) - (idx * cw + (cw - 14) / 2); }
+function roulFlowFill(pool, win){ var tr = document.getElementById('rfTrack'); if (!tr) return; var arr = [], sh = roulShuffle(pool); for (var i = 0; i < 60; i++) arr.push(sh[i % sh.length]); arr[44] = win; tr.innerHTML = arr.map(function(g, i){ return '<div class="rf-c" data-i="' + i + '"><img src="' + esc(roulCv(g)) + '" alt="" loading="lazy"><span>' + esc(g.name) + '</span></div>'; }).join(''); tr.style.transition = 'none'; tr.style.transform = 'translateX(' + roulFlowPos(tr, 12) + 'px)'; }
 function roulDone(g){ ROUL.busy = false; ROUL.last = g.id; var rb = document.getElementById('roulResBox'); if (rb) rb.innerHTML = roulResult(); var b = document.querySelector('[data-roulgo]'); if (b) b.disabled = false; }
 function roulSpin(){
   var pool = roulPool(); if (!pool.length || ROUL.busy) return; ROUL.busy = true; var b = document.querySelector('[data-roulgo]'); if (b) b.disabled = true;
   var red = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (ROUL.mode === 'wheel') { roulPrep(); var svg = document.getElementById('rwSvg'), seg = ROUL.seg, n = seg.length, k = Math.floor(Math.random() * n), target = 360 - ((k + .5) / n * 360); void svg.offsetHeight; ROUL.rot += 360 * 6 + ((target - ROUL.rot % 360) + 360) % 360; svg.style.transition = 'transform ' + (red ? 0.3 : 4.6) + 's cubic-bezier(.12,.75,.12,1)'; svg.style.transform = 'rotate(' + ROUL.rot + 'deg)'; var L = document.getElementById('rwLights'); if (L) L.classList.add('fast'); setTimeout(function(){ if (L) L.classList.remove('fast'); roulDone(seg[k]); }, red ? 400 : 4700); return; }
+  if (ROUL.mode === 'wheel') { roulPrep(true); var svg = document.getElementById('rwSvg'), seg = ROUL.seg, n = seg.length, k = Math.floor(Math.random() * n), target = 360 - ((k + .5) / n * 360); void svg.offsetHeight; ROUL.rot += 360 * 6 + ((target - ROUL.rot % 360) + 360) % 360; svg.style.transition = 'transform ' + (red ? 0.3 : 4.6) + 's cubic-bezier(.12,.75,.12,1)'; svg.style.transform = 'rotate(' + ROUL.rot + 'deg)'; var L = document.getElementById('rwLights'); if (L) L.classList.add('fast'); setTimeout(function(){ if (L) L.classList.remove('fast'); roulDone(seg[k]); }, red ? 400 : 4700); return; }
   var win = pool[Math.floor(Math.random() * pool.length)];
   if (ROUL.mode === 'slot') { var lv = document.getElementById('rsLever'); if (lv) { lv.classList.add('pull'); setTimeout(function(){ lv.classList.remove('pull'); }, 400); } roulSlotFill(win, pool); var h0 = (document.querySelector('.rs-cell') || {offsetHeight:170}).offsetHeight; ['rsR1', 'rsR2', 'rsR3'].forEach(function(id, t){ var r = document.getElementById(id); if (!r) return; void r.offsetHeight; r.style.transition = 'transform ' + (red ? 0.2 : 1.6 + t * 0.7) + 's cubic-bezier(.15,.85,.2,1)'; r.style.transform = 'translateY(-' + (18 * h0) + 'px)'; }); setTimeout(function(){ roulDone(win); }, red ? 300 : 3200); return; }
-  roulFlowFill(pool, win); var tr = document.getElementById('rfTrack'); var cw = (tr.querySelector('.rf-c') || {offsetWidth:120}).offsetWidth + 14; void tr.offsetHeight; tr.style.transition = 'transform ' + (red ? 0.3 : 4.2) + 's cubic-bezier(.1,.7,.1,1)'; tr.style.transform = 'translateX(-' + (30 * cw + (cw - 14) / 2) + 'px)';
-  setTimeout(function(){ var w = tr.querySelector('[data-i="30"]'); if (w) w.classList.add('win'); var c = document.getElementById('rfConf'); if (c && !red) { var h = ''; for (var i = 0; i < 40; i++) h += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + ['#FF3EA5', '#FFE14D', '#3BE0FF', '#7CFF6B'][i % 4] + ';animation-delay:' + (Math.random() * .5).toFixed(2) + 's"></i>'; c.innerHTML = h; } roulDone(win); }, red ? 400 : 4300);
+  roulFlowFill(pool, win); var tr = document.getElementById('rfTrack'); var cf = document.getElementById('rfConf'); if (cf) cf.innerHTML = ''; void tr.offsetHeight; tr.style.transition = 'transform ' + (red ? 0.3 : 4.2) + 's cubic-bezier(.1,.7,.1,1)'; tr.style.transform = 'translateX(' + roulFlowPos(tr, 44) + 'px)';
+  setTimeout(function(){ var w = tr.querySelector('[data-i="44"]'); if (w) w.classList.add('win'); var c = document.getElementById('rfConf'); if (c && !red) { var h = ''; for (var i = 0; i < 40; i++) h += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + ['#FF3EA5', '#FFE14D', '#3BE0FF', '#7CFF6B'][i % 4] + ';animation-delay:' + (Math.random() * .5).toFixed(2) + 's"></i>'; c.innerHTML = h; } roulDone(win); }, red ? 400 : 4300);
 }
-function roulRefresh(){ var root = document.getElementById('roulRoot'); if (!root) return; var inDlg = root.classList.contains('in-dlg'); root.outerHTML = roulHtml(inDlg); setTimeout(roulPrep, 0); }
+function roulRefresh(){ var root = document.getElementById('roulRoot'); if (!root) return; var inDlg = root.classList.contains('in-dlg'); root.outerHTML = roulHtml(inDlg); setTimeout(function(){ roulPrep(true); }, 0); }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-roulmode],[data-roulf],[data-roulgo],[data-roulplay],[data-roulopen]'); if (!t) return;
   if (t.hasAttribute('data-roulopen')) { openDlg('<div class="dlg roul-dlg"><header><h2>À quoi je joue ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">' + roulHtml(true) + '</div></div>'); setTimeout(roulPrep, 30); return; }
