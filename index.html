@@ -3839,6 +3839,70 @@ html .main .btn.ex-pill.ex-3,html[data-bgfull] .main .btn.ex-pill.ex-3,html[data
 .catg-row:hover{transform:translateY(-2px);border-color:var(--accent)}
 .catg-row img,.catg-ph{width:36px;height:48px;object-fit:cover;border-radius:6px;flex:none;background:var(--card-border)}
 .catg-t{flex:1;min-width:0}.catg-t b{display:block;font-size:13.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.catg-t small{font-size:11.5px;color:var(--muted)}
+
+.wc-acts{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.btn.wc-del{color:#C2304A !important;border-color:color-mix(in srgb,#C2304A 40%,transparent) !important}
+.btn.wc-del svg{width:15px;height:15px}
+/* ===== roulette ===== */
+.roul{display:flex;flex-direction:column;gap:14px}
+.roul-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.roul-head h2{margin:0;font-size:19px}.roul-head small{color:var(--muted);font-size:12.5px}
+.roul-f{display:flex;flex-wrap:wrap;gap:10px 18px}
+.roul-fg{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.roul-fg>span{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.roul-chip{padding:6px 12px;border-radius:999px;border:1px solid var(--card-border);background:var(--card);color:var(--text);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.roul-chip.on{background:var(--accent);color:#fff;border-color:transparent}
+.roul-sel{min-height:34px;padding:0 10px;border-radius:999px;border:1px solid var(--card-border);background:var(--card);color:var(--text);font:inherit;font-size:12.5px}
+.roul-stage{position:relative;border-radius:22px;overflow:hidden;min-height:300px;display:flex;align-items:center;justify-content:center}
+.roul-empty{flex-direction:column;gap:4px;background:var(--sunken);color:var(--muted);text-align:center;padding:30px}.roul-empty b{color:var(--text)}
+.roul-go{display:flex;justify-content:center}
+.btn.roul-btn{min-height:48px;padding:0 26px;font-size:15px;font-weight:800}
+.roul-res{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;background:var(--sunken);border:1px solid var(--card-border);flex-wrap:wrap}
+.roul-res.empty{justify-content:center;color:var(--muted);font-size:13px}
+.roul-res img{width:56px;height:75px;object-fit:cover;border-radius:8px;box-shadow:0 8px 16px -8px rgba(0,0,0,.5)}
+.roul-res small{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-text,#2E5FD6)}
+.roul-res b{display:block;font-size:17px;color:var(--text);margin:2px 0 4px}
+.roul-acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.roul-res.pop{animation:roulPop .5s cubic-bezier(.3,1.6,.5,1)}@keyframes roulPop{0%{transform:scale(.85);opacity:0}100%{transform:none;opacity:1}}
+/* roue */
+.roul-wheel{background:radial-gradient(ellipse at 50% 40%,#3B1F6E,#140B30 70%);padding:28px}
+.rw-wheel{position:relative;width:min(340px,76vw);aspect-ratio:1}
+.rw-wheel svg{width:100%;height:100%;filter:drop-shadow(0 0 18px rgba(255,62,165,.55))}
+.rw-ptr{position:absolute;top:-8px;left:50%;transform:translateX(-50%);border-left:16px solid transparent;border-right:16px solid transparent;border-top:30px solid #FFE14D;filter:drop-shadow(0 0 8px #FFE14D);z-index:2}
+.rw-hub{position:absolute;inset:40%;border-radius:50%;background:radial-gradient(circle,#fff,#FFD25E 60%,#F08A1C);box-shadow:0 0 0 6px #140B30,0 0 20px #FFD25E;display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:10px;color:#140B30}
+.rw-lights{position:absolute;inset:-12px;pointer-events:none}
+.rw-lights i{position:absolute;width:9px;height:9px;border-radius:50%;background:#FFE14D;box-shadow:0 0 8px #FFE14D;animation:rwBl 1s infinite}
+.rw-lights.fast i{animation-duration:.2s}
+@keyframes rwBl{50%{opacity:.25}}
+/* machine à sous */
+.roul-slot{background:linear-gradient(180deg,#2A0B3E,#140B30);padding:40px 60px 30px 24px}
+.rs-machine{position:relative;display:flex;gap:10px;padding:16px;border-radius:22px;background:linear-gradient(180deg,#E9C46A,#B8862A);box-shadow:inset 0 2px 0 #fff6,0 10px 0 #7A5200,0 0 30px rgba(233,196,106,.4)}
+.rs-machine::before{content:'★ À QUOI JE JOUE ? ★';position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:10px;color:#FFE14D;text-shadow:0 0 8px #FF8A1C;white-space:nowrap}
+.rs-reel{width:min(140px,24vw);height:170px;border-radius:12px;background:#0B0820;overflow:hidden;position:relative;box-shadow:inset 0 10px 20px rgba(0,0,0,.8),inset 0 -10px 20px rgba(0,0,0,.8)}
+.rs-reel::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent 30%,transparent 70%,rgba(0,0,0,.6));pointer-events:none}
+.rs-strip{display:flex;flex-direction:column}
+.rs-cell{height:170px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#fff;text-align:center;padding:10px}
+.rs-cell .rs-ico{font-size:34px}.rs-cell b{font-size:12.5px;line-height:1.25}.rs-cell small{font-size:10px;color:#C9C2E8}
+.rs-cell img{width:92px;height:124px;object-fit:cover;border-radius:8px}
+.rs-lever{position:absolute;right:-40px;top:22px;width:14px;height:116px;border-radius:7px;background:linear-gradient(90deg,#999,#eee,#999);transform-origin:bottom center;transition:transform .35s}
+.rs-lever::before{content:'';position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FF8A9A,#D92B3A)}
+.rs-lever.pull{transform:rotate(22deg) scaleY(.85)}
+/* défilé */
+.roul-flow{display:block;padding:28px 0;background:radial-gradient(ellipse at 50% 100%,rgba(46,95,214,.35),transparent 60%),linear-gradient(180deg,#141A33,#0B0E1F)}
+.rf-track{display:flex;gap:14px;will-change:transform;padding:0 50%}
+.rf-c{flex:none;width:120px;display:flex;flex-direction:column;gap:6px;transition:transform .3s,filter .3s;filter:brightness(.55) saturate(.8)}
+.rf-c img{width:120px;height:160px;object-fit:cover;border-radius:12px;box-shadow:0 12px 24px -12px rgba(0,0,0,.8)}
+.rf-c span{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rf-c.win{transform:scale(1.18) translateY(-8px);filter:none}.rf-c.win img{box-shadow:0 0 0 3px #FFE14D,0 0 30px #FFE14D}
+.rf-mark{position:absolute;top:16px;height:190px;left:50%;width:134px;transform:translateX(-50%);border-radius:16px;border:2px dashed rgba(255,225,77,.7);pointer-events:none}
+.rf-conf{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.rf-conf i{position:absolute;width:8px;height:12px;top:-14px;animation:rfFall 1.6s ease-in forwards}
+@keyframes rfFall{to{transform:translateY(420px) rotate(540deg);opacity:0}}
+dialog:has(.roul-dlg){width:min(760px,calc(100vw - 24px)) !important;max-width:760px !important}
+.roul-dlg{max-width:none !important}
+.roul-sw button{white-space:nowrap}
+.home-roul{white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.rw-lights i{animation:none}}
+@media (max-width:620px){.roul-slot{padding:40px 44px 24px 12px}.rs-reel{height:150px}.rs-cell{height:150px}.rs-cell img{width:72px;height:98px}.rs-lever{right:-32px}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -3864,6 +3928,7 @@ html .main .btn.ex-pill.ex-3,html[data-bgfull] .main .btn.ex-pill.ex-3,html[data
       <button class="navbtn" data-nav="licences">Collection par licence</button>
       <button class="navbtn" data-nav="decouvrir">Jeux à découvrir <small data-count="decouvrir"></small></button>
       <button class="navbtn" data-nav="suivi">Suivi jeux <small data-count="suivi"></small></button>
+      <button class="navbtn" data-nav="roulette">À quoi je joue ? <small>🎲</small></button>
       <button class="navbtn" data-nav="catalog">Base de jeux <small data-count="catalog"></small></button>
     </nav>
     <nav class="navgroup" aria-labelledby="nav-db"><h2 id="nav-db">Gestion</h2>
@@ -4320,6 +4385,7 @@ function render(){
   else if (S.view === 'licences') html = viewLicences();
   else if (S.view === 'data') html = viewData();
   else if (S.view === 'suivi') html = viewSuivi();
+  else if (S.view === 'roulette') html = viewRoulette();
   else if (S.view === 'licence') html = viewLicence();
   else if (S.view === 'console') html = viewConsole();
   else if (S.view === 'deals') html = viewDeals();
@@ -4458,7 +4524,7 @@ function viewHome(counts){
   if (H.multi) chips.push(['multi', 'Affichage', 'Multi-plateformes', FCOL.multi]);
   if (H.q) chips.push(['q', 'Recherche', H.q, FCOL.q]);
   h += '<section class="card' + (swap ? ' swap' : '') + '" id="homeList" style="display:flex;flex-direction:column;gap:14px"><div class="rowhead"><div><h2>' + (chips.length ? 'Jeux filtrés' : 'Tous les jeux') + '</h2><div class="sub" role="status">' + rows.length + ' jeu' + (rows.length > 1 ? 'x' : '') + (chips.length ? ' sur ' + S.games.length : '') + '</div></div>'
-    + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
+    + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><button type="button" class="btn ghost home-roul" data-roulopen="1">🎲 À quoi je joue ?</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
   h += homeFilters(H);
   if (chips.length) h += '<div class="activef"><span class="af-label">Filtres actifs :</span>' + chips.map(function(c){ return '<button class="fchip" style="--fc:' + c[3] + '" data-hclear="' + c[0] + '"' + (c[4] != null ? ' data-hval="' + esc(c[4]) + '"' : '') + '><span class="fk">' + esc(c[1]) + ' :</span><b>' + esc(c[2]) + '</b><span aria-hidden="true" class="fx">×</span><span class="sr">Retirer ce filtre</span></button>'; }).join('') + '<button class="af-clear" data-hclear="all">Effacer tous les filtres</button></div>';
   h += (S.games.length ? (rows.length ? (isMob() ? '<div class="mgrid">' + rows.map(function(g){ return mTile(g.g || g); }).join('') + '</div>' : table(rows, true)) : '<div class="empty"><strong>Aucun jeu ne correspond</strong><span>Retire un filtre pour voir plus de jeux.</span></div>') : emptyGames()) + '</section>';
@@ -6027,7 +6093,7 @@ var ICON_HEART = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24
 function wishCard(g){
   return '<section class="card wishcard"><div class="wc-ico" aria-hidden="true">' + ICON_HEART.replace('width="14" height="14"', 'width="26" height="26"') + '</div>'
     + '<div class="wc-txt"><h2>Ce jeu est dans ma wishlist</h2><p>Je ne l\u2019ai pas encore. Dès que je l\u2019ai, j\u2019indique les infos de mon exemplaire et il rejoint ma collection.</p></div>'
-    + (S.readOnly ? '' : '<button type="button" class="btn wc-btn" data-act="acquire" data-id="' + esc(g.id) + '">' + ICON_CHECK + 'Je l\u2019ai maintenant</button>') + '</section>';
+    + (S.readOnly ? '' : '<div class="wc-acts"><button type="button" class="btn wc-btn" data-act="acquire" data-id="' + esc(g.id) + '">' + ICON_CHECK + 'Je l\u2019ai maintenant</button><button type="button" class="btn ghost wc-del" data-act="deleteGame" data-id="' + esc(g.id) + '">' + ICON_TRASH + 'Retirer de ma wishlist</button></div>') + '</section>';
 }
 function acquireForm(g){
   if (!g) return;
@@ -7686,6 +7752,12 @@ function giHtml(){
   var devs = i.dev || comp('developer'), pubs = i.pub || comp('publisher');
   var genres = (d.genres || []).map(function(g){ return g.name; }).join(', ') || i.genre || '';
   var plats = (d.platforms || []).map(function(p){ return p.name; }), lic = (d.franchises || []).concat(d.collections || []).map(function(f){ return f.name; }).filter(function(v, k, a){ return a.indexOf(v) === k; });
+  if (i.ctx && (i.ctx.t === 'cat' || i.ctx.t === 'disc')) {
+    /* Base de jeux / Jeux à découvrir : licence affichée seulement pour mes jeux ou ceux de mes pages « Collection par licence » */
+    var gk = gmKey(i.title), own = S.games.some(function(x){ return x.kind !== 'wish' && gmKey(x.name) === gk; });
+    var inLic = Object.keys(LICDB).filter(function(k){ return (LICDB[k].games || []).some(function(x){ return gmKey(typeof x === 'string' ? x : (x.t || x.title || x.name || '')) === gk; }); }).map(function(k){ return LICDB[k].name || k; });
+    lic = (own ? lic : []).concat(inLic).filter(function(v, k, a){ return v && a.indexOf(v) === k; });
+  }
   var rating = d.aggregated_rating ? [Math.round(d.aggregated_rating), 'presse'] : d.rating ? [Math.round(d.rating), 'joueurs'] : null;
   var shots = (d.screenshots || []).slice(0, 12), vids = (d.videos || []).slice(0, 6);
   var links = [];
@@ -8918,6 +8990,82 @@ document.addEventListener('click', function(e){
 /* ---------- Jaquettes : recherche dans toute la Base de jeux ---------- */
 function covAllRows(){ var out = []; CAT.forEach(function(p){ if (!p.count) return; var key = p.id + '@' + (p.updatedAt || 0), rows = CAT_CACHE[key]; if (!rows) { catLoad(p, key); return; } rows.forEach(function(r){ out.push([p, r]); }); }); return out; }
 function covAllLoading(){ return CAT.some(function(p){ return p.count && !CAT_CACHE[p.id + '@' + (p.updatedAt || 0)]; }); }
+
+/* ---------- Roulette « À quoi je joue ? » (roue, machine à sous, défilé) ---------- */
+var ROUL = {mode:(function(){ try { return localStorage.getItem('ps-roul') || 'wheel'; } catch (x) { return 'wheel'; } })(), con:'', st:'all', kind:'', rot:0, last:null, busy:false};
+function roulPool(){
+  return S.games.filter(function(g){
+    if (g.kind === 'wish') return false;
+    if (ROUL.kind && g.kind !== ROUL.kind) return false;
+    var st = g.status || 'Pas commencé';
+    if (ROUL.st === 'todo' && st !== 'Pas commencé') return false;
+    if (ROUL.st === 'cur' && st !== 'En cours') return false;
+    if (ROUL.con && !list(g.consoles).some(function(c){ return norm(c) === norm(ROUL.con); })) return false;
+    return true;
+  });
+}
+function roulCv(g){ var c = list(g.consoles)[0] || ''; return g.coverId ? blob(g.coverId) : genCover(g.name, c); }
+function roulPal(i){ return [['#FF3EA5', '#7B1E5A'], ['#3BA0FF', '#14306E'], ['#FFB547', '#7A4A0A'], ['#7CDB6B', '#1E5A2A'], ['#B07BFF', '#3E1E7A'], ['#FF6B6B', '#6E1420']][i % 6]; }
+function roulSwitch(){ return '<div class="ch-switch roul-sw" role="group" aria-label="Type de tirage">' + [['wheel', '🎡 Roue'], ['slot', '🎰 Machine'], ['flow', '✨ Défilé']].map(function(v){ return '<button type="button" data-roulmode="' + v[0] + '" aria-pressed="' + (ROUL.mode === v[0]) + '">' + v[1] + '</button>'; }).join('') + '</div>'; }
+function roulFilters(){
+  var cons = {}; S.games.forEach(function(g){ if (g.kind !== 'wish') list(g.consoles).forEach(function(c){ cons[c] = 1; }); });
+  var chip = function(grp, val, lab, on){ return '<button type="button" class="chip roul-chip' + (on ? ' on' : '') + '" data-roulf="' + grp + '|' + esc(val) + '">' + lab + '</button>'; };
+  return '<div class="roul-f"><div class="roul-fg"><span>Statut</span>' + chip('st', 'all', 'Tous', ROUL.st === 'all') + chip('st', 'todo', 'Pas commencés', ROUL.st === 'todo') + chip('st', 'cur', 'En cours', ROUL.st === 'cur') + '</div>'
+    + '<div class="roul-fg"><span>Type</span>' + chip('kind', '', 'Tous', !ROUL.kind) + chip('kind', 'physique', 'Physiques', ROUL.kind === 'physique') + chip('kind', 'demat', 'Démat', ROUL.kind === 'demat') + '</div>'
+    + '<div class="roul-fg"><span>Console</span><select class="roul-sel" data-roulcon="1"><option value="">Toutes les consoles</option>' + Object.keys(cons).sort(function(a, b){ return a.localeCompare(b, 'fr'); }).map(function(c){ return '<option value="' + esc(c) + '"' + (ROUL.con === c ? ' selected' : '') + '>' + esc(consoleFullName(c) || c) + '</option>'; }).join('') + '</select></div></div>';
+}
+function roulStage(){
+  var n = roulPool().length;
+  if (!n) return '<div class="roul-stage roul-empty"><b>Aucun jeu ne correspond à ces filtres.</b><small>Change le statut ou la console pour élargir le tirage.</small></div>';
+  if (ROUL.mode === 'slot') return '<div class="roul-stage roul-slot"><div class="rs-machine"><div class="rs-reel"><div class="rs-strip" id="rsR1"></div></div><div class="rs-reel"><div class="rs-strip" id="rsR2"></div></div><div class="rs-reel big"><div class="rs-strip" id="rsR3"></div></div><span class="rs-lever" id="rsLever"></span></div></div>';
+  if (ROUL.mode === 'flow') return '<div class="roul-stage roul-flow"><span class="rf-mark"></span><div class="rf-track" id="rfTrack"></div><div class="rf-conf" id="rfConf"></div></div>';
+  var lights = ''; for (var i = 0; i < 20; i++) { var a = i / 20 * 2 * Math.PI; lights += '<i style="left:calc(' + (50 + 50 * Math.sin(a)).toFixed(2) + '% - 4px);top:calc(' + (50 - 50 * Math.cos(a)).toFixed(2) + '% - 4px);animation-delay:' + (i % 2 * 0.5) + 's"></i>'; }
+  return '<div class="roul-stage roul-wheel"><div class="rw-wheel"><span class="rw-ptr"></span><div class="rw-lights" id="rwLights">' + lights + '</div><svg id="rwSvg" viewBox="-110 -110 220 220" aria-hidden="true"></svg><div class="rw-hub">GO!</div></div></div>';
+}
+function roulResult(){
+  var g = ROUL.last && S.games.find(function(x){ return x.id === ROUL.last; });
+  if (!g) return '<div class="roul-res empty"><span>' + roulPool().length + ' jeu' + (roulPool().length > 1 ? 'x' : '') + ' dans le tirage.</span></div>';
+  return '<div class="roul-res pop"><img src="' + esc(roulCv(g)) + '" alt=""><div><small>Ton prochain jeu</small><b>' + esc(g.name) + '</b><span class="tags">' + list(g.consoles).map(consoleTag).join('') + '</span></div><div class="roul-acts">' + (S.readOnly ? '' : '<button type="button" class="btn small" data-roulplay="' + esc(g.id) + '">▶ Je lance !</button>') + '<button type="button" class="btn ghost small" data-game="' + esc(g.id) + '">Voir la fiche</button></div></div>';
+}
+function roulHtml(inDlg){
+  return '<div class="roul' + (inDlg ? ' in-dlg' : '') + '" id="roulRoot"><div class="roul-head"><div><h2>🎲 À quoi je joue ?</h2><small>La plateforme tire au sort un jeu de ta collection.</small></div>' + roulSwitch() + '</div>' + roulFilters() + '<div id="roulStageBox">' + roulStage() + '</div><div class="roul-go"><button type="button" class="btn roul-btn" data-roulgo="1">' + (ROUL.mode === 'slot' ? '🎰 Tirer le levier' : ROUL.mode === 'flow' ? '✨ Choisis pour moi' : '🎡 Tourner la roue') + '</button></div><div id="roulResBox">' + roulResult() + '</div></div>';
+}
+function viewRoulette(){ return crtPage({kick:'RANDOM SELECT', title:'À QUOI JE JOUE ?', sub:'Laisse le hasard choisir ta prochaine partie', blink:'INSERT COIN', sc:[['JEUX', crtPad(S.games.filter(function(g){ return g.kind !== 'wish'; }).length)], ['PAS COMMENCÉS', crtPad(S.games.filter(function(g){ return g.kind !== 'wish' && (g.status || 'Pas commencé') === 'Pas commencé'; }).length)], ['EN COURS', crtPad(S.games.filter(function(g){ return g.status === 'En cours'; }).length)]]}) + '<section class="card">' + roulHtml(false) + '</section>'; }
+function roulShuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function roulPrep(){
+  var pool = roulPool(); if (!pool.length) return;
+  if (ROUL.mode === 'wheel') { var svg = document.getElementById('rwSvg'); if (!svg) return; ROUL.seg = roulShuffle(pool).slice(0, 12); var n = ROUL.seg.length, h = '';
+    ROUL.seg.forEach(function(g, i){ var a0 = i / n * 2 * Math.PI - Math.PI / 2, a1 = (i + 1) / n * 2 * Math.PI - Math.PI / 2, am = (a0 + a1) / 2, pal = roulPal(i), tx = 58 * Math.cos(am), ty = 58 * Math.sin(am), nm = String(g.name); if (nm.length > 18) nm = nm.slice(0, 17) + '…';
+      h += (n === 1 ? '<circle r="100" fill="' + pal[0] + '"/>' : '<path d="M0 0 L' + (100 * Math.cos(a0)).toFixed(2) + ' ' + (100 * Math.sin(a0)).toFixed(2) + ' A100 100 0 ' + (a1 - a0 > Math.PI ? 1 : 0) + ' 1 ' + (100 * Math.cos(a1)).toFixed(2) + ' ' + (100 * Math.sin(a1)).toFixed(2) + ' Z" fill="' + (i % 2 ? pal[1] : pal[0]) + '" stroke="#140B30" stroke-width="1.5"/>') + '<text x="' + tx.toFixed(2) + '" y="' + ty.toFixed(2) + '" fill="#fff" font-size="7" font-weight="700" font-family="Poppins,sans-serif" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + (am * 180 / Math.PI).toFixed(1) + ' ' + tx.toFixed(2) + ' ' + ty.toFixed(2) + ')">' + esc(nm) + '</text>'; });
+    svg.innerHTML = h + '<circle r="104" fill="none" stroke="#FF3EA5" stroke-width="3"/>'; svg.style.transition = 'none'; svg.style.transform = 'rotate(' + (ROUL.rot % 360) + 'deg)'; ROUL.rot = ROUL.rot % 360; }
+  if (ROUL.mode === 'slot') roulSlotFill(pool[0], pool);
+  if (ROUL.mode === 'flow') roulFlowFill(pool, pool[0]);
+}
+function roulSlotCell(t, g){ if (t === 2) return '<div class="rs-cell"><img src="' + esc(roulCv(g)) + '" alt=""></div>'; var v = t === 0 ? (consoleFullName(list(g.consoles)[0] || '') || list(g.consoles)[0] || 'Console') : (list(g.types)[0] || 'Jeu'); return '<div class="rs-cell"><span class="rs-ico">' + (t === 0 ? '🕹️' : '✨') + '</span><b>' + esc(v) + '</b><small>' + (t === 0 ? 'console' : 'ambiance') + '</small></div>'; }
+function roulSlotFill(win, pool){ ['rsR1', 'rsR2', 'rsR3'].forEach(function(id, t){ var r = document.getElementById(id); if (!r) return; var h = ''; for (var i = 0; i < 18; i++) h += roulSlotCell(t, pool[Math.floor(Math.random() * pool.length)]); h += roulSlotCell(t, win); r.style.transition = 'none'; r.style.transform = 'translateY(0)'; r.innerHTML = h; }); }
+function roulFlowFill(pool, win){ var tr = document.getElementById('rfTrack'); if (!tr) return; var arr = []; for (var i = 0; i < 34; i++) arr.push(pool[Math.floor(Math.random() * pool.length)]); arr[30] = win; tr.innerHTML = arr.map(function(g, i){ return '<div class="rf-c" data-i="' + i + '"><img src="' + esc(roulCv(g)) + '" alt="" loading="lazy"><span>' + esc(g.name) + '</span></div>'; }).join(''); tr.style.transition = 'none'; tr.style.transform = 'translateX(-60px)'; }
+function roulDone(g){ ROUL.busy = false; ROUL.last = g.id; var rb = document.getElementById('roulResBox'); if (rb) rb.innerHTML = roulResult(); var b = document.querySelector('[data-roulgo]'); if (b) b.disabled = false; }
+function roulSpin(){
+  var pool = roulPool(); if (!pool.length || ROUL.busy) return; ROUL.busy = true; var b = document.querySelector('[data-roulgo]'); if (b) b.disabled = true;
+  var red = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (ROUL.mode === 'wheel') { roulPrep(); var svg = document.getElementById('rwSvg'), seg = ROUL.seg, n = seg.length, k = Math.floor(Math.random() * n), target = 360 - ((k + .5) / n * 360); void svg.offsetHeight; ROUL.rot += 360 * 6 + ((target - ROUL.rot % 360) + 360) % 360; svg.style.transition = 'transform ' + (red ? 0.3 : 4.6) + 's cubic-bezier(.12,.75,.12,1)'; svg.style.transform = 'rotate(' + ROUL.rot + 'deg)'; var L = document.getElementById('rwLights'); if (L) L.classList.add('fast'); setTimeout(function(){ if (L) L.classList.remove('fast'); roulDone(seg[k]); }, red ? 400 : 4700); return; }
+  var win = pool[Math.floor(Math.random() * pool.length)];
+  if (ROUL.mode === 'slot') { var lv = document.getElementById('rsLever'); if (lv) { lv.classList.add('pull'); setTimeout(function(){ lv.classList.remove('pull'); }, 400); } roulSlotFill(win, pool); var h0 = (document.querySelector('.rs-cell') || {offsetHeight:170}).offsetHeight; ['rsR1', 'rsR2', 'rsR3'].forEach(function(id, t){ var r = document.getElementById(id); if (!r) return; void r.offsetHeight; r.style.transition = 'transform ' + (red ? 0.2 : 1.6 + t * 0.7) + 's cubic-bezier(.15,.85,.2,1)'; r.style.transform = 'translateY(-' + (18 * h0) + 'px)'; }); setTimeout(function(){ roulDone(win); }, red ? 300 : 3200); return; }
+  roulFlowFill(pool, win); var tr = document.getElementById('rfTrack'); var cw = (tr.querySelector('.rf-c') || {offsetWidth:120}).offsetWidth + 14; void tr.offsetHeight; tr.style.transition = 'transform ' + (red ? 0.3 : 4.2) + 's cubic-bezier(.1,.7,.1,1)'; tr.style.transform = 'translateX(-' + (30 * cw + (cw - 14) / 2) + 'px)';
+  setTimeout(function(){ var w = tr.querySelector('[data-i="30"]'); if (w) w.classList.add('win'); var c = document.getElementById('rfConf'); if (c && !red) { var h = ''; for (var i = 0; i < 40; i++) h += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + ['#FF3EA5', '#FFE14D', '#3BE0FF', '#7CFF6B'][i % 4] + ';animation-delay:' + (Math.random() * .5).toFixed(2) + 's"></i>'; c.innerHTML = h; } roulDone(win); }, red ? 400 : 4300);
+}
+function roulRefresh(){ var root = document.getElementById('roulRoot'); if (!root) return; var inDlg = root.classList.contains('in-dlg'); root.outerHTML = roulHtml(inDlg); setTimeout(roulPrep, 0); }
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-roulmode],[data-roulf],[data-roulgo],[data-roulplay],[data-roulopen]'); if (!t) return;
+  if (t.hasAttribute('data-roulopen')) { openDlg('<div class="dlg roul-dlg"><header><h2>À quoi je joue ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">' + roulHtml(true) + '</div></div>'); setTimeout(roulPrep, 30); return; }
+  if (ROUL.busy && !t.hasAttribute('data-roulplay')) return;
+  if (t.hasAttribute('data-roulmode')) { ROUL.mode = t.getAttribute('data-roulmode'); try { localStorage.setItem('ps-roul', ROUL.mode); } catch (x) {} roulRefresh(); return; }
+  if (t.hasAttribute('data-roulf')) { var p = t.getAttribute('data-roulf').split('|'); ROUL[p[0]] = p[1]; roulRefresh(); return; }
+  if (t.hasAttribute('data-roulgo')) { roulSpin(); return; }
+  if (t.hasAttribute('data-roulplay')) { var g = S.games.find(function(x){ return x.id === t.getAttribute('data-roulplay'); }); if (!g || S.readOnly) return; g.status = 'En cours'; t.disabled = true; t.textContent = '✓ C’est parti !'; withRetry(function(){ return db.collection('games').doc(g.id).update({status:'En cours'}); }).then(function(){ toast('« ' + g.name + ' » est maintenant en cours'); }).catch(function(x){ toast(failMsg(x)); }); }
+});
+document.addEventListener('change', function(e){ if (!e.target.hasAttribute || !e.target.hasAttribute('data-roulcon') || ROUL.busy) return; ROUL.con = e.target.value; roulRefresh(); });
+(function(){ var _r9 = render; render = function(){ var r = _r9.apply(this, arguments); if (S.view === 'roulette' && !ROUL.busy) setTimeout(roulPrep, 0); return r; }; })();
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
