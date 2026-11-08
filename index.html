@@ -3925,6 +3925,10 @@ dialog:has(.roul-dlg){width:min(1040px,calc(100vw - 24px)) !important;max-width:
 .roul-con .combo{min-width:240px}
 
 .btn.home-roul,html .main .btn.home-roul{color:#fff !important}
+
+/* « À quoi on joue ? » : l'habillage du thème, dans une autre teinte que « Nouveau jeu » */
+.btn.home-roul,html .main .btn.home-roul{filter:hue-rotate(140deg) saturate(1.15)}
+.btn.home-roul .hr-ico{display:inline-block;filter:saturate(.87) hue-rotate(-140deg)}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4546,7 +4550,7 @@ function viewHome(counts){
   if (H.multi) chips.push(['multi', 'Affichage', 'Multi-plateformes', FCOL.multi]);
   if (H.q) chips.push(['q', 'Recherche', H.q, FCOL.q]);
   h += '<section class="card' + (swap ? ' swap' : '') + '" id="homeList" style="display:flex;flex-direction:column;gap:14px"><div class="rowhead"><div><h2>' + (chips.length ? 'Jeux filtrés' : 'Tous les jeux') + '</h2><div class="sub" role="status">' + rows.length + ' jeu' + (rows.length > 1 ? 'x' : '') + (chips.length ? ' sur ' + S.games.length : '') + '</div></div>'
-    + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><button type="button" class="btn home-roul" data-roulopen="1">🎲 À quoi on joue ?</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
+    + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><button type="button" class="btn home-roul" data-roulopen="1"><span class="hr-ico" aria-hidden="true">🎲</span> À quoi on joue ?</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
   h += homeFilters(H);
   if (chips.length) h += '<div class="activef"><span class="af-label">Filtres actifs :</span>' + chips.map(function(c){ return '<button class="fchip" style="--fc:' + c[3] + '" data-hclear="' + c[0] + '"' + (c[4] != null ? ' data-hval="' + esc(c[4]) + '"' : '') + '><span class="fk">' + esc(c[1]) + ' :</span><b>' + esc(c[2]) + '</b><span aria-hidden="true" class="fx">×</span><span class="sr">Retirer ce filtre</span></button>'; }).join('') + '<button class="af-clear" data-hclear="all">Effacer tous les filtres</button></div>';
   h += (S.games.length ? (rows.length ? (isMob() ? '<div class="mgrid">' + rows.map(function(g){ return mTile(g.g || g); }).join('') + '</div>' : table(rows, true)) : '<div class="empty"><strong>Aucun jeu ne correspond</strong><span>Retire un filtre pour voir plus de jeux.</span></div>') : emptyGames()) + '</section>';
