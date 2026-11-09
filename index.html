@@ -3966,6 +3966,14 @@ dialog.gdlg .gdlg-x{position:sticky;top:12px;margin:12px 12px -52px auto}
 dialog.gdlg .gdlg-x{position:static !important;float:none !important;margin:0 !important}
 
 dialog.gdlg .gh-top{padding-right:52px}
+
+/* fiche en fenêtre : barre native masquée, fine barre posée par-dessus */
+dialog.gdlg .gdlg-in{scrollbar-width:none}
+dialog.gdlg .gdlg-in::-webkit-scrollbar{display:none;width:0;height:0}
+.gdlg-sb{position:absolute;top:14px;bottom:14px;right:4px;width:8px;z-index:70;pointer-events:none}
+.gdlg-sb i{display:block;width:100%;border-radius:999px;background:rgba(20,16,40,.38);box-shadow:0 0 0 1px rgba(255,255,255,.45);pointer-events:auto;cursor:grab;opacity:.45;transition:opacity .25s,width .2s}
+.gdlg-sb.on i,.gdlg-sb i:hover,.gdlg:hover .gdlg-sb i{opacity:.9}
+.gdlg-sb i:active{cursor:grabbing}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -8874,14 +8882,14 @@ function shelfHtml(g){
     var con = v.console || list(g.consoles)[0] || '', band = con ? (CBRAND_COL[brandOfConsole(con)] || '#1F5FD6') : '#1F5FD6';
     var short = con ? ((S.consoles.find(function(c){ return norm(c.name) === norm(con); }) || {}).short || con) : '';
     var cv = g.coverId ? blob(g.coverId) : genCover(g.name, con), left = (midW - (n * BW + (n - 1) * GAP)) / 2 + i * (BW + GAP);
-    var inner = (v.id !== '_' && typeof pbIsPS5 === 'function' && pbIsPS5(v.console) && !(S.boxEdit && S.boxEdit[v.id])) ? '<div class="shf2-ps5">' + ps5Box(g, v, i) + '</div>' : '<div class="shf2-box"' + (v.id !== '_' && !S.readOnly ? ' data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" role="button" tabindex="0" title="Modifier cette édition"' : '') + ' style="--band:' + band + '"><div class="shf2-band">' + esc(short) + '</div><img src="' + esc(cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span></div>';
+    var inner = (v.id !== '_' && typeof pbIsPS5 === 'function' && pbIsPS5(v.console) && !(S.boxEdit && S.boxEdit[v.id])) ? '<div class="shf2-ps5">' + (function(){ var pb = ps5Box(g, v, i), f = SHFIT_LAST[v.id]; return f ? pb.replace('<div class="ps5box', '<div style="left:' + f.l + ';top:' + f.t + ';transform:' + f.tr + '" class="ps5box') : pb; })() + '</div>' : '<div class="shf2-box"' + (v.id !== '_' && !S.readOnly ? ' data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" role="button" tabindex="0" title="Modifier cette édition"' : '') + ' style="--band:' + band + '"><div class="shf2-band">' + esc(short) + '</div><img src="' + esc(cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span></div>';
     var ctl = false ? '<span class="shf-ctl"><button type="button" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Modifier cette édition">' + ICON_PEN + '</button>' + (vs.length > 1 ? '<button type="button" class="del" data-shfdel="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Supprimer cette édition">' + ICON_TRASH + '</button>' : '') + '</span>' : '';
     return '<div class="shf2-slot' + (S.pbOpen && S.pbOpen[v.id] ? ' is-open' : '') + '" data-gid="' + esc(g.id) + '" data-vid="' + esc(v.id) + '" style="left:' + pc(left, midW) + ';width:' + pc(BW, midW) + '"' + (v.edition ? ' title="' + esc(v.edition) + '"' : '') + '>' + ctl + inner + ((v.edition || v.kind === 'box') ? '<span class="shf2-ed">' + (v.kind === 'box' ? '📦 ' : '') + esc(v.edition || 'Boîte en plus') + '</span>' : '') + '</div>';
   }).join('');
   var tools = S.readOnly ? '' : '<div class="shf-tools"><button type="button" class="btn shf-new" data-newed="' + esc(g.id) + '">+ Nouveau jeu</button></div>';
   return '<section class="shf3" aria-label="Mon étagère" style="aspect-ratio:' + TW + '/725">' + tools + '<div class="shf3-l" style="width:calc(' + pc(LW, TW) + ' + 1px);background-image:url(' + SHELF_L + ')"></div><div class="shf3-m" style="left:' + pc(LW, TW) + ';width:' + pc(midW, TW) + '">' + tiles + slots + '</div><div class="shf3-r" style="width:calc(' + pc(RW, TW) + ' + 1px);background-image:url(' + SHELF_R + ')"></div></section>';
 }
-var SHFIT = {};
+var SHFIT = {}, SHFIT_LAST = {};
 function shelfFit(){ document.querySelectorAll('.shf2-ps5 .ps5box').forEach(function(bx){
   var slot = bx.closest('.shf2-slot'); if (!slot) return; var key = slot.getAttribute('data-vid') + '|' + slot.clientWidth, cs = bx.querySelector('.pb-case'); if (!cs) return;
   if (cs.classList.contains('pb-open') || slot.classList.contains('is-open')) { var c0 = SHFIT[key]; if (c0) { bx.style.left = c0.l; bx.style.top = c0.t; bx.style.transform = c0.tr; } return; }
@@ -8889,9 +8897,9 @@ function shelfFit(){ document.querySelectorAll('.shf2-ps5 .ps5box').forEach(func
   var br = bx.getBoundingClientRect(), cr = cs.getBoundingClientRect(); if (!cr.width || !cr.height) return;
   var sw = slot.clientWidth, sh = slot.clientHeight, k = Math.max(sw / cr.width, sh / cr.height), dx = cr.left - br.left, dy = cr.top - br.top;
   var fit = {l:(-dx * k + (sw - cr.width * k) / 2) + 'px', t:(-dy * k + (sh - cr.height * k)) + 'px', tr:'scale(' + k.toFixed(4) + ')'};
-  SHFIT[key] = fit; bx.style.left = fit.l; bx.style.top = fit.t; bx.style.transform = fit.tr;
+  SHFIT[key] = fit; SHFIT_LAST[slot.getAttribute('data-vid')] = fit; bx.style.left = fit.l; bx.style.top = fit.t; bx.style.transform = fit.tr;
 }); }
-(function(){ var _r6 = render; render = function(){ var r = _r6.apply(this, arguments); setTimeout(shelfFit, 0); setTimeout(shelfFit, 300); return r; }; })();
+(function(){ var _r6 = render; render = function(){ var r = _r6.apply(this, arguments); try { shelfFit(); } catch (x) {} setTimeout(shelfFit, 0); setTimeout(shelfFit, 300); return r; }; })();
 window.addEventListener('resize', function(){ shelfFit(); });
 
 
@@ -9154,7 +9162,9 @@ function gdlgDraw(top){
   S.gameId = S.gdlgId;
   GDLG.innerHTML = '<div class="gdlg-in"><div class="gdlg-xw"><button type="button" class="iconbtn gdlg-x" data-gdlgx="1" aria-label="Fermer la fiche">✕</button></div>' + viewGame() + '</div>';
   var in2 = GDLG.querySelector('.gdlg-in'); if (in2) in2.scrollTop = sc;
-  setTimeout(function(){ try { shelfFit(); } catch (x) {} try { thumbsProcess(); } catch (x) {} }, 0);
+  try { shelfFit(); } catch (x) {}
+  gdlgSbSync(); if (in2) in2.addEventListener('scroll', gdlgSbSync, {passive:true});
+  setTimeout(function(){ try { shelfFit(); } catch (x) {} try { thumbsProcess(); } catch (x) {} gdlgSbSync(); }, 0);
 }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-game],[data-gdlgx],.gh-top [data-nav]'); if (!t) return;
@@ -9167,6 +9177,22 @@ document.addEventListener('click', function(e){
 (function(){ var _r10 = render; render = function(){ var r = _r10.apply(this, arguments); if (GDLG && GDLG.open) gdlgDraw(false); return r; }; })();
 (function(){ var _go2 = go; go = function(view, opts){ if (GDLG && GDLG.open && view !== 'game') gdlgClose(); if (GDLG && GDLG.open && view === 'game') { gdlgOpen((opts || {}).id); return; } return _go2.apply(this, arguments); }; })();
 var ICON_ROUL = '<svg class="roul-ic" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="rlg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5FB8"/><stop offset="1" stop-color="#7B4FE0"/></linearGradient></defs><circle cx="24" cy="24" r="21" fill="#1A1033" stroke="url(#rlg)" stroke-width="3"/><g stroke="#2A1A4A" stroke-width="1"><path d="M24 24 L24 5 A19 19 0 0 1 40.5 14.5 Z" fill="#FF5FB8"/><path d="M24 24 L40.5 14.5 A19 19 0 0 1 40.5 33.5 Z" fill="#FFD24A"/><path d="M24 24 L40.5 33.5 A19 19 0 0 1 24 43 Z" fill="#3BE0FF"/><path d="M24 24 L24 43 A19 19 0 0 1 7.5 33.5 Z" fill="#7CDB6B"/><path d="M24 24 L7.5 33.5 A19 19 0 0 1 7.5 14.5 Z" fill="#B07BFF"/><path d="M24 24 L7.5 14.5 A19 19 0 0 1 24 5 Z" fill="#FF8A3D"/></g><circle cx="24" cy="24" r="6" fill="#FFF3C4" stroke="#F5861F" stroke-width="2"/><path d="M24 1.5 l4 7 h-8 z" fill="#FFE14D" stroke="#B85A0A" stroke-width="1"/></svg>';
+
+
+/* barre de défilement fine posée par-dessus la fiche (le bandeau va jusqu'au bord) */
+function gdlgSbSync(){
+  if (!GDLG) return; var inn = GDLG.querySelector('.gdlg-in'); if (!inn) return;
+  var sb = GDLG.querySelector('.gdlg-sb'); if (!sb) { sb = document.createElement('div'); sb.className = 'gdlg-sb'; sb.innerHTML = '<i></i>'; GDLG.appendChild(sb);
+    var th = sb.firstChild, drag = null;
+    th.addEventListener('pointerdown', function(e){ var i2 = GDLG.querySelector('.gdlg-in'); drag = {y:e.clientY, st:i2.scrollTop}; th.setPointerCapture(e.pointerId); e.preventDefault(); });
+    th.addEventListener('pointermove', function(e){ if (!drag) return; var i2 = GDLG.querySelector('.gdlg-in'), ratio = i2.scrollHeight / i2.clientHeight; i2.scrollTop = drag.st + (e.clientY - drag.y) * ratio; });
+    th.addEventListener('pointerup', function(){ drag = null; }); }
+  var h = inn.clientHeight, H = inn.scrollHeight, thumb = sb.firstChild;
+  if (H <= h + 2) { sb.style.display = 'none'; return; } sb.style.display = '';
+  var th2 = Math.max(40, h * h / H), top = (h - th2) * (inn.scrollTop / (H - h));
+  thumb.style.height = th2 + 'px'; thumb.style.transform = 'translateY(' + top + 'px)';
+  sb.classList.add('on'); clearTimeout(sb._t); sb._t = setTimeout(function(){ sb.classList.remove('on'); }, 1200);
+}
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
