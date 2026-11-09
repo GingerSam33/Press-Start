@@ -4012,6 +4012,9 @@ dialog:has(.b3d-dlg),dialog:has(.b3s-dlg){width:min(860px,calc(100vw - 24px)) !i
 @media (max-width:620px){.b3s-side{flex-basis:100%;flex-direction:row;flex-wrap:wrap}.b3s-side canvas{max-width:90px}}
 
 .dlg.b3s-dlg .body,.dlg.b3d-dlg .body{display:block !important;max-width:none !important;width:100% !important;box-sizing:border-box}
+
+/* fiche en fenêtre : pas de barre de défilement visible */
+.gdlg-sb{display:none !important}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -9183,7 +9186,7 @@ document.addEventListener('change', function(e){ if (!e.target.hasAttribute || !
 (function(){ var _sv = setVal; setVal = function(cb, val){ var r = _sv.apply(this, arguments); if (cb && cb.closest && cb.closest('#roulRoot') && cb.getAttribute('data-key') === 'consoles' && !ROUL.busy) { var v = Array.isArray(val) ? (val[0] || '') : String(val || ''); if (v !== ROUL.con) { ROUL.con = v; setTimeout(function(){ closeCombo(); roulRefresh(); }, 0); } } return r; }; })();
 
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
-var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi'];
+var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette'];
 function gdlgOpen(id){
   S.gdlgId = id; S.gameId = id;
   if (!GDLG) { GDLG = document.createElement('dialog'); GDLG.id = 'gdlg'; GDLG.className = 'gdlg'; GDLG.setAttribute('aria-label', 'Fiche du jeu'); document.body.appendChild(GDLG);
@@ -9209,6 +9212,8 @@ document.addEventListener('click', function(e){
   var inG = GDLG && GDLG.open && GDLG.contains(t);
   if (t.hasAttribute('data-gdlgx') || (inG && t.matches('.gh-top [data-nav]'))) { e.preventDefault(); e.stopImmediatePropagation(); gdlgClose(); return; }
   if (!t.hasAttribute('data-game')) return;
+  var inner = e.target.closest('button,a,input,label,select,textarea'); if (inner && inner !== t && t.contains(inner)) return;
+  if (S.licEdit2 && t.closest('.lg-card')) return;
   var id = t.getAttribute('data-game'), g = S.games.find(function(x){ return x.id === id; }); if (!g) return;
   if (inG || (GDLG_VIEWS.indexOf(S.view) >= 0 && !t.closest('.msearch') && !t.closest('dialog'))) { e.preventDefault(); e.stopImmediatePropagation(); gdlgOpen(id); }
 }, true);
