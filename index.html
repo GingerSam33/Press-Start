@@ -3954,6 +3954,18 @@ dialog.gdlg[open]{animation:gdlgIn .28s cubic-bezier(.2,.8,.2,1)}
 .gdlg .gh-top [data-nav]{visibility:hidden}
 @media (max-width:820px){dialog.gdlg{width:100vw;max-height:100dvh;height:100dvh;border-radius:0}.gdlg-in{max-height:100dvh;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 40px}}
 @media (prefers-reduced-motion:reduce){dialog.gdlg[open]{animation:none}}
+
+/* fiche en fenêtre : bandeau du haut sur toute la largeur */
+dialog.gdlg .gdlg-in{padding-top:0}
+dialog.gdlg .ghero{margin:0 -22px 0 !important;padding-left:40px !important;padding-right:40px !important;border-radius:28px 28px 0 0;width:auto !important;max-width:none !important}
+dialog.gdlg .gdlg-x{position:sticky;top:12px;margin:12px 12px -52px auto}
+.vs-grid:empty{display:none}
+@media (max-width:820px){dialog.gdlg .ghero{margin:0 -12px !important;padding-left:16px !important;padding-right:16px !important;border-radius:0}}
+
+.gdlg-xw{position:sticky;top:12px;height:0;z-index:60;display:flex;justify-content:flex-end;margin-right:-10px}
+dialog.gdlg .gdlg-x{position:static !important;float:none !important;margin:0 !important}
+
+dialog.gdlg .gh-top{padding-right:52px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4736,7 +4748,8 @@ function viewGame(){
   h += covSuggestCard(g) + concordCard(g);
   h += '<section class="vsec"><div class="vs-head"><h2>Mes exemplaires</h2><span class="vs-sub">' + vs.length + ' version' + (vs.length > 1 ? 's' : '') + ' de ce jeu' + ((parseInt(g.nombre, 10) || 1) > vs.length ? ' · ' + (parseInt(g.nombre, 10) || 1) + ' exemplaires au total' : '') + '</span><span class="vp-saved" id="vpSaved" aria-live="polite"></span></div>' + shelfHtml(g) + '<div class="vs-grid">';
   vs.forEach(function(v, i){
-    if (pbIsPS5(v.console) && !S.boxEdit[v.id]) { if (getVersions(g).indexOf(v) < 4) { return; } h += ps5Box(g, v, i); return; }
+    if (getVersions(g).indexOf(v) < 8) return; /* toutes les éditions sont sur l'étagère */
+    if (pbIsPS5(v.console) && !S.boxEdit[v.id]) { h += ps5Box(g, v, i); return; }
     var sv = function(f){ return g.id + '|v:' + v.id + ':' + f; };
     var col = v.console ? (CBRAND_COL[brandOfConsole(v.console)] || brandIntense(brandOfConsole(v.console))) : '#6B5BD6';
     var hasInsert = phys && v.etat.some(function(e){ return norm(e) === 'insert manquant'; });
@@ -8852,7 +8865,7 @@ function shelfPs5(g){ if (!g || g.kind === 'wish' || typeof pbIsPS5 !== 'functio
 function shelfHtml(g){
   if (!g || g.kind === 'wish') return '';
   var vs = getVersions(g); if (!vs.length) vs = [{id:'_', console:list(g.consoles)[0] || ''}];
-  vs = vs.slice(0, 4);
+  vs = vs.slice(0, 8);
   var BW = 245, GAP = 18, PAD = 6, LW = 940, RW = 975, TILE = 253, n = vs.length;
   var need = n * BW + (n - 1) * GAP + PAD * 2, K = need <= TILE * 1.15 ? 1 : Math.ceil(need / TILE); if (K % 2 === 0) K++;
   var midW = K === 1 ? Math.max(TILE, need) : K * TILE, TL = midW / K, TW = LW + midW + RW, pc = function(x, t){ return (x / t * 100).toFixed(4) + '%'; };
@@ -9139,7 +9152,7 @@ function gdlgDraw(top){
   var a = document.activeElement; if (!top && a && GDLG.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
   var inn = GDLG.querySelector('.gdlg-in'), sc = inn && !top ? inn.scrollTop : 0;
   S.gameId = S.gdlgId;
-  GDLG.innerHTML = '<div class="gdlg-in"><button type="button" class="iconbtn gdlg-x" data-gdlgx="1" aria-label="Fermer la fiche">✕</button>' + viewGame() + '</div>';
+  GDLG.innerHTML = '<div class="gdlg-in"><div class="gdlg-xw"><button type="button" class="iconbtn gdlg-x" data-gdlgx="1" aria-label="Fermer la fiche">✕</button></div>' + viewGame() + '</div>';
   var in2 = GDLG.querySelector('.gdlg-in'); if (in2) in2.scrollTop = sc;
   setTimeout(function(){ try { shelfFit(); } catch (x) {} try { thumbsProcess(); } catch (x) {} }, 0);
 }
