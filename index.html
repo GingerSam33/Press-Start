@@ -3935,6 +3935,25 @@ dialog:has(.roul-dlg){width:min(1040px,calc(100vw - 24px)) !important;max-width:
 .dlg.dl-dlg .body .dl-dh{margin:0 !important;padding:18px 64px 18px 18px !important;border-radius:20px;box-sizing:border-box;width:100%}
 .dl-dlg .nart-read{align-self:flex-start;margin:0 !important}
 .dl-dlg .gi-sec{margin:0 !important}
+
+/* base de jeux : deux recherches côte à côte */
+.cat-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cat-bar .search{flex:0 1 340px;min-width:220px}
+.catg[hidden]{display:none !important}
+.catg-top,.catg-in{display:none !important}
+/* icône de la roulette */
+.roul-ic{width:30px;height:30px;flex:none;filter:drop-shadow(0 0 6px rgba(255,95,184,.55))}
+.roul-head h2,.roul-dh{display:flex;align-items:center;gap:10px}
+/* fiche de jeu en fenêtre */
+dialog.gdlg{width:min(1200px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);padding:0;border:0;border-radius:28px;background:var(--bg,#E3ECF8);color:inherit;overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)}
+dialog.gdlg::backdrop{background:rgba(14,10,30,.55);backdrop-filter:blur(4px)}
+dialog.gdlg[open]{animation:gdlgIn .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes gdlgIn{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.gdlg-in{position:relative;max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;padding:18px 22px 40px;box-sizing:border-box;scrollbar-width:thin}
+.gdlg-x{position:sticky;top:0;float:right;z-index:60;margin:0 0 -44px auto;box-shadow:0 6px 16px -8px rgba(0,0,0,.5)}
+.gdlg .gh-top [data-nav]{visibility:hidden}
+@media (max-width:820px){dialog.gdlg{width:100vw;max-height:100dvh;height:100dvh;border-radius:0}.gdlg-in{max-height:100dvh;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 40px}}
+@media (prefers-reduced-motion:reduce){dialog.gdlg[open]{animation:none}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -3960,7 +3979,7 @@ dialog:has(.roul-dlg){width:min(1040px,calc(100vw - 24px)) !important;max-width:
       <button class="navbtn" data-nav="licences">Collection par licence</button>
       <button class="navbtn" data-nav="decouvrir">Jeux à découvrir <small data-count="decouvrir"></small></button>
       <button class="navbtn" data-nav="suivi">Suivi jeux <small data-count="suivi"></small></button>
-      <button class="navbtn" data-nav="roulette">À quoi je joue ? <small>🎲</small></button>
+      <button class="navbtn" data-nav="roulette">À quoi on joue ?</button>
       <button class="navbtn" data-nav="catalog">Base de jeux <small data-count="catalog"></small></button>
     </nav>
     <nav class="navgroup" aria-labelledby="nav-db"><h2 id="nav-db">Gestion</h2>
@@ -6903,8 +6922,8 @@ function viewCatHome(){
   var tot = CAT.reduce(function(s, p){ return s + (p.count || 0); }, 0);
   var h = crtPage({kick:'GAME DATABASE', title:'BASE DE JEUX', sub:'Tous les jeux sortis, plateforme par plateforme, avec leurs régions', blink:'SÉLECTIONNE TA PLATEFORME', sc:[['PLATEFORMES', crtPad(CAT.length)], ['JEUX RÉFÉRENCÉS', crtPad(tot)], ['COMPLÈTES', crtPad(CAT.filter(function(p){ return p.status === 'complet'; }).length)], ['À REMPLIR', crtPad(CAT.filter(function(p){ return !p.count; }).length)]]});
   if (!CAT.length) return h + '<div class="card empty"><strong>Aucune plateforme pour l\u2019instant</strong></div>';
-  h += '<div class="cat-bar"><label class="search"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="catPQ" type="search" placeholder="Rechercher une plateforme" aria-label="Rechercher une plateforme" autocomplete="off"></label><span class="count" id="catPN">' + CAT.length + ' plateformes</span></div>';
-  h += '<section class="card catg"><div class="catg-top"><b>🔎 Chercher un jeu sur toutes les plateformes</b><small>Pratique si tu ne sais pas sur quelle console il est sorti, ou s\u2019il existe sur plusieurs.</small></div><label class="search catg-in"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="catAllQ" type="search" placeholder="Nom du jeu (ex. assassin\u2019s creed)" value="' + esc(CATG.q) + '" autocomplete="off" aria-label="Rechercher un jeu dans toutes les plateformes"></label><div id="catAllRes" aria-live="polite">' + catGlobalResults() + '</div></section>';
+  h += '<div class="cat-bar"><label class="search"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="catPQ" type="search" placeholder="Rechercher une plateforme" aria-label="Rechercher une plateforme" autocomplete="off"></label><label class="search"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="catAllQ" type="search" placeholder="Rechercher un jeu" value="' + esc(CATG.q) + '" autocomplete="off" aria-label="Rechercher un jeu sur toutes les plateformes"></label><span class="count" id="catPN">' + CAT.length + ' plateformes</span></div>';
+  h += '<section class="card catg" id="catAllRes" aria-live="polite"' + (CATG.q && catKey(CATG.q).length >= 2 ? '' : ' hidden') + '>' + catGlobalResults() + '</section>';
   CAT_MAKERS.forEach(function(m){
     var ps = CAT.filter(function(p){ return catMaker(p)[0] === m[0]; }).sort(function(a, b){ return (a.year || 0) - (b.year || 0) || String(a.name).localeCompare(b.name, 'fr'); }); if (!ps.length) return;
     h += '<section class="cat-group"><div class="section-title tt-title"><h2>' + m[0] + '</h2><span>' + ps.length + ' plateforme' + (ps.length > 1 ? 's' : '') + '</span></div><div class="cat-grid">' + ps.map(function(p, i){ var st = catStatus(p); return '<button type="button" class="cat-card" style="--cc:' + m[1] + ';--i:' + i + '" data-catp="' + esc(p.id) + '" data-name="' + esc(norm(p.name + ' ' + list(p.aliases).join(' ') + ' ' + (p.maker || ''))) + '"><span class="cc-y">' + esc(p.year || '') + '</span><b>' + esc(p.name) + '</b><span class="cc-n">' + (p.count ? Number(p.count).toLocaleString('fr-FR') + ' jeu' + (p.count > 1 ? 'x' : '') : 'Aucun jeu pour l\u2019instant') + '</span>' + tag(st[0], st[1], true) + '</button>'; }).join('') + '</div></section>';
@@ -9009,7 +9028,7 @@ function catGlobalResults(){
 }
 document.addEventListener('input', function(e){
   if (e.target.id !== 'catAllQ') return; CATG.q = e.target.value; clearTimeout(CATG.t);
-  CATG.t = setTimeout(function(){ var box = document.getElementById('catAllRes'); if (box) box.innerHTML = catGlobalResults(); }, 250);
+  CATG.t = setTimeout(function(){ var box = document.getElementById('catAllRes'); if (box) { box.innerHTML = catGlobalResults(); box.hidden = catKey(CATG.q).length < 2; } }, 250);
 });
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-catg]'); if (!t) return;
@@ -9060,9 +9079,9 @@ function roulResult(){
   return '<div class="roul-res pop"><img src="' + esc(roulCv(g)) + '" alt=""><div><small>Ton prochain jeu</small><b>' + esc(g.name) + '</b><span class="tags">' + list(g.consoles).map(consoleTag).join('') + '</span></div><div class="roul-acts">' + (S.readOnly ? '' : '<button type="button" class="btn small" data-roulplay="' + esc(g.id) + '">▶ Je lance !</button>') + '<button type="button" class="btn ghost small" data-game="' + esc(g.id) + '">Voir la fiche</button></div></div>';
 }
 function roulHtml(inDlg){
-  return '<div class="roul' + (inDlg ? ' in-dlg' : '') + '" id="roulRoot"><div class="roul-head"><div><h2>🎲 À quoi je joue ?</h2><small>La plateforme tire au sort un jeu de ta collection.</small></div>' + roulSwitch() + '</div>' + roulFilters() + '<div id="roulStageBox">' + roulStage() + '</div><div class="roul-go"><button type="button" class="btn roul-btn" data-roulgo="1">' + (ROUL.mode === 'slot' ? '🎰 Tirer le levier' : ROUL.mode === 'flow' ? '✨ Choisis pour moi' : '🎡 Tourner la roue') + '</button></div><div id="roulResBox">' + roulResult() + '</div></div>';
+  return '<div class="roul' + (inDlg ? ' in-dlg' : '') + '" id="roulRoot"><div class="roul-head"><div><h2>' + ICON_ROUL + 'À quoi on joue ?</h2><small>La plateforme tire au sort un jeu de ta collection.</small></div>' + roulSwitch() + '</div>' + roulFilters() + '<div id="roulStageBox">' + roulStage() + '</div><div class="roul-go"><button type="button" class="btn roul-btn" data-roulgo="1">' + (ROUL.mode === 'slot' ? '🎰 Tirer le levier' : ROUL.mode === 'flow' ? '✨ Choisis pour moi' : '🎡 Tourner la roue') + '</button></div><div id="roulResBox">' + roulResult() + '</div></div>';
 }
-function viewRoulette(){ return crtPage({kick:'RANDOM SELECT', title:'À QUOI JE JOUE ?', sub:'Laisse le hasard choisir ta prochaine partie', blink:'INSERT COIN', sc:[['JEUX', crtPad(S.games.filter(function(g){ return g.kind !== 'wish'; }).length)], ['PAS COMMENCÉS', crtPad(S.games.filter(function(g){ return g.kind !== 'wish' && (g.status || 'Pas commencé') === 'Pas commencé'; }).length)], ['EN COURS', crtPad(S.games.filter(function(g){ return g.status === 'En cours'; }).length)]]}) + '<section class="card">' + roulHtml(false) + '</section>'; }
+function viewRoulette(){ return crtPage({kick:'RANDOM SELECT', title:'À QUOI ON JOUE ?', sub:'Laisse le hasard choisir ta prochaine partie', blink:'INSERT COIN', sc:[['JEUX', crtPad(S.games.filter(function(g){ return g.kind !== 'wish'; }).length)], ['PAS COMMENCÉS', crtPad(S.games.filter(function(g){ return g.kind !== 'wish' && (g.status || 'Pas commencé') === 'Pas commencé'; }).length)], ['EN COURS', crtPad(S.games.filter(function(g){ return g.status === 'En cours'; }).length)]]}) + '<section class="card">' + roulHtml(false) + '</section>'; }
 function roulShuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 function roulPrep(force){
   var pool = roulPool(); if (!pool.length) return;
@@ -9091,7 +9110,7 @@ function roulSpin(){
 function roulRefresh(){ var root = document.getElementById('roulRoot'); if (!root) return; var inDlg = root.classList.contains('in-dlg'); root.outerHTML = roulHtml(inDlg); setTimeout(function(){ roulPrep(true); }, 0); }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-roulmode],[data-roulf],[data-roulgo],[data-roulplay],[data-roulopen]'); if (!t) return;
-  if (t.hasAttribute('data-roulopen')) { openDlg('<div class="dlg roul-dlg"><header><h2>À quoi je joue ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">' + roulHtml(true) + '</div></div>'); setTimeout(roulPrep, 30); return; }
+  if (t.hasAttribute('data-roulopen')) { openDlg('<div class="dlg roul-dlg"><header><h2 class="roul-dh">' + ICON_ROUL + 'À quoi on joue ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">' + roulHtml(true) + '</div></div>'); setTimeout(roulPrep, 30); return; }
   if (ROUL.busy && !t.hasAttribute('data-roulplay')) return;
   if (t.hasAttribute('data-roulmode')) { ROUL.mode = t.getAttribute('data-roulmode'); try { localStorage.setItem('ps-roul', ROUL.mode); } catch (x) {} roulRefresh(); return; }
   if (t.hasAttribute('data-roulf')) { var p = t.getAttribute('data-roulf').split('|'); ROUL[p[0]] = p[1]; roulRefresh(); return; }
@@ -9103,6 +9122,38 @@ document.addEventListener('change', function(e){ if (!e.target.hasAttribute || !
 
 
 (function(){ var _sv = setVal; setVal = function(cb, val){ var r = _sv.apply(this, arguments); if (cb && cb.closest && cb.closest('#roulRoot') && cb.getAttribute('data-key') === 'consoles' && !ROUL.busy) { var v = Array.isArray(val) ? (val[0] || '') : String(val || ''); if (v !== ROUL.con) { ROUL.con = v; setTimeout(function(){ closeCombo(); roulRefresh(); }, 0); } } return r; }; })();
+
+/* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
+var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi'];
+function gdlgOpen(id){
+  S.gdlgId = id; S.gameId = id;
+  if (!GDLG) { GDLG = document.createElement('dialog'); GDLG.id = 'gdlg'; GDLG.className = 'gdlg'; GDLG.setAttribute('aria-label', 'Fiche du jeu'); document.body.appendChild(GDLG);
+    GDLG.addEventListener('click', function(e){ if (e.target === GDLG) gdlgClose(); });
+    GDLG.addEventListener('close', function(){ S.gdlgId = null; if (S.view !== 'game') S.gameId = null; GDLG.innerHTML = ''; }); }
+  gdlgDraw(true); if (!GDLG.open) GDLG.showModal();
+}
+function gdlgClose(){ if (GDLG && GDLG.open) GDLG.close(); }
+function gdlgDraw(top){
+  if (!GDLG || !S.gdlgId) return;
+  var g = S.games.find(function(x){ return x.id === S.gdlgId; }); if (!g) { gdlgClose(); return; }
+  var a = document.activeElement; if (!top && a && GDLG.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+  var inn = GDLG.querySelector('.gdlg-in'), sc = inn && !top ? inn.scrollTop : 0;
+  S.gameId = S.gdlgId;
+  GDLG.innerHTML = '<div class="gdlg-in"><button type="button" class="iconbtn gdlg-x" data-gdlgx="1" aria-label="Fermer la fiche">✕</button>' + viewGame() + '</div>';
+  var in2 = GDLG.querySelector('.gdlg-in'); if (in2) in2.scrollTop = sc;
+  setTimeout(function(){ try { shelfFit(); } catch (x) {} try { thumbsProcess(); } catch (x) {} }, 0);
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-game],[data-gdlgx],.gh-top [data-nav]'); if (!t) return;
+  var inG = GDLG && GDLG.open && GDLG.contains(t);
+  if (t.hasAttribute('data-gdlgx') || (inG && t.matches('.gh-top [data-nav]'))) { e.preventDefault(); e.stopImmediatePropagation(); gdlgClose(); return; }
+  if (!t.hasAttribute('data-game')) return;
+  var id = t.getAttribute('data-game'), g = S.games.find(function(x){ return x.id === id; }); if (!g) return;
+  if (inG || (GDLG_VIEWS.indexOf(S.view) >= 0 && !t.closest('.msearch') && !t.closest('dialog'))) { e.preventDefault(); e.stopImmediatePropagation(); gdlgOpen(id); }
+}, true);
+(function(){ var _r10 = render; render = function(){ var r = _r10.apply(this, arguments); if (GDLG && GDLG.open) gdlgDraw(false); return r; }; })();
+(function(){ var _go2 = go; go = function(view, opts){ if (GDLG && GDLG.open && view !== 'game') gdlgClose(); if (GDLG && GDLG.open && view === 'game') { gdlgOpen((opts || {}).id); return; } return _go2.apply(this, arguments); }; })();
+var ICON_ROUL = '<svg class="roul-ic" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="rlg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5FB8"/><stop offset="1" stop-color="#7B4FE0"/></linearGradient></defs><circle cx="24" cy="24" r="21" fill="#1A1033" stroke="url(#rlg)" stroke-width="3"/><g stroke="#2A1A4A" stroke-width="1"><path d="M24 24 L24 5 A19 19 0 0 1 40.5 14.5 Z" fill="#FF5FB8"/><path d="M24 24 L40.5 14.5 A19 19 0 0 1 40.5 33.5 Z" fill="#FFD24A"/><path d="M24 24 L40.5 33.5 A19 19 0 0 1 24 43 Z" fill="#3BE0FF"/><path d="M24 24 L24 43 A19 19 0 0 1 7.5 33.5 Z" fill="#7CDB6B"/><path d="M24 24 L7.5 33.5 A19 19 0 0 1 7.5 14.5 Z" fill="#B07BFF"/><path d="M24 24 L7.5 14.5 A19 19 0 0 1 24 5 Z" fill="#FF8A3D"/></g><circle cx="24" cy="24" r="6" fill="#FFF3C4" stroke="#F5861F" stroke-width="2"/><path d="M24 1.5 l4 7 h-8 z" fill="#FFE14D" stroke="#B85A0A" stroke-width="1"/></svg>';
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
