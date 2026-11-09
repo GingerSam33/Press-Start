@@ -3979,6 +3979,39 @@ dialog.gdlg .gdlg-main{min-height:0 !important;flex:none;width:100%;box-sizing:b
 dialog.gdlg .ghero{border-radius:28px 28px 0 0}
 .gdlg-xw{margin-right:0 !important;padding-right:12px}
 @media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){dialog.gdlg .main.gdlg-main{padding:0 14px calc(env(safe-area-inset-bottom,0px) + 40px) !important}}
+/* ===== boîtes 3D ===== */
+dialog:has(.b3d-dlg),dialog:has(.b3s-dlg){width:min(860px,calc(100vw - 24px)) !important;max-width:860px !important}
+.dlg.b3d-dlg,.dlg.b3s-dlg{width:100% !important;max-width:none !important}
+.b3d-view{border-radius:20px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,color-mix(in srgb,var(--accent) 16%,var(--card)),var(--sunken))}
+.b3d-view iframe{display:block;width:100%;height:min(640px,70vh);border:0;background:transparent}
+.b3d-miss{padding:40px 20px;text-align:center;color:var(--muted)}
+.b3d-dlg footer .spacer,.b3s-foot .spacer{flex:1}
+.b3s-steps{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.b3s-steps i{flex:0 0 18px;height:2px;background:var(--card-border)}
+.b3s-steps small{font-size:12px;color:var(--muted);margin-right:4px}
+.b3s-dot{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--sunken);border:1px solid var(--card-border);font-size:12px;font-weight:800;color:var(--muted)}
+.b3s-dot.on{background:var(--accent);border-color:transparent;color:#fff}.b3s-dot.ok{background:#1A7A45;color:#fff;border-color:transparent}
+.b3s-t{margin:8px 0 2px;font-size:17px}
+.b3s-pick{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:260px;margin:12px 0;border-radius:20px;border:2px dashed var(--card-border);background:var(--sunken);cursor:pointer;text-align:center;padding:20px}
+.b3s-pick span{font-size:46px}.b3s-pick b{font-size:16px;color:var(--text)}.b3s-pick small{color:var(--muted);font-size:12.5px}
+.b3s-pick:hover{border-color:var(--accent)}
+.b3s-ed{display:flex;gap:16px;margin:12px 0;flex-wrap:wrap;align-items:flex-start}
+.b3s-wrap{position:relative;flex:1 1 360px;max-width:560px;touch-action:none;border-radius:12px;overflow:visible}
+.b3s-wrap canvas{display:block;border-radius:12px}
+.b3s-h{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#FFE14D;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:grab;touch-action:none}
+.b3s-h:active{cursor:grabbing;transform:scale(1.15)}
+.b3s-side{flex:0 0 170px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.b3s-side b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.b3s-side canvas{max-width:160px;max-height:220px;border-radius:6px;box-shadow:0 8px 16px -8px rgba(0,0,0,.5);background:var(--sunken)}
+.b3s-side small{font-size:12px;color:var(--muted)}
+.b3s-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+.b3s-redo{cursor:pointer}
+.shf2-box.photo .shf2-band{display:none}
+.shf2-box.photo img{height:100% !important}
+.shf2-box .b3d-badge{position:absolute;right:6%;bottom:6%;padding:2px 7px;border-radius:999px;background:rgba(20,10,30,.75);color:#fff;font-size:clamp(8px,.8vw,11px);font-weight:800}
+@media (max-width:620px){.b3s-side{flex-basis:100%;flex-direction:row;flex-wrap:wrap}.b3s-side canvas{max-width:90px}}
+
+.dlg.b3s-dlg .body,.dlg.b3d-dlg .body{display:block !important;max-width:none !important;width:100% !important;box-sizing:border-box}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5788,7 +5821,7 @@ function scheduleSave(cb){
 /* ---------- Versions d'un jeu (une par plateforme) ---------- */
 function vid(){ return 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function getVersions(g){
-  if (Array.isArray(g.versions) && g.versions.length) return g.versions.map(function(v){ return {id:String(v.id || vid()), console:v.console || '', edition:String(v.edition || ''), kind:v.kind === 'box' ? 'box' : (v.kind === 'copy' ? 'copy' : ''), format:v.format || '', etat:list(v.etat), photos:Array.isArray(v.photos) ? v.photos.filter(function(x){ return !!safeId(x); }) : [], insertNote:String(v.insertNote || '')}; });
+  if (Array.isArray(g.versions) && g.versions.length) return g.versions.map(function(v){ return {id:String(v.id || vid()), console:v.console || '', edition:String(v.edition || ''), kind:v.kind === 'box' ? 'box' : (v.kind === 'copy' ? 'copy' : ''), box3d:v.box3d && typeof v.box3d === 'object' ? v.box3d : null, format:v.format || '', etat:list(v.etat), photos:Array.isArray(v.photos) ? v.photos.filter(function(x){ return !!safeId(x); }) : [], insertNote:String(v.insertNote || '')}; });
   var cs = list(g.consoles); if (!cs.length) cs = [''];
   return cs.map(function(c, i){ return {id:'v' + i, console:c, format:g.format || '', etat:list(g.etat), photos:[]}; });
 }
@@ -8887,7 +8920,7 @@ function shelfHtml(g){
     var con = v.console || list(g.consoles)[0] || '', band = con ? (CBRAND_COL[brandOfConsole(con)] || '#1F5FD6') : '#1F5FD6';
     var short = con ? ((S.consoles.find(function(c){ return norm(c.name) === norm(con); }) || {}).short || con) : '';
     var cv = g.coverId ? blob(g.coverId) : genCover(g.name, con), left = (midW - (n * BW + (n - 1) * GAP)) / 2 + i * (BW + GAP);
-    var inner = (v.id !== '_' && typeof pbIsPS5 === 'function' && pbIsPS5(v.console) && !(S.boxEdit && S.boxEdit[v.id])) ? '<div class="shf2-ps5">' + (function(){ var pb = ps5Box(g, v, i), f = SHFIT_LAST[v.id]; return f ? pb.replace('<div class="ps5box', '<div style="left:' + f.l + ';top:' + f.t + ';transform:' + f.tr + '" class="ps5box') : pb; })() + '</div>' : '<div class="shf2-box"' + (v.id !== '_' && !S.readOnly ? ' data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" role="button" tabindex="0" title="Modifier cette édition"' : '') + ' style="--band:' + band + '"><div class="shf2-band">' + esc(short) + '</div><img src="' + esc(cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span></div>';
+    var inner = (v.id !== '_' && typeof pbIsPS5 === 'function' && pbIsPS5(v.console) && !(S.boxEdit && S.boxEdit[v.id])) ? '<div class="shf2-ps5">' + (function(){ var pb = ps5Box(g, v, i), f = SHFIT_LAST[v.id]; return f ? pb.replace('<div class="ps5box', '<div style="left:' + f.l + ';top:' + f.t + ';transform:' + f.tr + '" class="ps5box') : pb; })() + '</div>' : (function(){ var ps4 = v.id !== '_' && isPS4(v.console), ph = ps4 && v.box3d && v.box3d.front; return '<div class="shf2-box' + (ph ? ' photo' : '') + '"' + (v.id !== '_' ? (ps4 ? ' data-b3d="' + esc(g.id) + '|' + esc(v.id) + '" role="button" tabindex="0" title="Voir la boîte en 3D"' : (!S.readOnly ? ' data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" role="button" tabindex="0" title="Modifier cette édition"' : '')) : '') + ' style="--band:' + band + '"><div class="shf2-band">' + esc(short) + '</div><img src="' + esc(ph ? blob(v.box3d.front) : cv) + '" alt="Jaquette de ' + esc(g.name) + '"><span class="shf-gloss"></span>' + (ps4 ? '<span class="b3d-badge">3D</span>' : '') + '</div>'; })();
     var ctl = false ? '<span class="shf-ctl"><button type="button" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Modifier cette édition">' + ICON_PEN + '</button>' + (vs.length > 1 ? '<button type="button" class="del" data-shfdel="' + esc(g.id) + '|' + esc(v.id) + '" aria-label="Supprimer cette édition">' + ICON_TRASH + '</button>' : '') + '</span>' : '';
     return '<div class="shf2-slot' + (S.pbOpen && S.pbOpen[v.id] ? ' is-open' : '') + '" data-gid="' + esc(g.id) + '" data-vid="' + esc(v.id) + '" style="left:' + pc(left, midW) + ';width:' + pc(BW, midW) + '"' + (v.edition ? ' title="' + esc(v.edition) + '"' : '') + '>' + ctl + inner + ((v.edition || v.kind === 'box') ? '<span class="shf2-ed">' + (v.kind === 'box' ? '📦 ' : '') + esc(v.edition || 'Boîte en plus') + '</span>' : '') + '</div>';
   }).join('');
@@ -9197,6 +9230,138 @@ function gdlgSbSync(){
   var th2 = Math.max(40, h * h / H), top = (h - th2) * (inn.scrollTop / (H - h));
   thumb.style.height = th2 + 'px'; thumb.style.transform = 'translateY(' + top + 'px)';
   sb.classList.add('on'); clearTimeout(sb._t); sb._t = setTimeout(function(){ sb.classList.remove('on'); }, 1200);
+}
+
+/* ---------- Boîtes 3D (PS4) : photos de mes boîtes + visionneuse 3D ---------- */
+function isPS4(c){ var n = norm(canonConsole(c || '') || c || ''); return n === 'ps4' || n === 'playstation 4' || norm(c) === 'ps4' || norm(c) === 'playstation 4'; }
+var B3D_FACES = [['front', 'Le devant', 'Pose la boîte à plat et photographie toute la face avant, bandeau PS4 compris.', 135 / 170, 900], ['spine', 'La tranche', 'Photographie la tranche avec le nom du jeu. Tu peux la prendre à l\u2019horizontale, je la remets droite.', 14 / 170, 1100], ['back', 'Le dos', 'Retourne la boîte et photographie toute la face arrière.', 135 / 170, 900]];
+var B3D = null;
+function b3dViewerUrl(g, v){
+  var ph = v.box3d || {}, u = function(id){ return id ? new URL(blob(id), location.href).href : ''; };
+  var data = {plateforme:'PS4', titre:g.name, sousTitre:v.edition || v.format || 'Édition standard', tags:[].concat(v.format ? [{label:v.format, couleur:'#ffe39a'}] : [], v.etat.map(function(e){ return {label:e, couleur:'#c7f0d2'}; })), photos:{front:u(ph.front), spine:u(ph.spine), back:u(ph.back)}};
+  if (!ph.front) data.jaquetteUrl = g.coverId ? u(g.coverId) : '';
+  return 'box3d.html#' + encodeURIComponent(JSON.stringify(data));
+}
+function b3dDlg(g, v){
+  var has = v.box3d && v.box3d.front;
+  return '<div class="dlg b3d-dlg"><header><h2>📦 ' + esc(g.name) + (v.edition ? ' · ' + esc(v.edition) : '') + '</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">'
+    + '<div class="b3d-view" id="b3dView"><iframe title="Boîte 3D de ' + esc(g.name) + '" src="' + esc(b3dViewerUrl(g, v)) + '" loading="eager"></iframe><p class="b3d-miss" hidden>La boîte 3D s\u2019affiche sur ta plateforme en ligne (GitHub Pages), une fois le fichier <b>box3d.html</b> déposé.</p></div>'
+    + '<p class="gi-note">Clique sur la boîte pour l\u2019ouvrir, puis sur le disque pour le faire tourner.' + (has ? '' : ' Prends tes 3 photos pour qu\u2019elle ressemble à ta vraie boîte.') + '</p>'
+    + '</div><footer>' + (S.readOnly ? '' : '<button type="button" class="btn ghost" data-shfed="' + esc(g.id) + '|' + esc(v.id) + '">✎ Modifier l\u2019édition</button><span class="spacer"></span><button type="button" class="btn" data-b3dshoot="' + esc(g.id) + '|' + esc(v.id) + '">📸 ' + (has ? 'Refaire les photos' : 'Photographier ma boîte') + '</button>') + '</footer></div>';
+}
+function b3dCheckViewer(){ var w = document.getElementById('b3dView'); if (!w) return; fetch('box3d.html', {method:'HEAD', cache:'no-store'}).then(function(r){ if (!r.ok) throw 0; }).catch(function(){ var f = w.querySelector('iframe'), m = w.querySelector('.b3d-miss'); if (f) f.style.display = 'none'; if (m) m.hidden = false; }); }
+
+/* --- prise de photo et découpage --- */
+function b3dShootDlg(g, v){
+  B3D = {gid:g.id, vid:v.id, step:0, shots:{}, out:{}};
+  return '<div class="dlg b3s-dlg"><header><h2>📸 Photographier ma boîte</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="b3sBody">' + b3sStepHtml() + '</div></div>';
+}
+function b3sStepHtml(){
+  var f = B3D_FACES[B3D.step], sh = B3D.shots[f[0]];
+  var dots = B3D_FACES.map(function(x, i){ return '<span class="b3s-dot' + (i === B3D.step ? ' on' : B3D.out[x[0]] ? ' ok' : '') + '">' + (B3D.out[x[0]] ? '✓' : i + 1) + '</span><small>' + x[1] + '</small>'; }).join('<i></i>');
+  return '<div class="b3s-steps">' + dots + '</div><h3 class="b3s-t">' + (B3D.step + 1) + '. ' + f[1] + '</h3><p class="gi-note">' + f[2] + '</p>'
+    + (sh ? '<div class="b3s-ed"><div class="b3s-wrap" id="b3sWrap"><canvas id="b3sCan"></canvas>' + [0, 1, 2, 3].map(function(k){ return '<span class="b3s-h" data-h="' + k + '"></span>'; }).join('') + '</div><div class="b3s-side"><b>Aperçu</b><canvas id="b3sPrev"></canvas><small>Fais glisser les 4 ronds sur les coins de la face.</small><button type="button" class="btn ghost small" data-b3srot="1">↻ Pivoter</button><button type="button" class="btn ghost small" data-b3sauto="1">✨ Détecter à nouveau</button></div></div>' : '<label class="b3s-pick"><input type="file" accept="image/*" capture="environment" data-b3sfile="1" hidden><span>📷</span><b>Prendre ou choisir la photo</b><small>Sur téléphone, l\u2019appareil photo s\u2019ouvre directement.</small></label>')
+    + '<div class="b3s-foot">' + (B3D.step ? '<button type="button" class="btn ghost" data-b3sprev="1">← Retour</button>' : '<span></span>') + '<span class="spacer"></span>' + (sh ? '<label class="btn ghost b3s-redo"><input type="file" accept="image/*" capture="environment" data-b3sfile="1" hidden>Changer de photo</label>' : (B3D.step ? '<button type="button" class="btn ghost" data-b3sskip="1">Passer</button>' : '')) + (sh ? '<button type="button" class="btn" data-b3snext="1">' + (B3D.step === 2 ? '✓ Terminer' : 'Valider →') + '</button>' : '') + '</div>';
+}
+function b3sRedraw(){ var b = document.getElementById('b3sBody'); if (!b) return; b.innerHTML = b3sStepHtml(); b3sMount(); }
+function b3sLoad(file){
+  var img = new Image(), url = URL.createObjectURL(file);
+  img.onload = function(){
+    var M = 1800, k = Math.min(1, M / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+    var f = B3D_FACES[B3D.step]; B3D.shots[f[0]] = {c:c, q:b3sDetect(c), rot:0};
+    if (f[0] === 'spine') { var q = B3D.shots.spine.q, w = Math.hypot(q[1][0] - q[0][0], q[1][1] - q[0][1]), h = Math.hypot(q[3][0] - q[0][0], q[3][1] - q[0][1]); if (w > h) B3D.shots.spine.rot = 1; }
+    b3sRedraw();
+  };
+  img.onerror = function(){ toast('Impossible de lire cette photo'); };
+  img.src = url;
+}
+/* détection de la face : on sépare la boîte du fond (couleur des bords de la photo), puis on prend les 4 coins extrêmes */
+function b3sDetect(src){
+  var W = 220, k = W / Math.max(src.width, src.height), w = Math.max(8, Math.round(src.width * k)), h = Math.max(8, Math.round(src.height * k)), c = document.createElement('canvas'); c.width = w; c.height = h;
+  var x = c.getContext('2d'); x.drawImage(src, 0, 0, w, h); var d = x.getImageData(0, 0, w, h).data, px = function(i, j){ var o = (j * w + i) * 4; return [d[o], d[o + 1], d[o + 2]]; };
+  var bord = []; for (var i = 0; i < w; i++) { bord.push(px(i, 0), px(i, h - 1)); } for (var j = 0; j < h; j++) { bord.push(px(0, j), px(w - 1, j)); }
+  var med = [0, 1, 2].map(function(ch){ var a = bord.map(function(p){ return p[ch]; }).sort(function(a, b){ return a - b; }); return a[a.length >> 1]; });
+  var dist = new Float32Array(w * h), hist = new Array(64).fill(0);
+  for (var j2 = 0; j2 < h; j2++) for (var i2 = 0; i2 < w; i2++) { var p = px(i2, j2), dd = Math.sqrt((p[0] - med[0]) * (p[0] - med[0]) + (p[1] - med[1]) * (p[1] - med[1]) + (p[2] - med[2]) * (p[2] - med[2])); dist[j2 * w + i2] = dd; hist[Math.min(63, dd >> 3)]++; }
+  /* seuil d'Otsu */
+  var tot = w * h, sum = 0; for (var t = 0; t < 64; t++) sum += t * hist[t]; var sB = 0, wB = 0, best = 0, th = 6;
+  for (var t2 = 0; t2 < 64; t2++) { wB += hist[t2]; if (!wB) continue; var wF = tot - wB; if (!wF) break; sB += t2 * hist[t2]; var mB = sB / wB, mF = (sum - sB) / wF, bt = wB * wF * (mB - mF) * (mB - mF); if (bt > best) { best = bt; th = t2; } }
+  var thr = Math.max(4, th) * 8, mask = new Uint8Array(w * h); for (var n = 0; n < w * h; n++) mask[n] = dist[n] > thr ? 1 : 0;
+  /* plus grande zone connexe */
+  var lab = new Int32Array(w * h), bestL = 0, bestN = 0, L = 0, stack = [];
+  for (var s0 = 0; s0 < w * h; s0++) { if (!mask[s0] || lab[s0]) continue; L++; var cnt = 0; stack.push(s0); lab[s0] = L; while (stack.length) { var cur = stack.pop(), cx = cur % w, cy = (cur / w) | 0; cnt++; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function(o){ var nx = cx + o[0], ny = cy + o[1]; if (nx < 0 || ny < 0 || nx >= w || ny >= h) return; var ni = ny * w + nx; if (mask[ni] && !lab[ni]) { lab[ni] = L; stack.push(ni); } }); } if (cnt > bestN) { bestN = cnt; bestL = L; } }
+  var fb = function(){ var m = .08; return [[src.width * m, src.height * m], [src.width * (1 - m), src.height * m], [src.width * (1 - m), src.height * (1 - m)], [src.width * m, src.height * (1 - m)]]; };
+  if (bestN < w * h * .08) return fb();
+  var tl = null, tr = null, br = null, bl = null, a1 = 1e9, a2 = -1e9, a3 = -1e9, a4 = 1e9;
+  for (var q = 0; q < w * h; q++) { if (lab[q] !== bestL) continue; var qx = q % w, qy = (q / w) | 0; if (qx + qy < a1) { a1 = qx + qy; tl = [qx, qy]; } if (qx - qy > a2) { a2 = qx - qy; tr = [qx, qy]; } if (qx + qy > a3) { a3 = qx + qy; br = [qx, qy]; } if (qx - qy < a4) { a4 = qx - qy; bl = [qx, qy]; } }
+  return [tl, tr, br, bl].map(function(p){ return [(p[0] + .5) / k, (p[1] + .5) / k]; });
+}
+function b3sMount(){
+  var f = B3D_FACES[B3D.step], sh = B3D.shots[f[0]]; if (!sh) return;
+  var can = document.getElementById('b3sCan'), wrap = document.getElementById('b3sWrap'); if (!can) return;
+  var maxW = wrap.clientWidth || 520, sc = Math.min(maxW / sh.c.width, 460 / sh.c.height); can.width = Math.round(sh.c.width * sc); can.height = Math.round(sh.c.height * sc); wrap.style.width = can.width + 'px'; wrap.style.height = can.height + 'px'; sh.sc = sc;
+  var draw = function(){
+    var x = can.getContext('2d'); x.clearRect(0, 0, can.width, can.height); x.drawImage(sh.c, 0, 0, can.width, can.height);
+    var q = sh.q.map(function(p){ return [p[0] * sc, p[1] * sc]; });
+    x.save(); x.fillStyle = 'rgba(10,10,30,.45)'; x.beginPath(); x.rect(0, 0, can.width, can.height); x.moveTo(q[0][0], q[0][1]); for (var i = 3; i >= 0; i--) x.lineTo(q[i][0], q[i][1]); x.closePath(); x.fill('evenodd'); x.restore();
+    x.strokeStyle = '#FFE14D'; x.lineWidth = 2.5; x.beginPath(); q.forEach(function(p, i){ if (i) x.lineTo(p[0], p[1]); else x.moveTo(p[0], p[1]); }); x.closePath(); x.stroke();
+    wrap.querySelectorAll('.b3s-h').forEach(function(hd){ var k = +hd.getAttribute('data-h'); hd.style.left = q[k][0] + 'px'; hd.style.top = q[k][1] + 'px'; });
+    b3sPreview();
+  };
+  wrap.querySelectorAll('.b3s-h').forEach(function(hd){
+    hd.onpointerdown = function(e){ e.preventDefault(); hd.setPointerCapture(e.pointerId); var k = +hd.getAttribute('data-h'), r = can.getBoundingClientRect();
+      hd.onpointermove = function(ev){ var nx = Math.max(0, Math.min(can.width, ev.clientX - r.left)), ny = Math.max(0, Math.min(can.height, ev.clientY - r.top)); sh.q[k] = [nx / sc, ny / sc]; draw(); };
+      hd.onpointerup = function(){ hd.onpointermove = null; }; };
+  });
+  sh.draw = draw; draw();
+}
+/* redressement en perspective (homographie) */
+function b3sHomog(dst){ /* carré unité -> quadrilatère */
+  var x0 = dst[0][0], y0 = dst[0][1], x1 = dst[1][0], y1 = dst[1][1], x2 = dst[2][0], y2 = dst[2][1], x3 = dst[3][0], y3 = dst[3][1];
+  var dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3, a, b, c, d, e, f, g, h;
+  if (Math.abs(dx3) < 1e-9 && Math.abs(dy3) < 1e-9) { a = x1 - x0; b = x2 - x1; c = x0; d = y1 - y0; e = y2 - y1; f = y0; g = 0; h = 0; }
+  else { var den = dx1 * dy2 - dx2 * dy1; g = (dx3 * dy2 - dx2 * dy3) / den; h = (dx1 * dy3 - dx3 * dy1) / den; a = x1 - x0 + g * x1; b = x3 - x0 + h * x3; c = x0; d = y1 - y0 + g * y1; e = y3 - y0 + h * y3; f = y0; }
+  return function(u, v){ var z = g * u + h * v + 1; return [(a * u + b * v + c) / z, (d * u + e * v + f) / z]; };
+}
+function b3sWarp(sh, face, maxH){
+  var ratio = face[3], H = maxH || face[4] * (face[0] === 'spine' ? 1 : 1 / ratio), W = Math.max(8, Math.round(H * ratio)); H = Math.round(H);
+  var q = sh.q.slice(); for (var r = 0; r < (sh.rot || 0); r++) q = [q[3], q[0], q[1], q[2]];
+  var map = b3sHomog(q), sctx = sh.c.getContext('2d'), sw = sh.c.width, shh = sh.c.height, sd = sh._d || (sh._d = sctx.getImageData(0, 0, sw, shh).data);
+  var out = document.createElement('canvas'); out.width = W; out.height = H; var ox = out.getContext('2d'), od = ox.createImageData(W, H), o = od.data;
+  for (var j = 0; j < H; j++) for (var i = 0; i < W; i++) {
+    var p = map((i + .5) / W, (j + .5) / H), x = Math.min(sw - 1.001, Math.max(0, p[0] - .5)), y = Math.min(shh - 1.001, Math.max(0, p[1] - .5)), x0 = x | 0, y0 = y | 0, fx = x - x0, fy = y - y0, k0 = (y0 * sw + x0) * 4, k1 = k0 + 4, k2 = k0 + sw * 4, k3 = k2 + 4, t = (j * W + i) * 4;
+    for (var ch = 0; ch < 3; ch++) o[t + ch] = (sd[k0 + ch] * (1 - fx) + sd[k1 + ch] * fx) * (1 - fy) + (sd[k2 + ch] * (1 - fx) + sd[k3 + ch] * fx) * fy;
+    o[t + 3] = 255;
+  }
+  ox.putImageData(od, 0, 0); return out;
+}
+function b3sPreview(){
+  var f = B3D_FACES[B3D.step], sh = B3D.shots[f[0]], pv = document.getElementById('b3sPrev'); if (!sh || !pv) return;
+  clearTimeout(sh._pt); sh._pt = setTimeout(function(){ var c = b3sWarp(sh, f, 240); pv.width = c.width; pv.height = c.height; pv.getContext('2d').drawImage(c, 0, 0); }, 60);
+}
+function b3sCanvasBlob(c){ return new Promise(function(ok){ c.toBlob(function(b){ ok(b); }, 'image/webp', .9); }); }
+document.addEventListener('change', function(e){ if (!e.target.hasAttribute || !e.target.hasAttribute('data-b3sfile') || !B3D) return; var f = e.target.files && e.target.files[0]; if (f) b3sLoad(f); });
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-b3d],[data-b3dshoot],[data-b3snext],[data-b3sprev],[data-b3sskip],[data-b3srot],[data-b3sauto]'); if (!t) return;
+  if (t.hasAttribute('data-b3d') || t.hasAttribute('data-b3dshoot')) { e.preventDefault(); e.stopImmediatePropagation(); var p = (t.getAttribute('data-b3d') || t.getAttribute('data-b3dshoot')).split('|'), g = S.games.find(function(x){ return x.id === p[0]; }); if (!g) return; var v = getVersions(g).find(function(x){ return x.id === p[1]; }); if (!v) return;
+    if (t.hasAttribute('data-b3dshoot')) { if (S.readOnly) return; closeDlg(); setTimeout(function(){ openDlg(b3dShootDlg(g, v)); }, 200); } else { openDlg(b3dDlg(g, v)); setTimeout(b3dCheckViewer, 50); } return; }
+  if (!B3D) return; var f = B3D_FACES[B3D.step], sh = B3D.shots[f[0]];
+  if (t.hasAttribute('data-b3srot')) { if (sh) { sh.rot = ((sh.rot || 0) + 1) % 4; b3sPreview(); } return; }
+  if (t.hasAttribute('data-b3sauto')) { if (sh) { sh.q = b3sDetect(sh.c); sh.draw && sh.draw(); } return; }
+  if (t.hasAttribute('data-b3sprev')) { B3D.step = Math.max(0, B3D.step - 1); b3sRedraw(); return; }
+  if (t.hasAttribute('data-b3sskip')) { delete B3D.out[f[0]]; if (B3D.step < 2) { B3D.step++; b3sRedraw(); } else b3sSave(t); return; }
+  if (t.hasAttribute('data-b3snext')) { if (sh) B3D.out[f[0]] = b3sWarp(sh, f); if (B3D.step < 2) { B3D.step++; b3sRedraw(); } else b3sSave(t); }
+});
+async function b3sSave(btn){
+  if (!B3D.out.front) { toast('La photo du devant est nécessaire'); B3D.step = 0; b3sRedraw(); return; }
+  btn.disabled = true; btn.textContent = 'Envoi des photos…';
+  var g = S.games.find(function(x){ return x.id === B3D.gid; }); if (!g) return; var cur = (getVersions(g).find(function(x){ return x.id === B3D.vid; }) || {}).box3d || {}, ids = Object.assign({}, cur);
+  try { for (var k in B3D.out) { var b = await b3sCanvasBlob(B3D.out[k]); var id = await uploadFile(new File([b], k + '.webp', {type:'image/webp'})); if (id) ids[k] = id; } }
+  catch (x) { toast(failMsg(x)); btn.disabled = false; btn.textContent = '✓ Terminer'; return; }
+  var vid0 = B3D.vid; closeDlg();
+  saveVersions(g.id, function(vs){ var v = vs.find(function(x){ return x.id === vid0; }); if (!v) return false; v.box3d = ids; }, true);
+  toast('Ta boîte 3D est prête !'); var v2 = getVersions(g).find(function(x){ return x.id === vid0; }); if (v2) setTimeout(function(){ openDlg(b3dDlg(g, v2)); setTimeout(b3dCheckViewer, 50); }, 300);
 }
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
