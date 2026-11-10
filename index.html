@@ -4073,6 +4073,14 @@ dialog:has(.wq-dlg){width:min(560px,calc(100vw - 24px)) !important;max-width:560
 .wl-card .lg-t{font-size:13.5px;color:var(--text)}.wl-card small{font-size:11.5px;color:var(--muted)}
 .wl-heart{position:absolute;top:8px;right:8px;display:flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.92);color:#E2304A;box-shadow:0 4px 10px -4px rgba(0,0,0,.5)}
 .wl-heart svg{width:15px;height:15px}
+
+.ai-guide{display:flex;flex-direction:column;gap:8px;margin-top:8px;width:100%}
+.ai-alts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ai-alts>span{font-size:12px;color:var(--muted);width:100%}
+.ai-alts .chip small{opacity:.7;font-weight:500}
+.ai-ask{display:flex;gap:6px}
+.ai-ask input{flex:1;min-width:0;min-height:38px;padding:0 12px;border-radius:12px;border:1px solid var(--card-border);background:var(--card);color:var(--text);font:inherit;font-size:13px}
+.ai-warn{color:#C2410C;font-weight:700}
+.ai-card.ai-wide{flex-wrap:wrap}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -6327,6 +6335,9 @@ function aiErr(code){
     : code === 'rate_limited' || code === 'queue_overflow' ? 'Trop de demandes en même temps, réessaie dans un instant.'
     : code === 'cancelled' ? '' : 'Claude n\u2019a pas pu répondre. Réessaie plus tard.';
 }
+var AIHINT = '';
+function aiGuideHtml(alts){ return '<div class="ai-guide">' + (alts && alts.length ? '<div class="ai-alts"><span>Ce n\u2019est pas le bon jeu ? C\u2019est peut-être :</span>' + alts.map(function(a, i){ return '<button type="button" class="chip" data-aialt="' + i + '">' + esc(a.title) + (a.platform || a.year ? ' <small>' + esc([a.platform, a.year].filter(Boolean).join(' · ')) + '</small>' : '') + '</button>'; }).join('') + '</div>' : '') + '<div class="ai-ask"><input type="text" id="aiHintIn" maxlength="240" placeholder="Guide Claude : ex. « le remake de 2026 sur Switch 2 », « la version japonaise »…" value="' + esc(AIHINT) + '"><button type="button" class="btn small" data-act="aiAsk">' + ICON_SPARK + 'Relancer</button></div></div>'; }
+var AIALTS = [];
 async function aiFill(){
   var form = document.getElementById('gameForm'), box = document.getElementById('aiBox'), nameIn = document.getElementById('gName');
   if (!form || !box || !sampleFn) return;
@@ -6336,16 +6347,18 @@ async function aiFill(){
   box.hidden = false;
   box.innerHTML = '<div class="ai-card busy">' + ICON_SPARK + '<span>Claude cherche les infos de <b>' + esc(name) + '</b>…</span><button type="button" class="link" data-act="aiStop">Arrêter</button></div>';
   var prompt = 'Tu es un expert de l\u2019histoire du jeu vidéo. Donne les informations officielles du jeu vidéo suivant.\n'
-    + 'Jeu : « ' + name + ' »' + (cons ? '\nPlateforme : ' + cons : '') + '\n\n'
+    + 'Jeu : « ' + name + ' »' + (cons ? '\nPlateforme : ' + cons + '\nIMPORTANT : vise exactement la version sortie sur ' + cons + ' (un remake, un portage ou une édition sur cette console peut avoir un autre studio, un autre éditeur et une autre année que l\u2019original : donne ceux de la version ' + cons + ').' : '') + (AIHINT ? '\nPrécision de l\u2019utilisateur : ' + AIHINT : '') + '\n\n'
     + 'Réponds uniquement avec un objet JSON de cette forme :\n'
-    + '{"found": true, "title": "titre officiel", "developer": ["studio de développement"], "publisher": ["éditeur"], "year": 1999, "types": ["genre en français"], "confidence": "haute"}\n'
+    + '{"found": true, "title": "titre officiel", "platform": "plateforme de cette version", "developer": ["studio de développement"], "publisher": ["éditeur"], "year": 1999, "types": ["genre en français"], "confidence": "haute", "alternatives": [{"title": "autre jeu ou autre version possible", "platform": "plateforme", "year": 2001}]}\n'
+    + 'alternatives : si le nom peut désigner plusieurs jeux ou versions (original, remake, portage, autre plateforme), liste jusqu\u2019à 4 autres candidats ; sinon une liste vide. Si tu hésites, mets confidence à "moyenne" ou "faible".\n'
     + 'Règles : developer et publisher sont des listes (souvent un seul nom), pour la plateforme indiquée si elle est donnée. '
     + 'types : 1 à 3 genres en français, par exemple Action-aventure, Plates-formes, RPG, Course, Sport, Combat, Tir, Stratégie, Réflexion, Simulation, Simulation de vie, Infiltration, Survival horror, Party game. '
     + 'confidence : "haute", "moyenne" ou "faible". Si tu ne connais pas ce jeu, réponds {"found": false}. N\u2019invente rien.';
   try {
     var d = await sampleFn.json(prompt, {signal: aiCtl.signal, modelTier: 'default'});
     aiCtl = null;
-    if (!d || d.found === false || (!list(d.developer).length && !list(d.publisher).length)) { box.innerHTML = '<div class="ai-card none">' + ICON_SPARK + '<span>Claude ne connaît pas ce jeu avec assez de certitude. Remplis les champs à la main.</span><button type="button" class="link" data-act="aiClose">Fermer</button></div>'; return; }
+    AIALTS = (d && Array.isArray(d.alternatives) ? d.alternatives : []).filter(function(a){ return a && a.title; }).slice(0, 4);
+    if (!d || d.found === false || (!list(d.developer).length && !list(d.publisher).length)) { box.innerHTML = '<div class="ai-card none ai-wide">' + ICON_SPARK + '<span>Claude ne connaît pas ce jeu avec assez de certitude' + (cons ? ' sur ' + esc(cons) : '') + '. Guide-le ci-dessous, ou remplis les champs à la main.</span>' + aiGuideHtml(AIALTS) + '<button type="button" class="link" data-act="aiClose">Fermer</button></div>'; return; }
     aiData = {developer:list(d.developer).slice(0, 4), publisher:list(d.publisher).slice(0, 4), year:/^\d{4}$/.test(String(d.year)) ? String(d.year) : '', types:list(d.types).slice(0, 3)};
     var conf = String(d.confidence || '').toLowerCase(), row = function(k, label, html){ return html ? '<label class="ai-row"><input type="checkbox" data-aikey="' + k + '" checked><span class="ai-k">' + label + '</span><span class="ai-v">' + html + '</span></label>' : ''; };
     var tg = function(a, c){ return a.map(function(x){ return tag(x, c || hashColor(x)); }).join(''); };
@@ -6354,7 +6367,9 @@ async function aiFill(){
       + row('publisher', aiData.publisher.length > 1 ? 'Éditeurs' : 'Éditeur', tg(aiData.publisher, 'gray'))
       + row('year', 'Sortie', aiData.year ? tag(aiData.year, 'sky') : '')
       + row('types', aiData.types.length > 1 ? 'Types' : 'Type', tg(aiData.types))
+      + (d.platform || cons ? '<p class="ai-note">Version visée : <b>' + esc(d.platform || cons) + '</b>' + (cons && d.platform && norm(canonConsole(d.platform)) !== norm(canonConsole(cons)) && consoleFullName(d.platform) !== cons ? ' <span class="ai-warn">(ta console : ' + esc(cons) + ')</span>' : '') + '</p>' : '')
       + '<p class="ai-note">D\u2019après les connaissances de Claude, sans recherche sur Internet : vérifie avant d\u2019enregistrer.</p>'
+      + aiGuideHtml(AIALTS)
       + '<div class="ai-actions"><button type="button" class="btn ghost small" data-act="aiClose">Ignorer</button><button type="button" class="btn small" data-act="aiApply">' + ICON_CHECK + 'Appliquer la sélection</button></div></div>';
   } catch (e) {
     aiCtl = null; var m = aiErr(e && e.code);
@@ -6377,7 +6392,10 @@ function aiApply(){
   toast('Infos de Claude ajoutées au formulaire');
 }
 document.addEventListener('click', function(e){
-  var t = e.target.closest && e.target.closest('[data-act="aiFill"],[data-act="aiApply"],[data-act="aiClose"],[data-act="aiStop"]'); if (!t) return;
+  var al = e.target.closest && e.target.closest('[data-aialt]'); if (al) { e.preventDefault(); var A = AIALTS[+al.getAttribute('data-aialt')]; if (A) { AIHINT = 'Le jeu voulu est « ' + A.title + ' »' + (A.platform ? ' sur ' + A.platform : '') + (A.year ? ' (' + A.year + ')' : '') + '.'; aiFill(); } return; }
+  var t = e.target.closest && e.target.closest('[data-act="aiFill"],[data-act="aiApply"],[data-act="aiClose"],[data-act="aiStop"],[data-act="aiAsk"]'); if (!t) return;
+  if (t.getAttribute('data-act') === 'aiAsk') { e.preventDefault(); var hi = document.getElementById('aiHintIn'); AIHINT = hi ? hi.value.trim() : ''; aiFill(); return; }
+  if (t.getAttribute('data-act') === 'aiFill') AIHINT = '';
   e.stopPropagation();
   var a = t.getAttribute('data-act');
   if (a === 'aiFill') aiFill();
@@ -8121,17 +8139,7 @@ document.addEventListener('click', async function(e){
   if (t.hasAttribute('data-igclose')) { IGS.items = []; igsRender(); return; }
   var g = IGS.items[+t.getAttribute('data-igpick')], form = document.getElementById('gameForm'); if (!g || !form) return;
   IGS.items = []; igsRender();
-  var nm = form.querySelector('#gName'); if (nm) nm.value = g.name;
-  var y = g.first_release_date ? String(new Date(g.first_release_date * 1000).getUTCFullYear()) : '';
-  if (y) { var yp = form.querySelector('.ypick'); if (yp) { yp.querySelector('input').value = y; yp.classList.add('has'); var yv = yp.querySelector('.yp-val'); if (yv) yv.textContent = y; } }
-  var fill = {developer:(g.involved_companies || []).filter(function(c){ return c.developer; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean), publisher:(g.involved_companies || []).filter(function(c){ return c.publisher; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean), types:(g.genres || []).map(function(x){ return x.name; })};
-  Object.keys(fill).forEach(function(k){ if (!fill[k].length) return; var cb = form.querySelector('.combo[data-key="' + k + '"]'); if (!cb) return; var cur = getVal(cb), out = Array.isArray(cur) ? cur.slice() : []; fill[k].forEach(function(v){ var ex = optValues(k).find(function(o){ return norm(o) === norm(v); }) || v; if (!out.some(function(o){ return norm(o) === norm(ex); })) out.push(ex); }); setVal(cb, out); });
-  var cc = form.querySelector('.combo[data-key="consoles"]'); if (cc) { var cur2 = getVal(cc), empty = Array.isArray(cur2) ? !cur2.length : !cur2; if (empty) { var opts = optValues('consoles'), match = null; (g.platforms || []).some(function(p){ var c1 = norm(canonConsole(p.name)), c2 = norm(canonConsole(p.abbreviation || '')); match = opts.find(function(o){ var n = norm(canonConsole(o)); return n === c1 || (c2 && n === c2); }); return !!match; }); if (match) setVal(cc, Array.isArray(cur2) ? [match] : match); } }
-  form.dataset.igId = String(g.id);
-  var img = form.querySelector('#gCoverImg'), box = form.querySelector('#gBox');
-  if (g.cover && !(form.querySelector('#gCover').files || []).length) { if (img) { img.src = giImg(g.cover.image_id, 't_cover_big'); img.hidden = false; } if (box) box.classList.add('filled'); }
-  toast('Infos pré-remplies · jaquette et illustration ajoutées à l’enregistrement');
-  try { if (g.cover) form.dataset.igCover = await igStore(giImg(g.cover.image_id, 't_cover_big_2x')); var ai = (g.artworks && g.artworks[0]) || (g.screenshots && g.screenshots[0]); if (ai) form.dataset.igArt = await igStore(giImg(ai.image_id, 't_1080p')); } catch (x) {}
+  await igFillForm(form, g, false);
 }, true);
 
 /* ---------- Jaquettes manquantes : recherche IGDB (jaquette → capture → visuel générique) ---------- */
@@ -9512,7 +9520,10 @@ document.addEventListener('click', async function(e){
 async function giPrefillForm(info, d){
   var form = document.getElementById('gameForm'); if (!form) return;
   var img = form.querySelector('#gCoverImg'), box = form.querySelector('#gBox'), show = function(u){ if (img && u) { img.src = u; img.hidden = false; } if (box && u) box.classList.add('filled'); var rb = form.querySelector('#gRemoveBtn'); if (rb && u) rb.hidden = false; };
-  if (d && d.id) form.dataset.igId = String(d.id);
+  if (!d && GI && GI.info === info && GI.loading) { for (var w = 0; w < 30 && GI && GI.loading; w++) await new Promise(function(ok){ setTimeout(ok, 200); }); d = GI && GI.info === info ? GI.data : null; }
+  if (!d && window.PS_SB && info.title) { try { var rr = info.ig ? await window.PS_SB.functions.invoke('igdb', {body:{action:'game', id:+info.ig}}) : await window.PS_SB.functions.invoke('igdb', {body:{action:'search', name:info.title, platform:info.platform || ''}}); d = rr && rr.data && rr.data.game || null; if (!d && !info.ig && info.platform) { rr = await window.PS_SB.functions.invoke('igdb', {body:{action:'search', name:info.title, platform:''}}); d = rr && rr.data && rr.data.game || null; } } catch (x) {} }
+  if (!document.getElementById('gameForm')) return;
+  if (d && d.id) { await igFillForm(form, d, true); return; }
   try {
     if (d && d.cover) { show(giImg(d.cover.image_id, 't_cover_big')); form.dataset.igCover = await igStore(giImg(d.cover.image_id, 't_cover_big_2x')); }
     else if (info.cvu && info.cvu !== 'none') { show(info.cvu); form.dataset.igCover = await igStore(info.cvu); }
@@ -9605,6 +9616,19 @@ function viewWishlist(){
 
 
 (function(){ var _r11 = render; render = function(){ var r = _r11.apply(this, arguments); var ic = document.getElementById('navRoulIc'); if (ic && !ic.innerHTML) ic.innerHTML = ICON_ROUL; document.querySelectorAll('#mdrawer #navRoulIc').forEach(function(x){ if (!x.innerHTML) x.innerHTML = ICON_ROUL; }); return r; }; })();
+async function igFillForm(form, g, keepName){
+  var nm = form.querySelector('#gName'); if (nm && !keepName) nm.value = g.name;
+  var y = g.first_release_date ? String(new Date(g.first_release_date * 1000).getUTCFullYear()) : '';
+  if (y) { var yp = form.querySelector('.ypick'); if (yp) { yp.querySelector('input').value = y; yp.classList.add('has'); var yv = yp.querySelector('.yp-val'); if (yv) yv.textContent = y; } }
+  var fill = {developer:(g.involved_companies || []).filter(function(c){ return c.developer; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean), publisher:(g.involved_companies || []).filter(function(c){ return c.publisher; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean), types:(g.genres || []).map(function(x){ return x.name; })};
+  Object.keys(fill).forEach(function(k){ if (!fill[k].length) return; var cb = form.querySelector('.combo[data-key="' + k + '"]'); if (!cb) return; var cur = getVal(cb), out = Array.isArray(cur) ? cur.slice() : []; fill[k].forEach(function(v){ var ex = optValues(k).find(function(o){ return norm(o) === norm(v); }) || v; if (!out.some(function(o){ return norm(o) === norm(ex); })) out.push(ex); }); setVal(cb, out); });
+  var cc = form.querySelector('.combo[data-key="consoles"]'); if (cc) { var cur2 = getVal(cc), empty = Array.isArray(cur2) ? !cur2.length : !cur2; if (empty) { var opts = optValues('consoles'), match = null; (g.platforms || []).some(function(p){ var c1 = norm(canonConsole(p.name)), c2 = norm(canonConsole(p.abbreviation || '')); match = opts.find(function(o){ var n = norm(canonConsole(o)); return n === c1 || (c2 && n === c2); }); return !!match; }); if (match) setVal(cc, Array.isArray(cur2) ? [match] : match); } }
+  form.dataset.igId = String(g.id);
+  var img = form.querySelector('#gCoverImg'), box = form.querySelector('#gBox');
+  if (g.cover && !(form.querySelector('#gCover').files || []).length) { if (img) { img.src = giImg(g.cover.image_id, 't_cover_big'); img.hidden = false; } if (box) box.classList.add('filled'); }
+  toast('Infos pré-remplies · jaquette et illustration ajoutées à l’enregistrement');
+  try { if (g.cover) form.dataset.igCover = await igStore(giImg(g.cover.image_id, 't_cover_big_2x')); var ai = (g.artworks && g.artworks[0]) || (g.screenshots && g.screenshots[0]); if (ai) form.dataset.igArt = await igStore(giImg(ai.image_id, 't_1080p')); } catch (x) {}
+}
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
 function importCard(){
