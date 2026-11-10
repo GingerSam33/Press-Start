@@ -4192,15 +4192,41 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 #gameForm.gf2 .name-row{flex-direction:row !important;align-items:stretch !important;flex-wrap:nowrap !important}
 #gameForm.gf2 .name-row #gName{flex:1 1 auto !important;width:auto !important;min-width:0}
 #gameForm.gf2 .name-row .ai-btn{width:auto !important;flex:none;white-space:nowrap;padding:0 16px}
-#gameForm.gf2 .combo{min-height:52px;flex-wrap:nowrap !important;align-items:center}
-#gameForm.gf2 .combo .combo-vals,#gameForm.gf2 .combo .vals{display:flex;flex-wrap:nowrap !important;min-width:0;overflow:hidden;gap:6px}
-#gameForm.gf2 .combo .tag,#gameForm.gf2 .combo .vtag,#gameForm.gf2 .combo .chip{max-width:200px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
-#gameForm.gf2 .combo[data-multi] .combo-in{flex:1 1 60px;min-width:60px}
 #gameForm.gf2 .gf2-grid .field{min-width:0}
 /* barres de filtres figées */
 .lic-bar,.cat-bar,.cat-filters{position:sticky;top:0;z-index:40;background:var(--card);box-shadow:0 10px 18px -16px rgba(20,18,40,.45)}
 .cat-panel{overflow:visible}
 @media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){.lic-bar,.cat-bar,.cat-filters{top:calc(env(safe-area-inset-top,0px) + 54px)}}
+
+/* menus déroulants remplis : plus de texte d'aide, le champ garde sa taille, les tags passent à la ligne */
+.combo.has:not(.open) .combo-in{flex:0 0 0 !important;width:0 !important;min-width:0 !important;padding:0 !important;margin:0 !important;opacity:0;pointer-events:none}
+.combo.has:not(.open) .combo-in::placeholder{color:transparent !important}
+.combo .combo-trig{flex-wrap:nowrap;align-items:center}
+.combo .combo-vals{display:flex;flex-wrap:wrap;gap:6px;min-width:0;flex:1 1 auto}
+.combo .combo-vals .tag,.combo .combo-vals .vtag,.combo .combo-vals > span{max-width:100%;min-width:0}
+.combo .combo-vals .tag{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.combo.open .combo-vals{flex:0 1 auto}
+.combo.open .combo-in{flex:1 1 80px;min-width:80px}
+/* barre d'une collection par licence, plus compacte */
+.lic-bar.lic-bar2{gap:8px;padding:8px 10px}
+.lic-row1{gap:8px}
+.lic-row1 .lic-q{flex:1 1 220px}
+.lic-row1 .lic-q input{min-height:38px}
+.lic-row2{gap:6px 14px;padding-top:8px}
+.lic-row2 .btn.small{min-height:32px;padding:0 11px;font-size:12.5px}
+.lic-gl{display:none}
+.lic-grp+.lic-grp{padding-left:14px;border-left:1px solid var(--card-border)}
+@media (max-width:900px){
+  .lic-row2{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .lic-row2::-webkit-scrollbar{display:none}
+  .lic-grp{flex-wrap:nowrap}
+  .lic-grp .btn{white-space:nowrap}
+  .lic-row1 .btn.small{padding:0 10px}
+}
+@media (max-width:620px){.lic-row1 [data-nav="licences"]{font-size:0;padding:0 12px}.lic-row1 [data-nav="licences"]::before{content:'←';font-size:15px}.lic-row1 .lic-sorts{margin-left:0;width:100%}.lic-row1 .lic-sorts button{flex:1}}
+
+.combo:not(.has) .combo-vals{flex:0 0 auto}
+.combo:not(.has) .combo-in{flex:1 1 auto}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
