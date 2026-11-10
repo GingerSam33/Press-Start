@@ -4038,6 +4038,41 @@ dialog:has(.lad-dlg){width:min(620px,calc(100vw - 24px)) !important;max-width:62
 .lg-ren{position:absolute;top:8px;left:50px;z-index:6;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:#2E5FB8;color:#fff;cursor:pointer;box-shadow:0 6px 12px -6px rgba(0,0,0,.6)}
 .lg-ren svg{width:15px;height:15px}
 .lrn-sug{display:inline-block;margin-top:6px;font-size:13px;font-weight:600;text-align:left}
+
+/* ajout d'un jeu : nom en entier, bouton Claude en dessous */
+.name-row{flex-direction:column !important;align-items:stretch !important}
+.name-row #gName{width:100% !important;flex:none !important;min-width:0}
+.name-row .ai-btn{width:100% !important}
+.ig-sug[hidden],.ig-sug:empty{display:none !important}
+/* menu « Trouver la jaquette » */
+.cvl-m{position:relative;display:inline-block;margin-top:8px}
+.cvl-pop{position:absolute;left:0;top:calc(100% + 6px);z-index:90;min-width:230px;display:none;flex-direction:column;gap:2px;padding:10px;border-radius:16px;background:var(--card);border:1px solid var(--card-border);box-shadow:0 18px 40px -16px rgba(0,0,0,.45)}
+.cvl-pop.on{display:flex;animation:popIn .18s cubic-bezier(.2,.8,.2,1)}
+.cvl-pop a{padding:8px 10px;border-radius:10px;color:var(--accent-text,var(--accent));font-weight:700;font-size:13.5px;text-decoration:none}
+.cvl-pop a:hover{background:var(--sunken)}
+.cvl-pop .cvl-t{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:2px 10px 4px}
+.cvl-pop .cvl-h{font-size:11.5px;color:var(--muted);padding:6px 10px 2px;line-height:1.4}
+/* icône de la roulette dans le menu */
+.nav-ic{display:inline-flex;align-items:center}
+.nav-ic .roul-ic{width:18px;height:18px;filter:none}
+/* captures sur la fiche */
+.gmedia{display:flex;flex-direction:column;gap:14px}
+.gmedia .gi-sh{display:block;margin-bottom:8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* wishlist */
+dialog:has(.wq-dlg){width:min(560px,calc(100vw - 24px)) !important;max-width:560px !important}
+.dlg.wq-dlg{width:100% !important;max-width:none !important}.dlg.wq-dlg .body{display:flex !important;flex-direction:column;gap:14px}
+.wq-game{display:flex;align-items:center;gap:12px}.wq-game img{width:52px;height:70px;object-fit:cover;border-radius:8px;box-shadow:0 8px 16px -8px rgba(0,0,0,.5)}
+.wq-game b{display:block;font-size:16px}.wq-game small{color:var(--muted);font-size:13px}
+.wq-pl{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.wq-pl span{font-size:12px;color:var(--muted)}
+.wl-sec{display:flex;flex-direction:column;gap:12px}
+.wl-head{align-items:center}
+.wl-card{cursor:pointer}
+.wl-card .lg-cov{position:relative;aspect-ratio:3/4;overflow:hidden;border-radius:14px 14px 0 0}
+.wl-card .lg-cov img{width:100%;height:100%;object-fit:cover;filter:none !important;opacity:1 !important}
+.wl-card .lg-b{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px}
+.wl-card .lg-t{font-size:13.5px;color:var(--text)}.wl-card small{font-size:11.5px;color:var(--muted)}
+.wl-heart{position:absolute;top:8px;right:8px;display:flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.92);color:#E2304A;box-shadow:0 4px 10px -4px rgba(0,0,0,.5)}
+.wl-heart svg{width:15px;height:15px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4063,7 +4098,8 @@ dialog:has(.lad-dlg){width:min(620px,calc(100vw - 24px)) !important;max-width:62
       <button class="navbtn" data-nav="licences">Collection par licence</button>
       <button class="navbtn" data-nav="decouvrir">Jeux à découvrir <small data-count="decouvrir"></small></button>
       <button class="navbtn" data-nav="suivi">Suivi jeux <small data-count="suivi"></small></button>
-      <button class="navbtn" data-nav="roulette">À quoi on joue ?</button>
+      <button class="navbtn" data-nav="wishlist">Wishlist <small data-count="wishlist"></small></button>
+      <button class="navbtn" data-nav="roulette">À quoi on joue ? <small class="nav-ic" id="navRoulIc"></small></button>
       <button class="navbtn" data-nav="catalog">Base de jeux <small data-count="catalog"></small></button>
     </nav>
     <nav class="navgroup" aria-labelledby="nav-db"><h2 id="nav-db">Gestion</h2>
@@ -4505,6 +4541,7 @@ function render(){
     consoles: S.consoles.filter(function(c){ return c.owned; }).length,
     decouvrir: DISC.length,
     suivi: S.games.filter(function(g){ return g.kind !== 'wish' && g.status === 'En cours'; }).length,
+    wishlist: S.games.filter(function(g){ return g.kind === 'wish'; }).length,
     catalog: CAT.reduce(function(n, p){ return n + (+p.count || 0); }, 0),
     noter: S.games.filter(function(g){ return g.kind !== 'wish' && g.status === 'Terminé' && (g.note === '' || g.note == null); }).length
   };
@@ -4521,6 +4558,7 @@ function render(){
   else if (S.view === 'data') html = viewData();
   else if (S.view === 'suivi') html = viewSuivi();
   else if (S.view === 'roulette') html = viewRoulette();
+  else if (S.view === 'wishlist') html = viewWishlist();
   else if (S.view === 'licence') html = viewLicence();
   else if (S.view === 'console') html = viewConsole();
   else if (S.view === 'deals') html = viewDeals();
@@ -4850,6 +4888,7 @@ function viewGame(){
   if (['En cours', 'Terminé', 'Abandonné'].indexOf(g.status) >= 0 || (g.journal || []).length) h += journalCard(g);
   }
   // --- textes : module de lecture (style selon le thème)
+  if (g.kind !== 'wish') h += gameMediaHtml(g);
   h += lmModule(g, ro);
   return h;
 }
@@ -6351,7 +6390,7 @@ document.addEventListener('click', function(e){
 function coverLinks(name){
   var q = encodeURIComponent(String(name || '').trim());
   var L = [['The Cover Project', 'https://www.thecoverproject.net/view.php?searchstring=' + q], ['MobyGames', 'https://www.mobygames.com/search/?q=' + q], ['LaunchBox', 'https://gamesdb.launchbox-app.com/games/results/' + q], ['GameTDB', 'https://www.gametdb.com/']];
-  return '<span class="cvl-t">Trouver la jaquette sur :</span><div class="cvl">' + L.map(function(l){ return '<a href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + l[0] + ' ↗</a>'; }).join('') + '</div><span class="cvl-h">Télécharge l\u2019image puis glisse-la sur la jaquette.</span>';
+  return '<div class="cvl-m"><button type="button" class="btn ghost small cvl-btn" data-cvlmenu="1">🔎 Trouver la jaquette ▾</button><div class="cvl-pop" role="menu"><span class="cvl-t">Chercher sur :</span>' + L.map(function(l){ return '<a role="menuitem" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + l[0] + ' <span aria-hidden="true">↗</span></a>'; }).join('') + '<span class="cvl-h">Télécharge l\u2019image puis glisse-la sur la jaquette.</span></div></div>';
 }
 document.addEventListener('input', function(e){ if (e.target.id !== 'gName') return; var c = document.getElementById('cvLinks'); if (c) c.innerHTML = coverLinks(e.target.value); });
 
@@ -7934,7 +7973,7 @@ function giHtml(){
     + ((d.similar_games || []).length ? sec('Jeux similaires', '<div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>') : '')
     + sec('Liens', '<div class="gi-links">' + links.map(function(l){ return '<a class="gi-link" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span aria-hidden="true">↗</span></a>'; }).join('') + '</div>')
     + '</div>'
-    + (S.readOnly ? '' : '<footer><button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button><span class="spacer"></span><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ma collection</button></footer>');
+    + (S.readOnly ? '' : '<footer><button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button><span class="spacer"></span><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>');
 }
 
 document.addEventListener('click', function(e){
@@ -9216,7 +9255,7 @@ document.addEventListener('change', function(e){ if (!e.target.hasAttribute || !
 (function(){ var _sv = setVal; setVal = function(cb, val){ var r = _sv.apply(this, arguments); if (cb && cb.closest && cb.closest('#roulRoot') && cb.getAttribute('data-key') === 'consoles' && !ROUL.busy) { var v = Array.isArray(val) ? (val[0] || '') : String(val || ''); if (v !== ROUL.con) { ROUL.con = v; setTimeout(function(){ closeCombo(); roulRefresh(); }, 0); } } return r; }; })();
 
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
-var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette'];
+var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
   S.gdlgId = id; S.gameId = id;
   if (!GDLG) { GDLG = document.createElement('dialog'); GDLG.id = 'gdlg'; GDLG.className = 'gdlg'; GDLG.setAttribute('aria-label', 'Fiche du jeu'); document.body.appendChild(GDLG);
@@ -9469,6 +9508,103 @@ document.addEventListener('click', async function(e){
   catch (x) { toast(failMsg(x)); t.disabled = false; }
 }, true);
 
+/* ---------- Ajout depuis une fiche « découverte » : jaquette et IGDB repris ---------- */
+async function giPrefillForm(info, d){
+  var form = document.getElementById('gameForm'); if (!form) return;
+  var img = form.querySelector('#gCoverImg'), box = form.querySelector('#gBox'), show = function(u){ if (img && u) { img.src = u; img.hidden = false; } if (box && u) box.classList.add('filled'); var rb = form.querySelector('#gRemoveBtn'); if (rb && u) rb.hidden = false; };
+  if (d && d.id) form.dataset.igId = String(d.id);
+  try {
+    if (d && d.cover) { show(giImg(d.cover.image_id, 't_cover_big')); form.dataset.igCover = await igStore(giImg(d.cover.image_id, 't_cover_big_2x')); }
+    else if (info.cvu && info.cvu !== 'none') { show(info.cvu); form.dataset.igCover = await igStore(info.cvu); }
+    else if (/^data:image\//.test(info.cv || '')) { var bl = dataUriBlob(info.cv), inp = form.querySelector('#gCover'); if (bl && inp && window.DataTransfer) { var dt = new DataTransfer(); dt.items.add(new File([bl], 'jaquette.webp', {type:bl.type})); inp.files = dt.files; showCover(dt.files[0]); } }
+    var ai = d && ((d.artworks && d.artworks[0]) || (d.screenshots && d.screenshots[0])); if (ai) form.dataset.igArt = await igStore(giImg(ai.image_id, 't_1080p'));
+  } catch (x) {}
+}
+/* ajout en wishlist : on demande la console */
+var WQ = null;
+function wishAskDlg(info){
+  var plats = (GI && GI.data && GI.data.platforms || []).map(function(p){ return canonConsole(p.name); });
+  var cur = info.pname || plats[0] || '';
+  return '<div class="dlg wq-dlg"><header><h2>' + ICON_HEART + ' Ajouter à ma wishlist</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="wqForm">'
+    + '<div class="wq-game">' + (WQ.cover ? '<img src="' + esc(WQ.cover) + '" alt="">' : '') + '<div><b>' + esc(WQ.name) + '</b><small>Sur quelle console aimerais-tu l\u2019avoir ?</small></div></div>'
+    + cfield('wqCon', 'Console', {key:'consoles', name:'wqCon', value:cur, placeholder:'Choisir une console', clearable:true}, true)
+    + (plats.length > 1 ? '<div class="wq-pl"><span>Sorti sur :</span>' + plats.map(function(p){ return '<button type="button" class="chip" data-wqpl="' + esc(p) + '">' + esc(consoleFullName(p) || p) + '</button>'; }).join('') + '</div>' : '')
+    + '</div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-wqsave="1">' + ICON_HEART + ' Ajouter à ma wishlist</button></footer></div>';
+}
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-giact="own"],[data-giact="wish"],[data-wqpl],[data-wqsave]'); if (!t || S.readOnly) return;
+  if (t.hasAttribute('data-giact') && GI) {
+    e.preventDefault(); e.stopImmediatePropagation();
+    var i = GI.info, d = GI.data, a = t.getAttribute('data-giact'), cvu = d && d.cover ? giImg(d.cover.image_id, 't_cover_big') : (info_cv(i));
+    if (a === 'own') { closeDlg(); gameForm({kind:'physique', status:'Pas commencé', name:i.fr || i.title, consoles:i.pname ? [i.pname] : [], year:i.year || '', developer:i.dev ? [i.dev] : [], publisher:i.pub ? [i.pub] : []}); setTimeout(function(){ giPrefillForm(i, d); }, 80); return; }
+    WQ = {info:i, data:d, name:i.fr || i.title, cover:cvu}; openDlg(wishAskDlg(i)); return;
+  }
+  if (t.hasAttribute('data-wqpl')) { var cb = document.querySelector('#wqForm .combo'); if (cb) setVal(cb, t.getAttribute('data-wqpl')); return; }
+  if (t.hasAttribute('data-wqsave') && WQ) {
+    var f = document.getElementById('wqForm'), con = (f && f.querySelector('input[name="wqCon"]') || {}).value || ''; if (!con) { toast('Choisis une console'); return; }
+    t.disabled = true; t.textContent = 'Ajout…';
+    var i2 = WQ.info, d2 = WQ.data, data = {kind:'wish', status:'Pas commencé', name:WQ.name, consoles:[con], year:i2.year || '', developer:i2.dev ? [i2.dev] : [], publisher:i2.pub ? [i2.pub] : [], createdAt:Date.now()};
+    try {
+      if (d2 && d2.id) data.igdbId = String(d2.id);
+      if (d2 && d2.cover) data.coverId = await igStore(giImg(d2.cover.image_id, 't_cover_big_2x'));
+      else if (i2.cvu && i2.cvu !== 'none') data.coverId = await igStore(i2.cvu);
+      else if (/^data:image\//.test(i2.cv || '')) { var bl2 = dataUriBlob(i2.cv); if (bl2) data.coverId = await uploadFile(new File([bl2], 'jaquette.webp', {type:bl2.type})); }
+    } catch (x) {}
+    try { var rb = randomBanner && randomBanner(); if (rb) data.bannerId = rb; } catch (x) {}
+    try { var ref = await withRetry(function(){ return db.collection('games').add(data); }); toast('« ' + WQ.name + ' » ajouté à ta wishlist (' + (consoleFullName(con) || con) + ')'); closeDlg(); WQ = null; }
+    catch (x) { toast(failMsg(x)); t.disabled = false; t.textContent = 'Ajouter à ma wishlist'; }
+  }
+}, true);
+function info_cv(i){ return i.cvu && i.cvu !== 'none' ? i.cvu : (/^data:image\//.test(i.cv || '') ? i.cv : ''); }
+
+/* ---------- Jaquette : les 4 sites dans un petit menu ---------- */
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-cvlmenu]'); var open = document.querySelector('.cvl-pop.on');
+  if (!t) { if (open && !e.target.closest('.cvl-pop')) open.classList.remove('on'); return; }
+  e.preventDefault(); var pop = t.parentNode.querySelector('.cvl-pop'); if (pop) pop.classList.toggle('on');
+});
+
+/* ---------- Captures d'écran et vidéos sur la fiche de mes jeux ---------- */
+var GMEDIA = {};
+function gameMediaHtml(g){
+  var m = GMEDIA[g.id];
+  if (!m) { gameMediaLoad(g); return '<section class="card gmedia" id="gmedia-' + esc(g.id) + '"><p class="gi-load"><span class="nimp-spin"></span> Recherche des captures d\u2019écran…</p></section>'; }
+  if (!m.shots.length && !m.vids.length) return '';
+  return '<section class="card gmedia" id="gmedia-' + esc(g.id) + '">'
+    + (m.shots.length ? '<div class="gi-sec"><b class="gi-sh">Captures d\u2019écran</b><div class="gi-shots">' + m.shots.map(function(x){ return '<a href="' + giImg(x.image_id, 't_1080p') + '" data-shot="' + giImg(x.image_id, 't_1080p') + '"><img src="' + giImg(x.image_id, 't_screenshot_med') + '" alt="Capture d\u2019écran" loading="lazy" referrerpolicy="no-referrer"></a>'; }).join('') + '</div></div>' : '')
+    + (m.vids.length ? '<div class="gi-sec"><b class="gi-sh">Vidéos</b><div class="gi-vids">' + m.vids.map(function(v){ return '<a class="gi-vid" href="https://www.youtube.com/watch?v=' + encodeURIComponent(v.video_id) + '" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/' + encodeURIComponent(v.video_id) + '/mqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer"><span>▶ ' + esc(v.name || 'Vidéo') + '</span></a>'; }).join('') + '</div></div>' : '') + '</section>';
+}
+async function gameMediaLoad(g){
+  if (GMEDIA[g.id] || gameMediaLoad[g.id] || !window.PS_SB) { if (!window.PS_SB) GMEDIA[g.id] = {shots:[], vids:[]}; return; } gameMediaLoad[g.id] = 1;
+  try { var key = 'ps-gm-' + g.id, c = localStorage.getItem(key); if (c) { GMEDIA[g.id] = JSON.parse(c); renderSoon(); return; } } catch (x) {}
+  var body = g.igdbId ? {action:'game', id:+g.igdbId} : {action:'search', name:g.name, platform:consoleFullName(list(g.consoles)[0] || '') || list(g.consoles)[0] || ''};
+  try {
+    var r = await window.PS_SB.functions.invoke('igdb', {body:body}); var d = r && r.data && r.data.game;
+    if (!d && body.action === 'search') { var r2 = await window.PS_SB.functions.invoke('igdb', {body:{action:'search', name:g.name, platform:''}}); d = r2 && r2.data && r2.data.game; }
+    var m = {shots:(d && d.screenshots || []).slice(0, 12).map(function(x){ return {image_id:x.image_id}; }), vids:(d && d.videos || []).slice(0, 6).map(function(v){ return {video_id:v.video_id, name:v.name}; })};
+    GMEDIA[g.id] = m; try { localStorage.setItem('ps-gm-' + g.id, JSON.stringify(m)); } catch (x) {}
+    if (d && d.id && !g.igdbId && !S.readOnly) { g.igdbId = String(d.id); db.collection('games').doc(g.id).update({igdbId:g.igdbId}).catch(function(){}); }
+  } catch (x) { GMEDIA[g.id] = {shots:[], vids:[]}; }
+  renderSoon();
+}
+
+/* ---------- Page Wishlist ---------- */
+function viewWishlist(){
+  var ws = S.games.filter(function(g){ return g.kind === 'wish'; }), by = {};
+  ws.forEach(function(g){ var c = list(g.consoles)[0] || 'Sans console'; (by[c] = by[c] || []).push(g); });
+  var cons = Object.keys(by).sort(function(a, b){ return a === 'Sans console' ? 1 : b === 'Sans console' ? -1 : a.localeCompare(b, 'fr'); });
+  var h = crtPage({kick:'WISHLIST', title:'MA WISHLIST', sub:ws.length + ' jeu' + (ws.length > 1 ? 'x' : '') + ' que j\u2019aimerais avoir', blink:ws.length ? 'NEXT LEVEL' : 'AUCUN JEU', sc:[['JEUX', crtPad(ws.length)], ['CONSOLES', crtPad(cons.filter(function(c){ return c !== 'Sans console'; }).length)]]});
+  if (!ws.length) return h + '<div class="card empty"><strong>Ta wishlist est vide</strong><span>Sur la fiche d\u2019un jeu (Base de jeux, Jeux à découvrir, actus…), clique sur « ♥ Wishlist » et choisis la console.</span></div>';
+  cons.forEach(function(c){
+    var gs = by[c].sort(function(a, b){ return String(a.name).localeCompare(String(b.name), 'fr'); });
+    h += '<section class="wl-sec"><div class="vs-head wl-head">' + (c === 'Sans console' ? '<h2>Sans console</h2>' : consoleTag(c)) + '<span class="vs-sub">' + gs.length + ' jeu' + (gs.length > 1 ? 'x' : '') + '</span></div><div class="lg-grid wl-grid">'
+      + gs.map(function(g, i){ var cv = g.coverId ? blob(g.coverId) : genCover(g.name, c); return '<article class="lg-card wl-card" style="--i:' + i + '" data-game="' + esc(g.id) + '" tabindex="0"><div class="lg-cov"><img class="fgi" src="' + esc(cv) + '" alt="" loading="lazy"><span class="wl-heart" aria-hidden="true">' + ICON_HEART + '</span></div><div class="lg-b"><b class="lg-t">' + esc(g.name) + '</b><small>' + esc([g.year, (list(g.developer)[0] || '')].filter(Boolean).join(' · ')) + '</small></div></article>'; }).join('') + '</div></section>';
+  });
+  return h;
+}
+
+
+(function(){ var _r11 = render; render = function(){ var r = _r11.apply(this, arguments); var ic = document.getElementById('navRoulIc'); if (ic && !ic.innerHTML) ic.innerHTML = ICON_ROUL; document.querySelectorAll('#mdrawer #navRoulIc').forEach(function(x){ if (!x.innerHTML) x.innerHTML = ICON_ROUL; }); return r; }; })();
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
 function importCard(){
