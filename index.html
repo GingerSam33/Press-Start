@@ -4184,6 +4184,23 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 .fph-slot{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
 .fph-l{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .gf2-step[data-step="2"] .gf2-grid{margin-top:2px}
+
+/* menus déroulants au premier plan */
+.combo-pop.pop-top{position:fixed !important;inset:auto;margin:0;color:inherit}
+.combo-pop[popover]{border:1px solid var(--card-border);background:var(--card);overflow:hidden}
+/* fiche d'ajout : nom + bouton Claude sur une ligne, champs harmonisés */
+#gameForm.gf2 .name-row{flex-direction:row !important;align-items:stretch !important;flex-wrap:nowrap !important}
+#gameForm.gf2 .name-row #gName{flex:1 1 auto !important;width:auto !important;min-width:0}
+#gameForm.gf2 .name-row .ai-btn{width:auto !important;flex:none;white-space:nowrap;padding:0 16px}
+#gameForm.gf2 .combo{min-height:52px;flex-wrap:nowrap !important;align-items:center}
+#gameForm.gf2 .combo .combo-vals,#gameForm.gf2 .combo .vals{display:flex;flex-wrap:nowrap !important;min-width:0;overflow:hidden;gap:6px}
+#gameForm.gf2 .combo .tag,#gameForm.gf2 .combo .vtag,#gameForm.gf2 .combo .chip{max-width:200px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
+#gameForm.gf2 .combo[data-multi] .combo-in{flex:1 1 60px;min-width:60px}
+#gameForm.gf2 .gf2-grid .field{min-width:0}
+/* barres de filtres figées */
+.lic-bar,.cat-bar,.cat-filters{position:sticky;top:0;z-index:40;background:var(--card);box-shadow:0 10px 18px -16px rgba(20,18,40,.45)}
+.cat-panel{overflow:visible}
+@media (max-width:820px) and (pointer:coarse),(display-mode:standalone) and (max-width:820px){.lic-bar,.cat-bar,.cat-filters{top:calc(env(safe-area-inset-top,0px) + 54px)}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5089,12 +5106,15 @@ function closeDlg(){
   dlgT = setTimeout(function(){ dlg.classList.remove('closing'); if (dlg.open) dlg.close(); }, 170);
 }
 dlg.addEventListener('click', function(e){ if (e.target === dlg) closeDlg(); });
-dlg.addEventListener('cancel', function(e){ e.preventDefault(); if (POP) closeCombo(); else closeDlg(); });
+dlg.addEventListener('cancel', function(e){ if (e.target !== dlg) return; e.preventDefault(); if (POP) closeCombo(); else closeDlg(); });
 dlg.addEventListener('close', function(){ closeCombo(); root.classList.remove('locked'); });
 dlg.addEventListener('wheel', function(e){ if (e.target === dlg) e.preventDefault(); }, {passive:false});
 dlg.addEventListener('touchmove', function(e){ if (e.target === dlg) e.preventDefault(); }, {passive:false});
 
+var GF_DRAFT = null, GF_SUBMIT = false;
 function gameForm(g){
+  if (!g && GF_DRAFT && GF_DRAFT.node) { var D = GF_DRAFT; GF_DRAFT = null; GF_SUBMIT = false; openDlg('<div id="gfDraftHost"></div>'); var hostD = document.getElementById('gfDraftHost'); if (hostD) { hostD.replaceWith(D.node); formPhotos = D.photos; refreshFormPhotos(); setTimeout(function(){ gfSetStep(+D.node.getAttribute('data-gfstep') || 1); gfPreview(); }, 30); return; } }
+  GF_DRAFT = null; GF_SUBMIT = false;
   g = g || {kind: S.view === 'demat' ? 'demat' : (S.view === 'home' && S.home.kind === 'wish') ? 'wish' : 'physique', status:'Pas commencé'};
   formPhotos.forEach(function(p){ URL.revokeObjectURL(p.url); }); formPhotos = [];
   var multiC = list(g.consoles).length > 1, c0 = list(g.consoles)[0] || '';
@@ -5132,7 +5152,7 @@ function gameForm(g){
     + '</div>'
     + '<div class="own-only gf2-photos" id="fPhotos">' + formPhotosHtml() + '</div>'
     + '</section>'
-    + '</div><footer>' + (g.id ? '<button type="button" class="btn danger" data-act="deleteGame" data-id="' + esc(g.id) + '">Supprimer</button>' : '<button type="button" class="btn ghost" data-act="close">Annuler</button>')
+    + '</div><footer>' + (g.id ? '<button type="button" class="btn danger" data-act="deleteGame" data-id="' + esc(g.id) + '">Supprimer</button>' : '<button type="button" class="btn ghost" data-act="close" data-gfcancel="1">Annuler</button>')
     + '<span class="spacer"></span><button type="button" class="btn ghost gf2-back" data-gfnav="-1">← Retour</button><button type="submit" class="btn ghost gf2-now">' + (g.id ? 'Enregistrer' : 'Ajouter tout de suite') + '</button><button type="button" class="btn gf2-next" data-gfnav="1">Suivant →</button><button type="submit" class="btn gf2-save">' + (g.id ? 'Enregistrer' : 'Ajouter le jeu') + '</button></footer></div>'
     + '<aside class="gf2-prev" aria-label="Aperçu"><span class="gf2-k">APERÇU</span><p>Ta boîte telle qu\u2019elle apparaîtra sur l\u2019étagère.</p><div class="gf2-shelf"><div class="gf2-box" id="gfPBox"><div class="gf2-band" id="gfPBand"></div><img id="gfPImg" alt=""><span id="gfPPh" class="gf2-ph"></span></div><div class="gf2-plank"></div></div>'
     + '<div class="gf2-sum"><b id="gfPName"></b><small id="gfPSub"></small><span class="gf2-chips" id="gfPChips"></span></div></aside>'
@@ -5586,6 +5606,7 @@ function openCombo(cb){
   var el = document.createElement('div');
   el.className = 'combo-pop';
   host.appendChild(el);
+  var topL = host !== document.body && typeof el.showPopover === 'function'; if (topL) { try { el.setAttribute('popover', 'manual'); el.classList.add('pop-top'); el.showPopover(); } catch (x) { topL = false; el.removeAttribute('popover'); el.classList.remove('pop-top'); } }
   POP = {cb:cb, el:el, host:host, key:cb.getAttribute('data-key'), q:'', edit:false, adding:false, addDraft:'', renaming:null, confirm:null, active:-1, busy:false, first:true};
   cb.classList.add('open');
   var ci0 = cb.querySelector('.combo-in'); ci0.setAttribute('aria-expanded', 'true'); if (!cb.hasAttribute('data-filter')) { ci0.removeAttribute('readonly'); ci0.setAttribute('data-ph0', ci0.placeholder); ci0.placeholder = cb.hasAttribute('data-multi') ? 'Rechercher ou ajouter…' : 'Rechercher…'; setTimeout(function(){ try { ci0.focus(); } catch (x) {} }, 0); }
@@ -5671,7 +5692,7 @@ function positionPop(){
   p.el.style.width = w + 'px';
   p.el.classList.toggle('up', up);
   var ox, oy;
-  if (p.host === document.body) { ox = window.scrollX; oy = window.scrollY; } else { var hr = p.host.getBoundingClientRect(); ox = -hr.left; oy = -hr.top; }
+  if (p.el.classList.contains('pop-top')) { ox = 0; oy = 0; } else if (p.host === document.body) { ox = window.scrollX; oy = window.scrollY; } else { var hr = p.host.getBoundingClientRect(); ox = -hr.left; oy = -hr.top; }
   p.el.style.left = (left + ox) + 'px';
   p.el.style.top = ((up ? r.top - 6 - p.el.offsetHeight : r.bottom + 6) + oy) + 'px';
 }
@@ -6406,7 +6427,7 @@ function ypPosition(){
   if (!YP) return; var p = YP, r = p.root.getBoundingClientRect(), w = 300, vh = window.innerHeight, vw = window.innerWidth;
   var below = vh - r.bottom - 14, up = below < 330 && r.top > below;
   var left = Math.max(12, Math.min(r.left, vw - w - 12)), ox = 0, oy = 0;
-  if (p.host === document.body) { ox = window.scrollX; oy = window.scrollY; } else { var hr = p.host.getBoundingClientRect(); ox = -hr.left; oy = -hr.top; }
+  if (p.el.classList.contains('pop-top')) { ox = 0; oy = 0; } else if (p.host === document.body) { ox = window.scrollX; oy = window.scrollY; } else { var hr = p.host.getBoundingClientRect(); ox = -hr.left; oy = -hr.top; }
   p.el.style.width = w + 'px'; p.el.style.maxHeight = 'none'; p.el.classList.toggle('up', up);
   p.el.style.left = (left + ox) + 'px'; p.el.style.top = ((up ? r.top - 6 - p.el.offsetHeight : r.bottom + 6) + oy) + 'px';
 }
@@ -9831,6 +9852,12 @@ document.addEventListener('click', async function(e){
 (function(){ var _sv2 = setVal; setVal = function(cb, val){ var r = _sv2.apply(this, arguments); if (cb && cb.id === 'giLicAdd' || (cb && cb.querySelector && cb.querySelector('#giLicAdd'))) { var v = Array.isArray(val) ? val[0] : val; if (v && GI) { var cur = giCurLic(); if (cur.indexOf(v) < 0) cur.push(v); licFixSet(GI.info.title, cur).then(function(){ setTimeout(function(){ closeCombo(); giRedraw(); }, 0); }); } } return r; }; })();
 /* bulle d'info sur les tags tronqués */
 document.addEventListener('mouseover', function(e){ var tg = e.target.closest && e.target.closest('.gi-dlg .tag, .gh-fact .tag'); if (tg && !tg.title && tg.scrollWidth > tg.clientWidth + 1) tg.title = tg.textContent.trim(); });
+
+
+/* fiche d'ajout : brouillon conservé si on ferme sans « Annuler » */
+document.addEventListener('submit', function(e){ if (e.target && e.target.id === 'gameForm') GF_SUBMIT = true; }, true);
+document.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('#gameForm [data-gfcancel]')) { GF_DRAFT = null; GF_SUBMIT = true; formPhotos.forEach(function(p){ try { URL.revokeObjectURL(p.url); } catch (x) {} }); formPhotos = []; } }, true);
+(function(){ var _cd = closeDlg; closeDlg = function(){ var f = document.getElementById('gameForm'); if (f && f.classList.contains('gf2') && !f.getAttribute('data-id') && !GF_SUBMIT && dlg.open && dlg.contains(f)) { var nm = (f.querySelector('#gName') || {}).value || ''; if (nm.trim() || formPhotos.length) GF_DRAFT = {node:f, photos:formPhotos.slice()}; } if (GF_SUBMIT) GF_DRAFT = null; return _cd.apply(this, arguments); }; })();
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
