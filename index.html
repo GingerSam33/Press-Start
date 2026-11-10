@@ -4081,6 +4081,11 @@ dialog:has(.wq-dlg){width:min(560px,calc(100vw - 24px)) !important;max-width:560
 .ai-ask input{flex:1;min-width:0;min-height:38px;padding:0 12px;border-radius:12px;border:1px solid var(--card-border);background:var(--card);color:var(--text);font:inherit;font-size:13px}
 .ai-warn{color:#C2410C;font-weight:700}
 .ai-card.ai-wide{flex-wrap:wrap}
+
+.pop-search{display:flex;align-items:center;gap:8px;margin:2px 2px 8px;padding:0 12px;min-height:40px;border-radius:12px;background:var(--sunken);border:1px solid var(--card-border);color:var(--muted)}
+.pop-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;outline:0;min-height:38px}
+.pop-sug{margin:0 2px 8px;padding:6px;border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,var(--card));border:1px dashed color-mix(in srgb,var(--accent) 40%,transparent)}
+.pop-sug-t{display:block;padding:2px 8px 4px;font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--accent-text,var(--accent))}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5459,10 +5464,21 @@ function renderPop(){
   var p = POP, key = p.key, o = OPT[key], cb = p.cb, multi = cb.hasAttribute('data-multi'), isFilter = cb.hasAttribute('data-filter');
   var val = getVal(cb), sel = multi ? val.map(norm) : [norm(val)];
   var vals = optValues(key), qRaw = p.q.trim(), q = norm(qRaw);
-  var shown = vals.filter(function(v){ return !q || norm(optLabel(key, v)).indexOf(q) >= 0; });
+  var cq = catKey(qRaw), shown = vals.filter(function(v){ return !q || norm(optLabel(key, v)).indexOf(q) >= 0 || (cq && catKey(optLabel(key, v)).indexOf(cq) >= 0); });
   var canEdit = o.editable && !S.readOnly && !!db;
   var oldList = p.el.querySelector('.pop-list'), st = oldList ? oldList.scrollTop : 0;
-  var h = '<div class="pop-list' + (p.first ? ' anim' : '') + (p.edit ? ' editing' : '') + '" role="listbox" aria-label="' + esc(o.label) + '"' + (multi ? ' aria-multiselectable="true"' : '') + '>', i = 0;
+  var sq = !multi && !p.edit && vals.length > 6;
+  var pre = sq ? '<div class="pop-search"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input class="pop-q" type="search" placeholder="Rechercher' + (key === 'licence' ? ' une licence' : '') + '…" value="' + esc(qRaw) + '" autocomplete="off" aria-label="Rechercher"></div>' : '';
+  if (key === 'licence' && !p.edit && !q) {
+    var gn = (document.getElementById('gName') || {}).value || '', gk = catKey(gn), sugs = [];
+    if (gk) {
+      var g0 = guessLicence(gn); vals.forEach(function(v){ var vk = catKey(v); if (!vk) return; var sc = gk.indexOf(vk) === 0 ? 1 + vk.length / 100 : gk.indexOf(vk) >= 0 ? .9 : Math.max(gmSim(gn, v), g0 ? gmSim(g0, v) : 0); if (sc >= .55) sugs.push([v, sc]); });
+      sugs.sort(function(a, b){ return b[1] - a[1]; }); sugs = sugs.slice(0, 3).map(function(x){ return x[0]; });
+      var newG = g0 && !vals.some(function(v){ return norm(v) === norm(g0); }) && canEdit;
+      if (sugs.length || newG) pre += '<div class="pop-sug"><span class="pop-sug-t">✨ Suggestion pour « ' + esc(gn.length > 34 ? gn.slice(0, 33) + '…' : gn) + ' »</span>' + sugs.map(function(v, k){ return optRow(v, optTag(key, v), sel.indexOf(norm(v)) >= 0, 900 + k); }).join('') + (newG && !sugs.length ? '<div class="opt-row"><button type="button" class="opt opt-add" data-add="1" data-addval="' + esc(g0) + '">' + ICON_PLUS + '<span>Créer la licence « ' + esc(g0) + ' »</span></button></div>' : '') + '</div>';
+    }
+  }
+  var h = pre + '<div class="pop-list' + (p.first ? ' anim' : '') + (p.edit ? ' editing' : '') + '" role="listbox" aria-label="' + esc(o.label) + '"' + (multi ? ' aria-multiselectable="true"' : '') + '>', i = 0;
   if (!p.edit) {
     if (isFilter && !q) h += optRow('', '<span class="opt-all">' + (multi && val.length ? 'Tout désélectionner' : 'Tout afficher') + '</span>', multi ? !val.length : !val, i++);
     else if (!multi && cb.hasAttribute('data-clear') && val && !q) h += optRow('', '<span class="opt-all">Aucune valeur</span>', false, i++);
@@ -5638,7 +5654,7 @@ function onPopClick(e){
   var p = POP; if (!p || p.busy) return;
   var t = e.target.closest('button'); if (!t) return;
   if (t.hasAttribute('data-v')) { pick(t.getAttribute('data-v')); return; }
-  if (t.hasAttribute('data-add')) { addAndPick(p.q.trim()); return; }
+  if (t.hasAttribute('data-add')) { addAndPick(t.getAttribute('data-addval') || p.q.trim()); return; }
   var a = t.getAttribute('data-pact');
   if (a === 'add') { p.adding = true; p.addDraft = p.q.trim(); p.renaming = null; p.confirm = null; renderPop(); var ai = p.el.querySelector('#add-in'); if (ai) ai.focus(); return; }
   if (a === 'addno') { p.adding = false; renderPop(); focusCombo(); return; }
@@ -9629,6 +9645,18 @@ async function igFillForm(form, g, keepName){
   toast('Infos pré-remplies · jaquette et illustration ajoutées à l’enregistrement');
   try { if (g.cover) form.dataset.igCover = await igStore(giImg(g.cover.image_id, 't_cover_big_2x')); var ai = (g.artworks && g.artworks[0]) || (g.screenshots && g.screenshots[0]); if (ai) form.dataset.igArt = await igStore(giImg(ai.image_id, 't_1080p')); } catch (x) {}
 }
+
+/* recherche dans les menus déroulants à choix unique (licence…) */
+document.addEventListener('input', function(e){
+  if (!e.target.classList || !e.target.classList.contains('pop-q') || !POP) return;
+  var v = e.target.value, pos = e.target.selectionStart; POP.q = v; renderPop();
+  var ni = POP.el.querySelector('.pop-q'); if (ni) { ni.focus(); try { ni.setSelectionRange(pos, pos); } catch (x) {} }
+});
+document.addEventListener('keydown', function(e){
+  if (!e.target.classList || !e.target.classList.contains('pop-q') || !POP) return;
+  if (e.key === 'Enter') { e.preventDefault(); var first = POP.el.querySelector('.pop-list .opt:not(.opt-add)'); if (first) first.click(); }
+  if (e.key === 'Escape') { e.preventDefault(); closeCombo(); }
+});
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
 function importCard(){
