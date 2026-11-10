@@ -4015,6 +4015,25 @@ dialog:has(.b3d-dlg),dialog:has(.b3s-dlg){width:min(860px,calc(100vw - 24px)) !i
 
 /* fiche en fenêtre : pas de barre de défilement visible */
 .gdlg-sb{display:none !important}
+
+.lic-new{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.lic-new .btn{margin-top:6px}
+
+/* barre de la collection par licence, mieux rangée */
+.lic-bar.lic-bar2{flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px;border-radius:18px}
+.lic-row1{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lic-row1 .lic-q{flex:1 1 260px;min-width:200px;max-width:none}
+.lic-row1 .lic-sorts{margin-left:auto}
+.lic-row2{display:flex;gap:10px 22px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed color-mix(in srgb,var(--card-border) 80%,transparent)}
+.lic-grp{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lic-gl{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+dialog:has(.lad-dlg){width:min(620px,calc(100vw - 24px)) !important;max-width:620px !important}
+.dlg.lad-dlg{width:100% !important;max-width:none !important}
+.dlg.lad-dlg .body{display:block !important}
+.lad-type{grid-template-columns:repeat(3,1fr) !important}
+.lad-type .ned-ch{align-items:center;text-align:center;padding:10px}
+.ned-grid input[type=number]{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--card-border);background:var(--sunken);color:var(--text);font:inherit;font-size:14px;width:100%;box-sizing:border-box}
+@media (max-width:620px){.lic-row1 .lic-sorts{margin-left:0}.lad-type{grid-template-columns:1fr !important}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4778,7 +4797,7 @@ function viewGame(){
   var devs = list(g.developer), pubs = list(g.publisher), typs = list(g.types);
   var meta = '<dl class="gh-facts">'
     + fact('Format du jeu', g.kind === 'wish' ? gotag('kind', 'wish', 'sky', 'de ma wishlist', ICON_HEART.replace('width="14" height="14"', 'width="11" height="11"') + 'Wishlist') : gotag('kind', phys ? 'physique' : 'demat', 'lav', phys ? 'physiques' : 'dématérialisés', phys ? 'Physique' : 'Dématérialisé'))
-    + fact('Licence', g.licence ? gotag('lic', g.licence, 'gold', 'de la licence ' + g.licence) : '<span class="gh-none">Aucune licence</span>')
+    + fact('Licence', g.licence ? gotag('lic', g.licence, 'gold', 'de la licence ' + g.licence).replace('data-gofilter="lic|', 'data-golic="').replace('title="Voir tous les jeux de la licence', 'title="Ouvrir la collection de la licence') : '<span class="gh-none">Aucune licence</span>')
     + fact(devs.length > 1 ? 'Développeurs' : 'Développeur', devs.map(function(d){ return gotag('dev', d, 'gray', 'développés par ' + d); }).join(''))
     + fact(pubs.length > 1 ? 'Éditeurs' : 'Éditeur', pubs.map(function(d){ return gotag('pub', d, 'gray', 'édités par ' + d); }).join(''))
     + fact('Sortie', g.year ? gotag('year', String(g.year), 'sky', 'sortis en ' + g.year) : '')
@@ -7618,13 +7637,18 @@ function viewLicence(){
   var lic = S.licOpen || '', LM = licMatch(lic), L = LM.L, own = LM.own, mine = LM.mine, wish = LM.wish, entries = LM.entries, rows = LM.rows, extra = LM.extra;
   var ownedN = rows.filter(function(r){ return r.owned; }).length + extra.length, total = entries.length + extra.length, missN = total - ownedN;
   var pct = total ? Math.round(ownedN / total * 100) : 0;
-  var h = crtPage({kick:'SAGA', title:lic.toUpperCase(), sub:total ? ownedN + ' jeu' + (ownedN > 1 ? 'x' : '') + ' sur ' + total + ' · ' + pct + ' % de la saga' : 'Liste des jeux de la saga à compléter', blink:missN ? missN + ' JEU' + (missN > 1 ? 'X' : '') + ' À TROUVER' : 'SAGA COMPLÈTE ★', sc:[['POSSÉDÉS', crtPad(ownedN)], ['MANQUANTS', crtPad(missN)], ['WISHLIST', crtPad(wish.length)], ['TOTAL', crtPad(total)]]});
+  var h = crtPage({kick:'SAGA', title:lic.toUpperCase(), sub:!L ? 'Collection à créer' : total ? ownedN + ' jeu' + (ownedN > 1 ? 'x' : '') + ' sur ' + total + ' · ' + pct + ' % de la saga' : 'Liste des jeux de la saga à compléter', blink:!L ? 'COLLECTION À CRÉER' : missN ? missN + ' JEU' + (missN > 1 ? 'X' : '') + ' À TROUVER' : 'SAGA COMPLÈTE ★', sc:[['POSSÉDÉS', crtPad(ownedN)], ['MANQUANTS', crtPad(missN)], ['WISHLIST', crtPad(wish.length)], ['TOTAL', crtPad(total)]]});
   var f = S.licF || 'all';
-  h += licDelBar() + '<div class="lic-bar"><button type="button" class="btn ghost small" data-nav="licences">← Toutes les licences</button>' + (S.readOnly ? '' : '<button type="button" class="btn ghost small" data-licedit2="1" aria-pressed="' + !!S.licEdit2 + '">' + (S.licEdit2 ? '✓ Terminer' : ICON_PEN + ' Modifier la liste') + '</button>' + '<button type="button" class="btn ghost small" data-licclass="1" title="' + (extra.length ? 'Classer tes jeux pas encore rangés (principal, remake, spin-off)' : 'Reclasser tous les jeux de la liste') + '">🗂 ' + (extra.length ? 'Classer mes jeux' + ' (' + extra.length + ')' : 'Reclasser la liste') + '</button>' + '<button type="button" class="btn small" data-lsgopen="1">🔎 Suggestions IGDB</button><button type="button" class="btn ghost small" data-lsgclaude="1">✦ Suggestions Claude</button>' + (S.licRen ? '<span class="lic-ren"><label class="sr" for="licRenIn">Nouveau nom de la licence</label><input id="licRenIn" type="text" value="' + esc(lic) + '" maxlength="80"><button type="button" class="btn small" data-licrenok="1">Renommer</button><button type="button" class="btn ghost small" data-licrenno="1">Annuler</button></span>' : '<button type="button" class="btn ghost small" data-licren="1">' + ICON_PEN + ' Renommer</button>')) + '<div class="lic-sorts" role="group" aria-label="Afficher">' + [['all', 'Tous'], ['own', 'Possédés'], ['miss', 'Manquants']].map(function(x){ return '<button type="button" data-licf="' + x[0] + '" aria-pressed="' + (f === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div></div>';
+  var actRen = S.licRen ? '<span class="lic-ren"><label class="sr" for="licRenIn">Nouveau nom de la licence</label><input id="licRenIn" type="text" value="' + esc(lic) + '" maxlength="80"><button type="button" class="btn small" data-licrenok="1">Renommer</button><button type="button" class="btn ghost small" data-licrenno="1">Annuler</button></span>' : '<button type="button" class="btn ghost small" data-licren="1">' + ICON_PEN + ' Renommer</button>';
+  h += licDelBar() + '<div class="lic-bar lic-bar2"><div class="lic-row1"><button type="button" class="btn ghost small" data-nav="licences">← Toutes les licences</button><label class="search lic-q"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="licQ" type="search" placeholder="Rechercher dans la collection" value="' + esc(S.licQ || '') + '" autocomplete="off" aria-label="Rechercher un jeu dans la collection"></label><div class="lic-sorts" role="group" aria-label="Afficher">' + [['all', 'Tous'], ['own', 'Possédés'], ['miss', 'Manquants']].map(function(x){ return '<button type="button" data-licf="' + x[0] + '" aria-pressed="' + (f === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div></div>'
+    + (S.readOnly ? '' : '<div class="lic-row2"><div class="lic-grp"><span class="lic-gl">Ajouter</span><button type="button" class="btn small" data-licadd="1">＋ Ajouter un jeu</button><button type="button" class="btn ghost small" data-lsgopen="1">🔎 Suggestions IGDB</button><button type="button" class="btn ghost small" data-lsgclaude="1">✦ Suggestions Claude</button></div><div class="lic-grp"><span class="lic-gl">Organiser</span><button type="button" class="btn ghost small" data-licedit2="1" aria-pressed="' + !!S.licEdit2 + '">' + (S.licEdit2 ? '✓ Terminer' : ICON_PEN + ' Modifier la liste') + '</button><button type="button" class="btn ghost small" data-licclass="1" title="' + (extra.length ? 'Classer tes jeux pas encore rangés (principal, remake, spin-off)' : 'Reclasser tous les jeux de la liste') + '">🗂 ' + (extra.length ? 'Classer mes jeux (' + extra.length + ')' : 'Reclasser la liste') + '</button>' + actRen + '</div></div>') + '</div>';
   var delB = S.readOnly ? '' : '<div class="lic-delzone"><button type="button" class="btn danger" data-licdel="' + esc(lic) + '">' + ICON_TRASH + ' Supprimer cette collection</button><span>Les jeux restent dans ta collection, seule la licence leur est retirée.</span></div>';
-  if (!L) return h + '<div class="card empty"><strong>La liste complète de cette saga n\u2019est pas encore chargée</strong><span>Demande à Claude de « charger tous les jeux ' + esc(lic) + ' » : la page affichera alors ceux que tu possèdes et ceux qui manquent.</span></div>' + (mine.length ? licGroup('Mes jeux de cette licence', mine.map(function(g){ return {e:{title:g.name, platform:list(g.consoles)[0], year:g.year}, g:g, owned:true}; }), lic) : '') + delB;
-  var shown = rows.filter(function(r){ return f === 'all' || (f === 'own' ? r.owned : !r.owned); });
+  if (!L) return h + '<div class="card empty lic-new"><strong>Pas encore de collection « ' + esc(lic) + ' »</strong><span>' + (own.length ? 'Tu as déjà ' + own.length + ' jeu' + (own.length > 1 ? 'x' : '') + ' de cette licence. ' : '') + 'Crée la collection : je cherche tous les jeux de la saga, et tu choisis ceux à ajouter à la liste.</span>' + (S.readOnly ? '' : '<button type="button" class="btn" data-lsgopen="1">✨ Créer la collection</button>') + '</div>' + (own.length ? licGroup('Mes jeux de cette licence', own.map(function(g){ return {e:{title:g.name, platform:list(g.consoles)[0], year:g.year}, g:g, owned:true}; }), lic) : '');
+  var lq = catKey(S.licQ || ''), lqOk = function(t){ return !lq || catKey(t).indexOf(lq) >= 0; };
+  var shown = rows.filter(function(r){ return (f === 'all' || (f === 'own' ? r.owned : !r.owned)) && lqOk(r.e.title + ' ' + (r.e.platform || '')); });
+  if (lq && !shown.length && !extra.some(function(g){ return lqOk(g.name); })) h += '<div class="card empty"><strong>Aucun jeu ne correspond à « ' + esc(S.licQ) + ' »</strong>' + (S.readOnly ? '' : '<span>Il manque à la liste ? Ajoute-le à la main.</span><button type="button" class="btn small" data-licadd="1" data-licaddname="' + esc(S.licQ) + '">＋ Ajouter « ' + esc(S.licQ) + ' »</button>') + '</div>';
   [['Principal', 'Jeux principaux'], ['Remake', 'Remakes, remasters et éditions'], ['Spin-off', 'Spin-offs']].forEach(function(t){ var rs = shown.filter(function(r){ return (r.e.type || 'Principal') === t[0]; }); if (rs.length) h += licGroup(t[1], rs, lic); });
+  extra = extra.filter(function(g){ return lqOk(g.name); });
   if (extra.length && f !== 'miss') h += licGroup('Autres jeux de ma collection', extra.map(function(g){ return {e:{title:g.name, platform:list(g.consoles)[0], year:g.year}, g:g, owned:true}; }), lic);
   return h + delB;
 }
@@ -9368,6 +9392,43 @@ async function b3sSave(btn){
   saveVersions(g.id, function(vs){ var v = vs.find(function(x){ return x.id === vid0; }); if (!v) return false; v.box3d = ids; }, true);
   toast('Ta boîte 3D est prête !'); var v2 = getVersions(g).find(function(x){ return x.id === vid0; }); if (v2) setTimeout(function(){ openDlg(b3dDlg(g, v2)); setTimeout(b3dCheckViewer, 50); }, 300);
 }
+
+
+/* tag de licence sur la fiche d'un jeu : ouvre la collection par licence */
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-golic]'); if (!t) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  var lic = t.getAttribute('data-golic'); if (typeof gdlgClose === 'function') gdlgClose(); closeDlg();
+  S.licOpen = lic; S.licF = 'all'; S.licEdit2 = false; go('licence');
+}, true);
+
+
+/* ---------- Collection par licence : recherche et ajout manuel ---------- */
+var LICQT = null;
+document.addEventListener('input', function(e){ if (e.target.id !== 'licQ') return; var v = e.target.value; clearTimeout(LICQT); LICQT = setTimeout(function(){ S.licQ = v; render(); var i = document.getElementById('licQ'); if (i) { i.focus(); try { i.setSelectionRange(v.length, v.length); } catch (x) {} } }, 200); });
+(function(){ var _go3 = go; go = function(view){ if (view !== 'licence') S.licQ = ''; return _go3.apply(this, arguments); }; })();
+function licAddDlg(name){
+  return '<div class="dlg lad-dlg"><header><h2>＋ Ajouter un jeu à « ' + esc(S.licOpen) + ' »</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="ladForm">'
+    + '<div class="ned-grid"><div class="field full"><label for="ladName">Nom du jeu</label><input type="text" id="ladName" maxlength="120" value="' + esc(name || '') + '" placeholder="Ex. Zelda: Oracle of Ages"></div>'
+    + cfield('ladCon', 'Console', {key:'consoles', name:'ladCon', value:'', placeholder:'Choisir une console', clearable:true}, true)
+    + '<div class="field"><label for="ladYear">Année de sortie</label><input type="number" id="ladYear" min="1970" max="2100" placeholder="Ex. 2001"></div>'
+    + '<div class="field full"><label>Catégorie</label><div class="ned-kind lad-type">' + [['Principal', '🎮 Jeu principal'], ['Remake', '✨ Remake / remaster'], ['Spin-off', '🧩 Spin-off']].map(function(t, i){ return '<button type="button" class="ned-ch' + (i === 0 ? ' on' : '') + '" data-ladtype="' + t[0] + '"><b>' + t[1] + '</b></button>'; }).join('') + '</div></div></div>'
+    + '<p class="gi-note">Le jeu rejoint la liste de la saga. Si tu le possèdes déjà dans ta collection, il apparaîtra comme possédé.</p></div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-ladsave="1">Ajouter à la collection</button></footer></div>';
+}
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-licadd],[data-ladtype],[data-ladsave]'); if (!t || S.readOnly) return;
+  if (t.hasAttribute('data-licadd')) { openDlg(licAddDlg(t.getAttribute('data-licaddname') || '')); setTimeout(function(){ var i = document.getElementById('ladName'); if (i) i.focus(); }, 60); return; }
+  if (t.hasAttribute('data-ladtype')) { t.parentNode.querySelectorAll('.ned-ch').forEach(function(x){ x.classList.toggle('on', x === t); }); return; }
+  var f = document.getElementById('ladForm'); if (!f) return;
+  var name = (document.getElementById('ladName').value || '').trim(); if (!name) { toast('Indique le nom du jeu'); return; }
+  var con = (f.querySelector('input[name="ladCon"]') || {}).value || '', year = parseInt(document.getElementById('ladYear').value, 10) || '', type = (f.querySelector('.lad-type .on') || {getAttribute:function(){ return 'Principal'; }}).getAttribute('data-ladtype');
+  var lic = S.licOpen, lk = licKey(lic), cur = LICDB[lk] || {name:lic, games:[]}, games = (cur.games || []).slice();
+  if (games.some(function(x){ return gmKey(x.title) === gmKey(name) && (!con || !x.platform || norm(canonConsole(x.platform)) === norm(canonConsole(con))); })) { toast('Ce jeu est déjà dans la liste'); return; }
+  games.push({title:name, platform:con, platforms:con ? [con] : [], year:year, lang:'', type:type, manual:true});
+  t.disabled = true;
+  try { var nd = Object.assign({}, cur, {name:lic, games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; closeDlg(); S.licQ = ''; render(); toast('« ' + name + ' » ajouté à la collection'); }
+  catch (x) { toast(failMsg(x)); t.disabled = false; }
+});
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
