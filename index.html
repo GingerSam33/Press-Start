@@ -4151,7 +4151,7 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 .gf2-kind:has(input[value="wish"]).on{border-color:#E2304A;background:color-mix(in srgb,#E2304A 8%,var(--card));color:#B4233F}
 .gf2-main>footer{display:flex;align-items:center;gap:8px;padding:14px 26px !important;border-top:1px solid var(--card-border)}
 .gf2-main>footer .spacer{flex:1}
-#gameForm[data-gfstep="1"] .gf2-back,#gameForm[data-gfstep="3"] .gf2-next,#gameForm[data-gfstep="3"] .gf2-now,#gameForm:not([data-gfstep="3"]) .gf2-save{display:none}
+#gameForm[data-gfstep="1"] .gf2-back,#gameForm[data-gfstep="2"] .gf2-next,#gameForm[data-gfstep="2"] .gf2-now,#gameForm:not([data-gfstep="2"]) .gf2-save{display:none}
 .gf2-next{box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 60%,#000)}
 .gf2-prev p{margin:0;font-size:12px;color:#C9C2E8}
 .gf2-shelf{flex:1;min-height:300px;border-radius:20px;background:radial-gradient(ellipse at 50% 30%,#4A2A6E,#1B1030 75%);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:18px}
@@ -4167,6 +4167,23 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 @media (max-width:720px){.gf2-wrap{grid-template-columns:1fr;height:auto;max-height:calc(100dvh - 24px)}.gf2-side{flex-direction:row;flex-wrap:wrap;align-items:center;padding:14px}.gf2-side .gtop-box{width:90px}.gf2-steps{flex-direction:row;flex:1}.gf2-st small,.gf2-st b{display:none}.gf2-prog{display:none}.gf2-grid,.gf2-kgrid{grid-template-columns:1fr}}
 
 .gf2-box img[hidden],.gf2-ph[hidden]{display:none !important}
+
+/* fiche d'ajout : corrections */
+.gf2-wrap{grid-template-columns:250px minmax(0,1fr) 290px}
+.gf2-side .gtop-box{width:auto !important;flex:none;min-height:0}
+.gf2-side .gcov{width:210px !important;max-width:100% !important;margin:0 auto}
+.gf2-br.has-logo{display:flex;align-items:center;justify-content:center;padding:6px 10px}
+.gf2-br.has-logo img{max-width:100%;max-height:26px;object-fit:contain}
+.gf2-br.on.has-logo{background:color-mix(in srgb,var(--bc) 8%,var(--card))}
+.gf2-next{box-shadow:none !important}
+.btn.gf2-next:active,.btn.gf2-save:active,.btn.gf2-now:active{transform:translateY(3px)}
+.gf2-photos{display:flex;flex-direction:column;gap:12px}
+.fph-sec{border-radius:16px;border:1px solid var(--card-border);background:var(--sunken);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.fph-h b{font-size:13.5px;color:var(--text)}.fph-h small{margin-left:8px;font-size:12px;color:var(--muted)}
+.fph-sec .vphotos{display:flex;flex-wrap:wrap;gap:10px}
+.fph-slot{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.fph-l{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.gf2-step[data-step="2"] .gf2-grid{margin-top:2px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5085,28 +5102,16 @@ function gameForm(g){
   var ic = function(p){ return '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>'; };
   var IBOX = '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path>', IDL = '<path d="M12 3v12M7 10l5 5 5-5"></path><path d="M4 19h16"></path>', IHT = '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path>';
   var kindTile = function(v, lab, svg, on){ return '<label class="gf2-kind' + (on ? ' on' : '') + '"><input type="radio" name="kind" value="' + v + '"' + (on ? ' checked' : '') + '>' + ic(svg) + '<span>' + lab + '</span></label>'; };
-  var steps = [['1', 'Le jeu', 'Nom, console, collection', ''], ['2', 'Mon exemplaire', 'Format, état, photos', ' own-only'], ['3', 'Fiche technique', 'Studio, éditeur, saga', '']];
+  var steps = [['1', 'Le jeu', 'Nom, studio, éditeur, saga', ''], ['2', 'Mon exemplaire', 'Console, format, état, photos', '']];
   var h = '<form class="dlg gf2' + (g.kind === 'wish' ? ' is-wish' : '') + '" id="gameForm" data-id="' + esc(g.id || '') + '" data-gfstep="1" novalidate><div class="gf2-wrap">'
     + '<aside class="gf2-side"><span class="gf2-k">' + (g.id ? 'EDIT GAME' : 'NEW GAME') + '</span>' + coverBox(g)
     + '<nav class="gf2-steps" aria-label="Étapes">' + steps.map(function(s){ return '<button type="button" class="gf2-st' + s[3] + '" data-gfgo="' + s[0] + '"><span class="gf2-n">' + s[0] + '</span><span><b>' + s[1] + '</b><small>' + s[2] + '</small></span></button>'; }).join('') + '</nav>'
-    + '<div class="gf2-prog"><span><i></i></span><small id="gfProgN">1 / 3</small></div></aside>'
-    + '<div class="gf2-main"><header><div><span class="gf2-sl" id="gfStepLab">Étape 1</span><h2 id="gfStepT">' + (g.id ? 'Modifier le jeu' : 'Quel jeu ajoutes-tu ?') + '</h2></div><button type="button" class="iconbtn gf2-x" data-act="close" aria-label="Fermer">×</button></header><div class="body">'
+    + '<div class="gf2-prog"><span><i></i></span><small id="gfProgN">1 / 2</small></div></aside>'
+    + '<div class="gf2-main"><header><div><span class="gf2-sl" id="gfStepLab">Étape 1</span><h2 id="gfStepT">' + (g.id ? 'Modifier le jeu' : 'Ajout d\u2019un nouveau jeu') + '</h2></div><button type="button" class="iconbtn gf2-x" data-act="close" aria-label="Fermer">×</button></header><div class="body">'
     + '<section class="gf2-step" data-step="1">'
     + '<div class="field"><label for="gName">Nom du jeu</label><div class="name-row"><input id="gName" name="name" required value="' + esc(g.name || '') + '" placeholder="Ex. : The Legend of Zelda" autocomplete="off">' + aiFillBtn() + '</div><div id="igSug" class="ig-sug" hidden></div></div>'
     + '<div id="aiBox" hidden></div>'
-    + '<div class="field"><span class="flabel">Console</span>' + (multiC ? '' : '<div class="gf2-brands" role="group" aria-label="Constructeur">' + brands.concat(['Autres']).map(function(b){ var col = CBRAND_COL[b] || '#5A6A88'; return '<button type="button" class="gf2-br' + (b === b0 ? ' on' : '') + '" data-gfbrand="' + esc(b) + '" style="--bc:' + col + '" aria-pressed="' + (b === b0) + '">' + esc(b) + '</button>'; }).join('') + '</div>')
-    + '<div class="gf2-con">' + (multiC ? combo({key:'consoles', name:'consoles', value:list(g.consoles), multi:true, placeholder:'Choisir une console', id:'gCons'}) : combo({key:'consoles', name:'consoles', value:c0, clearable:true, placeholder:'Choisir une console ' + (b0 === 'Autres' ? '' : b0), id:'gCons'}).replace('class="combo', 'data-brand="' + esc(b0) + '" class="combo')) + '</div></div>'
-    + '<fieldset class="field gf2-kinds"><legend>Dans quelle collection ?</legend><div class="gf2-kgrid">' + kindTile('physique', 'Physique', IBOX, g.kind !== 'demat' && g.kind !== 'wish') + kindTile('demat', 'Dématérialisé', IDL, g.kind === 'demat') + kindTile('wish', 'Wishlist', IHT, g.kind === 'wish') + '</div></fieldset>'
-    + '<p class="wish-note"' + (g.kind === 'wish' ? '' : ' hidden') + '>' + ICON_HEART + 'Format, état, langue, nombre et photos me seront demandés quand j\u2019aurai le jeu.</p>'
-    + '</section>'
-    + '<section class="gf2-step own-only" data-step="2"><div class="gf2-grid">'
-    + cfield('gFormat', 'Format', {key:'format', name:'format', value:g.format, clearable:true, placeholder:'Choisir un format'})
-    + cfield('gEtat', 'État', {key:'etat', name:'etat', value:list(g.etat), multi:true, placeholder:'Choisir un état'})
-    + cfield('gLang', 'Langue', {key:'langue', name:'langue', value:g.langue, clearable:true, placeholder:'Choisir une langue'})
-    + stepper('gNb', 'nombre', 'Nombre', g.nombre === '' || g.nombre == null ? 1 : g.nombre)
-    + '<div class="field full"><span class="flabel">Photos de mon jeu</span><span class="hint">Pour voir à quoi ressemble mon exemplaire.' + (g.id ? ' Elles s\u2019ajoutent à la première version du jeu.' : '') + '</span><div class="vphotos" id="fPhotos">' + formPhotosHtml() + '</div></div>'
-    + '</div></section>'
-    + '<section class="gf2-step" data-step="3"><div class="gf2-grid">'
+    + '<div class="gf2-grid">'
     + cfield('gDev', 'Développeur(s)', {key:'developer', name:'developer', value:list(g.developer), multi:true, placeholder:'Choisir un développeur'})
     + cfield('gPub', 'Éditeur(s)', {key:'publisher', name:'publisher', value:list(g.publisher), multi:true, placeholder:'Choisir un éditeur'})
     + yearPicker('gYear', 'year', 'Date de sortie', g.year)
@@ -5114,24 +5119,35 @@ function gameForm(g){
     + cfield('gTypes', 'Type(s)', {key:'types', name:'types', value:list(g.types), multi:true, placeholder:'Choisir un ou plusieurs types'}, true)
     + '<div class="field full"><label for="gWiki">Lien Wikipédia</label><input id="gWiki" name="wiki" type="url" value="' + esc(g.wiki || '') + '" placeholder="https://fr.wikipedia.org/wiki/…"></div>'
     + '</div></section>'
+    + '<section class="gf2-step" data-step="2">'
+    + '<div class="field"><span class="flabel">Console</span>' + (multiC ? '' : '<div class="gf2-brands" role="group" aria-label="Constructeur">' + brands.concat(['Autres']).map(function(b){ var col = CBRAND_COL[b] || '#5A6A88', lg = BRAND_LOGOS[b]; return '<button type="button" class="gf2-br' + (b === b0 ? ' on' : '') + (lg ? ' has-logo' : '') + '" data-gfbrand="' + esc(b) + '" style="--bc:' + col + '" aria-pressed="' + (b === b0) + '" aria-label="' + esc(b) + '" title="' + esc(b) + '">' + (lg ? '<img src="' + lg + '" alt="">' : esc(b)) + '</button>'; }).join('') + '</div>')
+    + '<div class="gf2-con">' + (multiC ? combo({key:'consoles', name:'consoles', value:list(g.consoles), multi:true, placeholder:'Choisir une console', id:'gCons'}) : combo({key:'consoles', name:'consoles', value:c0, clearable:true, placeholder:'Choisir une console ' + (b0 === 'Autres' ? '' : b0), id:'gCons'}).replace('class="combo', 'data-cbrand="' + esc(b0) + '" class="combo')) + '</div></div>'
+    + '<fieldset class="field gf2-kinds"><legend>Dans quelle collection ?</legend><div class="gf2-kgrid">' + kindTile('physique', 'Physique', IBOX, g.kind !== 'demat' && g.kind !== 'wish') + kindTile('demat', 'Dématérialisé', IDL, g.kind === 'demat') + kindTile('wish', 'Wishlist', IHT, g.kind === 'wish') + '</div></fieldset>'
+    + '<p class="wish-note"' + (g.kind === 'wish' ? '' : ' hidden') + '>' + ICON_HEART + 'Format, état, langue, nombre et photos me seront demandés quand j\u2019aurai le jeu.</p>'
+    + '<div class="gf2-grid own-only">'
+    + cfield('gFormat', 'Format', {key:'format', name:'format', value:g.format, clearable:true, placeholder:'Choisir un format'})
+    + cfield('gEtat', 'État', {key:'etat', name:'etat', value:list(g.etat), multi:true, placeholder:'Choisir un état'})
+    + stepper('gNb', 'nombre', 'Nombre', g.nombre === '' || g.nombre == null ? 1 : g.nombre)
+    + cfield('gLang', 'Langue', {key:'langue', name:'langue', value:g.langue, clearable:true, placeholder:'Choisir une langue'})
+    + '</div>'
+    + '<div class="own-only gf2-photos" id="fPhotos">' + formPhotosHtml() + '</div>'
+    + '</section>'
     + '</div><footer>' + (g.id ? '<button type="button" class="btn danger" data-act="deleteGame" data-id="' + esc(g.id) + '">Supprimer</button>' : '<button type="button" class="btn ghost" data-act="close">Annuler</button>')
     + '<span class="spacer"></span><button type="button" class="btn ghost gf2-back" data-gfnav="-1">← Retour</button><button type="submit" class="btn ghost gf2-now">' + (g.id ? 'Enregistrer' : 'Ajouter tout de suite') + '</button><button type="button" class="btn gf2-next" data-gfnav="1">Suivant →</button><button type="submit" class="btn gf2-save">' + (g.id ? 'Enregistrer' : 'Ajouter le jeu') + '</button></footer></div>'
     + '<aside class="gf2-prev" aria-label="Aperçu"><span class="gf2-k">APERÇU</span><p>Ta boîte telle qu\u2019elle apparaîtra sur l\u2019étagère.</p><div class="gf2-shelf"><div class="gf2-box" id="gfPBox"><div class="gf2-band" id="gfPBand"></div><img id="gfPImg" alt=""><span id="gfPPh" class="gf2-ph"></span></div><div class="gf2-plank"></div></div>'
     + '<div class="gf2-sum"><b id="gfPName"></b><small id="gfPSub"></small><span class="gf2-chips" id="gfPChips"></span></div></aside>'
     + '</div></form>';
   openDlg(h);
-  setTimeout(gfPreview, 30);
+  setTimeout(function(){ gfSetStep(1); gfPreview(); }, 30);
 }
 function gfBrands(){ var order = ['Nintendo', 'Sony', 'Microsoft', 'Sega'], have = {}; optValues('consoles').forEach(function(c){ var b = brandOfConsole(c); if (b) have[b] = (have[b] || 0) + 1; }); var extra = Object.keys(have).filter(function(b){ return order.indexOf(b) < 0; }).sort(function(a, b){ return have[b] - have[a]; }); return order.filter(function(b){ return have[b]; }).concat(extra).slice(0, 5); }
 function gfSetStep(n){
   var f = document.getElementById('gameForm'); if (!f || !f.classList.contains('gf2')) return;
-  var wish = f.classList.contains('is-wish'); if (wish && n === 2) n = f.getAttribute('data-gfstep') === '3' ? 1 : 3; n = Math.max(1, Math.min(3, n));
-  f.setAttribute('data-gfstep', n);
-  var tot = wish ? 2 : 3, idx = wish && n === 3 ? 2 : n;
-  var T = {1:'Quel jeu ajoutes-tu ?', 2:'Ton exemplaire', 3:'La fiche technique'}; if (f.getAttribute('data-id')) T[1] = 'Modifier le jeu';
+  n = Math.max(1, Math.min(2, n)); f.setAttribute('data-gfstep', n);
+  var T = {1:f.getAttribute('data-id') ? 'Modifier le jeu' : 'Ajout d\u2019un nouveau jeu', 2:'Mon exemplaire'};
   var sl = f.querySelector('#gfStepLab'), st = f.querySelector('#gfStepT'), pn = f.querySelector('#gfProgN'), pi = f.querySelector('.gf2-prog i');
-  if (sl) sl.textContent = 'Étape ' + idx; if (st) st.textContent = T[n]; if (pn) pn.textContent = idx + ' / ' + tot; if (pi) pi.style.width = (idx / tot * 100) + '%';
-  f.querySelectorAll('.gf2-st').forEach(function(b){ var k = +b.getAttribute('data-gfgo'); b.classList.toggle('on', k === n); b.classList.toggle('done', k < n); });
+  if (sl) sl.textContent = 'Étape ' + n; if (st) st.textContent = T[n]; if (pn) pn.textContent = n + ' / 2'; if (pi) pi.style.width = (n / 2 * 100) + '%';
+  f.querySelectorAll('.gf2-st').forEach(function(b){ var k = +b.getAttribute('data-gfgo'); b.classList.toggle('on', k === n); b.classList.toggle('done', k < n); b.setAttribute('aria-current', k === n ? 'step' : 'false'); });
   var bd = f.querySelector('.body'); if (bd) bd.scrollTop = 0;
 }
 function gfPreview(){
@@ -5153,8 +5169,8 @@ document.addEventListener('click', function(e){
   var t = e.target.closest('[data-gfgo],[data-gfnav],[data-gfbrand],.gf2-now,.gf2-save');
   if (!t) return;
   if (t.hasAttribute('data-gfgo')) { gfSetStep(+t.getAttribute('data-gfgo')); return; }
-  if (t.hasAttribute('data-gfnav')) { var cur = +f.getAttribute('data-gfstep'), d = +t.getAttribute('data-gfnav'), nx = cur + d; if (f.classList.contains('is-wish') && nx === 2) nx += d; gfSetStep(nx); return; }
-  if (t.hasAttribute('data-gfbrand')) { var b = t.getAttribute('data-gfbrand'); f.querySelectorAll('.gf2-br').forEach(function(x){ var on = x === t; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); }); var cb = f.querySelector('.gf2-con .combo'); if (cb) { cb.setAttribute('data-brand', b); var cv = getVal(cb); if (cv && !Array.isArray(cv) && (brandOfConsole(cv) || 'Autres') !== b && !(b === 'Autres' && gfBrands().indexOf(brandOfConsole(cv)) < 0)) setVal(cb, ''); setTimeout(function(){ openCombo(cb); }, 0); } return; }
+  if (t.hasAttribute('data-gfnav')) { gfSetStep(+f.getAttribute('data-gfstep') + +t.getAttribute('data-gfnav')); return; }
+  if (t.hasAttribute('data-gfbrand')) { var b = t.getAttribute('data-gfbrand'); f.querySelectorAll('.gf2-br').forEach(function(x){ var on = x === t; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); }); var cb = f.querySelector('.gf2-con .combo'); if (cb) { cb.setAttribute('data-cbrand', b); var cv = getVal(cb); if (cv && !Array.isArray(cv) && (brandOfConsole(cv) || 'Autres') !== b && !(b === 'Autres' && gfBrands().indexOf(brandOfConsole(cv)) < 0)) setVal(cb, ''); var ci = cb.querySelector('.combo-in'); if (ci) { ci.placeholder = 'Choisir une console' + (b === 'Autres' ? '' : ' ' + b); } } return; }
   var nm = f.querySelector('#gName'); if (nm && !nm.value.trim()) { e.preventDefault(); gfSetStep(1); nm.focus(); toast('Indique le nom du jeu'); }
 }, true);
 document.addEventListener('input', function(e){ var f = document.getElementById('gameForm'); if (f && f.classList.contains('gf2') && f.contains(e.target)) gfPreview(); });
@@ -5309,10 +5325,11 @@ async function saveGame(form){
     if (form.dataset.igId && !data.igdbId) data.igdbId = form.dataset.igId;
     if (formPhotos.length && data.kind !== 'wish') {
       var newIds = [];
-      for (var pi = 0; pi < formPhotos.length; pi++) { var pid = await uploadFile(formPhotos[pi].file); if (pid) newIds.push(pid); }
+      var cats = {};
+      for (var pi = 0; pi < formPhotos.length; pi++) { var pid = await uploadFile(formPhotos[pi].file); if (pid) { newIds.push(pid); if (formPhotos[pi].cat) cats[pid] = formPhotos[pi].cat; } }
       if (newIds.length) {
         var pvs = Array.isArray(data.versions) && data.versions.length ? data.versions.map(function(v){ return Object.assign({}, v); }) : getVersions(Object.assign({}, data, {versions:null}));
-        pvs[0].photos = (pvs[0].photos || []).concat(newIds);
+        pvs[0].photos = (pvs[0].photos || []).concat(newIds); pvs[0].photoCats = Object.assign({}, pvs[0].photoCats || {}, cats);
         data.versions = pvs;
       }
     }
@@ -5616,7 +5633,7 @@ function renderPop(){
     else if (!multi && cb.hasAttribute('data-clear') && val && !q) h += optRow('', '<span class="opt-all">Aucune valeur</span>', false, i++);
     if (canEdit && q && !vals.some(function(v){ return norm(v) === q; })) h += '<div class="opt-row" style="--i:' + (i++) + '"><button type="button" class="opt opt-add" data-add="1">' + ICON_PLUS + '<span>Ajouter « ' + esc(qRaw) + ' »</span></button></div>';
   }
-  var lastGrp = null, cbBrand = key === 'consoles' && cb.getAttribute('data-brand');
+  var lastGrp = null, cbBrand = key === 'consoles' && cb.getAttribute('data-cbrand');
   if (cbBrand && !q) { var mainB = gfBrands(); shown = shown.filter(function(v){ var bb = brandOfConsole(v); return cbBrand === 'Autres' ? mainB.indexOf(bb) < 0 : bb === cbBrand; }); }
   shown.forEach(function(v){
     if (key === 'consoles') { var grp = brandOfConsole(v) || 'Autres'; if (grp !== lastGrp) { h += '<div class="opt-group" role="presentation">' + esc(grp) + '</div>'; lastGrp = grp; } }
@@ -6043,7 +6060,7 @@ function scheduleSave(cb){
 /* ---------- Versions d'un jeu (une par plateforme) ---------- */
 function vid(){ return 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function getVersions(g){
-  if (Array.isArray(g.versions) && g.versions.length) return g.versions.map(function(v){ return {id:String(v.id || vid()), console:v.console || '', edition:String(v.edition || ''), kind:v.kind === 'box' ? 'box' : (v.kind === 'copy' ? 'copy' : ''), box3d:v.box3d && typeof v.box3d === 'object' ? v.box3d : null, format:v.format || '', etat:list(v.etat), photos:Array.isArray(v.photos) ? v.photos.filter(function(x){ return !!safeId(x); }) : [], insertNote:String(v.insertNote || '')}; });
+  if (Array.isArray(g.versions) && g.versions.length) return g.versions.map(function(v){ return {id:String(v.id || vid()), console:v.console || '', edition:String(v.edition || ''), kind:v.kind === 'box' ? 'box' : (v.kind === 'copy' ? 'copy' : ''), box3d:v.box3d && typeof v.box3d === 'object' ? v.box3d : null, photoCats:v.photoCats && typeof v.photoCats === 'object' ? v.photoCats : {}, format:v.format || '', etat:list(v.etat), photos:Array.isArray(v.photos) ? v.photos.filter(function(x){ return !!safeId(x); }) : [], insertNote:String(v.insertNote || '')}; });
   var cs = list(g.consoles); if (!cs.length) cs = [''];
   return cs.map(function(c, i){ return {id:'v' + i, console:c, format:g.format || '', etat:list(g.etat), photos:[]}; });
 }
@@ -6274,14 +6291,21 @@ document.addEventListener('click', function(e){
 });
 /* photos ajoutées depuis le formulaire */
 var formPhotos = [];
+var FPH_SECS = [['box', 'Photos de la boîte', 'Face, tranche et dos', [['box-front', 'Face'], ['box-spine', 'Tranche'], ['box-back', 'Dos']]], ['game', 'Photo du jeu', 'Le disque ou la cartouche, de face', [['game', 'Jeu']]], ['manual', 'Photos du manuel', 'Couverture et pages', null]];
 function formPhotosHtml(){
-  return formPhotos.map(function(p, i){ return '<div class="vph"><span class="vph-img"><img src="' + p.url + '" alt=""></span><button type="button" class="vph-x" data-fphdel="' + i + '" aria-label="Retirer cette photo">×</button></div>'; }).join('')
-    + (assets ? '<label class="vph-add" title="Ajouter des photos"><input type="file" accept="image/*" multiple class="sr" id="fPhotoIn">' + ICON_PLUS + '<span>Ajouter</span></label>' : '<span class="vph-empty">Indisponible dans cette vue</span>');
+  if (!assets) return '<span class="vph-empty">Photos indisponibles dans cette vue</span>';
+  var tile = function(i, p){ return '<div class="vph"><span class="vph-img"><img src="' + p.url + '" alt=""></span><button type="button" class="vph-x" data-fphdel="' + i + '" aria-label="Retirer cette photo">×</button></div>'; };
+  return FPH_SECS.map(function(sec){
+    var body = '';
+    if (sec[3]) body = sec[3].map(function(sl){ var i = formPhotos.findIndex(function(p){ return p.cat === sl[0]; }); return '<div class="fph-slot"><span class="fph-l">' + sl[1] + '</span>' + (i >= 0 ? tile(i, formPhotos[i]) : '<label class="vph-add"><input type="file" accept="image/*" class="sr fPhotoIn" data-fphcat="' + sl[0] + '">' + ICON_PLUS + '<span>Ajouter</span></label>') + '</div>'; }).join('');
+    else body = formPhotos.map(function(p, i){ return p.cat === sec[0] ? tile(i, p) : ''; }).join('') + '<label class="vph-add"><input type="file" accept="image/*" multiple class="sr fPhotoIn" data-fphcat="' + sec[0] + '">' + ICON_PLUS + '<span>Ajouter</span></label>';
+    return '<div class="fph-sec fph-' + sec[0] + '"><div class="fph-h"><b>' + sec[1] + '</b><small>' + sec[2] + '</small></div><div class="vphotos">' + body + '</div></div>';
+  }).join('');
 }
 function refreshFormPhotos(){ var box = document.getElementById('fPhotos'); if (box) box.innerHTML = formPhotosHtml(); }
 document.addEventListener('change', function(e){
-  if (e.target.id !== 'fPhotoIn') return;
-  Array.prototype.slice.call(e.target.files || []).forEach(function(f){ if (/^image\//.test(f.type)) formPhotos.push({file:f, url:URL.createObjectURL(f)}); });
+  if (e.target.id !== 'fPhotoIn' && !(e.target.classList && e.target.classList.contains('fPhotoIn'))) return; var fcat = e.target.getAttribute('data-fphcat') || 'other';
+  Array.prototype.slice.call(e.target.files || []).forEach(function(f){ if (/^image\//.test(f.type)) formPhotos.push({file:f, url:URL.createObjectURL(f), cat:fcat}); });
   refreshFormPhotos();
 });
 document.addEventListener('click', function(e){
