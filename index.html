@@ -4034,6 +4034,10 @@ dialog:has(.lad-dlg){width:min(620px,calc(100vw - 24px)) !important;max-width:62
 .lad-type .ned-ch{align-items:center;text-align:center;padding:10px}
 .ned-grid input[type=number]{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--card-border);background:var(--sunken);color:var(--text);font:inherit;font-size:14px;width:100%;box-sizing:border-box}
 @media (max-width:620px){.lic-row1 .lic-sorts{margin-left:0}.lad-type{grid-template-columns:1fr !important}}
+
+.lg-ren{position:absolute;top:8px;left:50px;z-index:6;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:#2E5FB8;color:#fff;cursor:pointer;box-shadow:0 6px 12px -6px rgba(0,0,0,.6)}
+.lg-ren svg{width:15px;height:15px}
+.lrn-sug{display:inline-block;margin-top:6px;font-size:13px;font-weight:600;text-align:left}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -7659,7 +7663,8 @@ function licGroup(title, rs, lic){
     var e = r.e, g = r.g, cv = g && g.coverId ? blob(g.coverId) : '', short = e.title.replace(new RegExp('^' + lic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*[:\\-–]?\\s*', 'i'), '') || e.title;
     var lang = e.lang === 'EN' ? '<span class="tag t-gray" title="Pas d\u2019édition française">' + licFlag('GB') + ' EN</span>' : e.lang === 'FR' ? '<span class="tag t-gray">' + licFlag('FR') + ' FR</span>' : '';
     var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">★ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
-    var del = S.licEdit2 && !S.readOnly ? '<button type="button" class="lg-del" data-lgdel="' + (r.ei != null ? r.ei : 'g:' + (g && g.id)) + '" title="' + (r.ei != null ? 'Retirer de la liste de la saga' : 'Retirer ce jeu de la licence') + '" aria-label="Retirer">' + ICON_TRASH + '</button>' : '';
+    var ren = S.licEdit2 && !S.readOnly && r.ei != null ? '<button type="button" class="lg-ren" data-lgren="' + r.ei + '" title="Modifier le nom ou la console" aria-label="Modifier">' + ICON_PEN + '</button>' : '';
+    var del = ren + (S.licEdit2 && !S.readOnly ? '<button type="button" class="lg-del" data-lgdel="' + (r.ei != null ? r.ei : 'g:' + (g && g.id)) + '" title="' + (r.ei != null ? 'Retirer de la liste de la saga' : 'Retirer ce jeu de la licence') + '" aria-label="Retirer">' + ICON_TRASH + '</button>' : '');
     return '<article class="lg-card is-click' + (S.licEdit2 ? ' editing' : '') + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || '', r.ei != null ? r.ei : '', e.ig || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + del + (function(u){ return '<img class="bgi" src="' + u + '" alt="" aria-hidden="true"><img class="fgi" src="' + u + '" alt="">'; })(cv || (e.cvu && e.cvu !== 'none' ? e.cvu : '') || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + (r.owned ? '<span class="lg-rib">POSSÉDÉ</span><span class="lg-sheen" aria-hidden="true"></span>' : '') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
   }).join('') + '</div></section>';
 }
@@ -7979,7 +7984,8 @@ document.addEventListener('click', async function(e){
   if (t.hasAttribute('data-lsgadd')) {
     t.disabled = true; var lk = licKey(LSG.lic), cur = LICDB[lk] || {name:LSG.lic, games:[]}, games = (cur.games || []).slice();
     var ownC = S.games.map(function(g){ return licConsolesOf(g).map(function(c){ return norm(canonConsole(c)); }); }).reduce(function(a, b){ return a.concat(b); }, []), pl0 = it.platforms.filter(function(p){ return ownC.indexOf(norm(canonConsole(p))) >= 0; })[0] || it.platforms[0] || '';
-    games.push({title:it.name, platform:pl0, platforms:it.platforms, year:it.year ? +it.year : '', lang:'', type:it.type});
+    var cl0 = licTitleClean(it.name, pl0);
+    games.push({title:cl0.title, platform:cl0.platform, platforms:it.platforms, year:it.year ? +it.year : '', lang:'', type:it.type});
     try { await db.collection('licences').doc(lk).set(Object.assign({}, cur, {name:LSG.lic, games:games, updatedAt:Date.now()})); LSG.added++; } catch (x) { toast(failMsg(x)); t.disabled = false; return; }
   }
   it.done = true; lsgRender();
@@ -9429,6 +9435,39 @@ document.addEventListener('click', async function(e){
   try { var nd = Object.assign({}, cur, {name:lic, games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; closeDlg(); S.licQ = ''; render(); toast('« ' + name + ' » ajouté à la collection'); }
   catch (x) { toast(failMsg(x)); t.disabled = false; }
 });
+
+
+/* ---------- Collection par licence : renommer un jeu de la liste ---------- */
+var CON_WORDS = /\b(nintendo|switch|playstation|ps[1-5]|psp|vita|xbox|series|wii|gamecube|game ?boy|gba|3ds|2ds|nds|ds|pc|steam|mac|linux|stadia|mega ?drive|genesis|saturn|dreamcast|n64|snes|nes|android|ios)\b/i;
+function licTitleClean(title, platform){
+  var t = String(title || '').trim(), pl = platform || '', m = t.match(/\s*[\(\[]([^\)\]]+)[\)\]]\s*$/);
+  if (m && CON_WORDS.test(m[1])) { var c = m[1].trim(); t = t.slice(0, m.index).trim(); var canon = canonConsole(c); if (canon && canon !== c) pl = canon; else if (!pl) pl = c; }
+  t = t.replace(/\s*[-–—:]\s*$/, '').trim();
+  return {title:t || String(title || ''), platform:pl};
+}
+function licRenDlg(ei){
+  var lk = licKey(S.licOpen), L = LICDB[lk], e = L && L.games[ei]; if (!e) return '';
+  var cl = licTitleClean(e.title, e.platform), sug = cl.title !== e.title;
+  return '<div class="dlg lad-dlg"><header><h2>✎ Modifier le jeu</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="lrnForm" data-ei="' + ei + '">'
+    + '<div class="ned-grid"><div class="field full"><label for="lrnName">Nom du jeu</label><input type="text" id="lrnName" maxlength="140" value="' + esc(e.title) + '">' + (sug ? '<button type="button" class="link lrn-sug" data-lrnsug="' + esc(cl.title) + '|' + esc(cl.platform) + '">✨ Utiliser « ' + esc(cl.title) + ' »' + (cl.platform && cl.platform !== e.platform ? ' et la console ' + esc(consoleFullName(cl.platform) || cl.platform) : '') + '</button>' : '') + '</div>'
+    + cfield('lrnCon', 'Console', {key:'consoles', name:'lrnCon', value:e.platform || '', placeholder:'Choisir une console', clearable:true}, true)
+    + '<div class="field"><label for="lrnYear">Année de sortie</label><input type="number" id="lrnYear" min="1970" max="2100" value="' + esc(e.year || '') + '"></div></div>'
+    + '</div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-lrnsave="1">Enregistrer</button></footer></div>';
+}
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-lgren],[data-lrnsug],[data-lrnsave]'); if (!t || S.readOnly) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (t.hasAttribute('data-lgren')) { var h = licRenDlg(+t.getAttribute('data-lgren')); if (h) openDlg(h); return; }
+  if (t.hasAttribute('data-lrnsug')) { var pv = t.getAttribute('data-lrnsug').split('|'); document.getElementById('lrnName').value = pv[0]; if (pv[1]) { var cb = document.querySelector('#lrnForm .combo'); if (cb) setVal(cb, pv[1]); } t.remove(); return; }
+  var f = document.getElementById('lrnForm'); if (!f) return;
+  var ei = +f.getAttribute('data-ei'), lk = licKey(S.licOpen), cur = LICDB[lk]; if (!cur || !cur.games[ei]) return;
+  var name = (document.getElementById('lrnName').value || '').trim(); if (!name) { toast('Indique le nom du jeu'); return; }
+  var con = (f.querySelector('input[name="lrnCon"]') || {}).value || '', year = parseInt(document.getElementById('lrnYear').value, 10) || '';
+  var games = cur.games.slice(); games[ei] = Object.assign({}, games[ei], {title:name, platform:con, platforms:con ? Array.from(new Set([con].concat(games[ei].platforms || []))) : (games[ei].platforms || []), year:year});
+  t.disabled = true;
+  try { var nd = Object.assign({}, cur, {games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; closeDlg(); render(); toast('Jeu mis à jour'); }
+  catch (x) { toast(failMsg(x)); t.disabled = false; }
+}, true);
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
