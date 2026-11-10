@@ -4086,6 +4086,25 @@ dialog:has(.wq-dlg){width:min(560px,calc(100vw - 24px)) !important;max-width:560
 .pop-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;outline:0;min-height:38px}
 .pop-sug{margin:0 2px 8px;padding:6px;border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,var(--card));border:1px dashed color-mix(in srgb,var(--accent) 40%,transparent)}
 .pop-sug-t{display:block;padding:2px 8px 4px;font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--accent-text,var(--accent))}
+
+/* menus déroulants : on peut taper directement dans le champ */
+.combo.open:not([data-filter]) .combo-in{caret-color:var(--accent) !important;cursor:text !important;user-select:text !important;min-width:90px}
+.combo.open:not([data-filter]) .combo-in::placeholder{color:var(--muted) !important;opacity:1 !important;font-style:italic}
+/* fiche d'un jeu (découverte) : tags longs tronqués */
+.gi-dlg .gh-fact dd .tags,.gi-dlg .gi-facts .tags{min-width:0;max-width:100%}
+.gi-dlg .gh-fact .tag,.gi-dlg .gi-facts .tag{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-flex;align-items:center;min-width:0}
+.gi-dlg .gh-fact{min-width:0}
+.gi-licpen{display:inline-flex;vertical-align:middle;margin-left:6px;width:22px;height:22px;align-items:center;justify-content:center;border-radius:50%;border:0;background:var(--sunken);color:var(--muted);cursor:pointer}
+.gi-licpen svg{width:12px;height:12px}.gi-licpen:hover{color:var(--accent);background:var(--card)}
+.gi-licx{margin-left:6px;border:0;background:transparent;color:inherit;font-size:11px;cursor:pointer;opacity:.7;padding:0 2px}.gi-licx:hover{opacity:1;color:#C2304A}
+.gi-licadd{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}.gi-licadd .combo{flex:1;min-width:180px}
+.gi-licfact.editing{outline:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+
+.gi-dlg .gi-f{min-width:0}
+.gi-dlg .gi-f b{min-width:0;max-width:100%;display:block}
+.gi-dlg .gi-f .tags{min-width:0;max-width:100%}
+.gi-dlg .gi-f .tag{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;min-width:0;box-sizing:border-box}
+.gi-dlg .gi-f .tag .gi-licx{display:inline}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5439,7 +5458,7 @@ function openCombo(cb){
   host.appendChild(el);
   POP = {cb:cb, el:el, host:host, key:cb.getAttribute('data-key'), q:'', edit:false, adding:false, addDraft:'', renaming:null, confirm:null, active:-1, busy:false, first:true};
   cb.classList.add('open');
-  cb.querySelector('.combo-in').setAttribute('aria-expanded', 'true');
+  var ci0 = cb.querySelector('.combo-in'); ci0.setAttribute('aria-expanded', 'true'); if (!cb.hasAttribute('data-filter')) { ci0.removeAttribute('readonly'); ci0.setAttribute('data-ph0', ci0.placeholder); ci0.placeholder = cb.hasAttribute('data-multi') ? 'Rechercher ou ajouter…' : 'Rechercher…'; setTimeout(function(){ try { ci0.focus(); } catch (x) {} }, 0); }
   el.addEventListener('mousedown', function(e){ if (!e.target.closest('input')) e.preventDefault(); });
   el.addEventListener('click', onPopClick);
   el.addEventListener('keydown', onPopKey);
@@ -5451,7 +5470,7 @@ function closeCombo(){
   var p = POP; POP = null;
   p.cb.classList.remove('open');
   var inp = p.cb.querySelector('.combo-in');
-  if (inp) { inp.setAttribute('aria-expanded', 'false'); inp.value = ''; inp.removeAttribute('aria-activedescendant'); }
+  if (inp) { inp.setAttribute('aria-expanded', 'false'); inp.value = ''; inp.removeAttribute('aria-activedescendant'); if (inp.hasAttribute('data-ph0')) { inp.placeholder = inp.getAttribute('data-ph0'); inp.removeAttribute('data-ph0'); inp.setAttribute('readonly', ''); } }
   p.el.classList.add('out');
   setTimeout(function(){ if (p.el.parentNode) p.el.parentNode.removeChild(p.el); }, 150);
   if (S.pending) { S.pending = false; render(); }
@@ -5467,7 +5486,7 @@ function renderPop(){
   var cq = catKey(qRaw), shown = vals.filter(function(v){ return !q || norm(optLabel(key, v)).indexOf(q) >= 0 || (cq && catKey(optLabel(key, v)).indexOf(cq) >= 0); });
   var canEdit = o.editable && !S.readOnly && !!db;
   var oldList = p.el.querySelector('.pop-list'), st = oldList ? oldList.scrollTop : 0;
-  var sq = !multi && !p.edit && vals.length > 6;
+  var sq = false;
   var pre = sq ? '<div class="pop-search"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input class="pop-q" type="search" placeholder="Rechercher' + (key === 'licence' ? ' une licence' : '') + '…" value="' + esc(qRaw) + '" autocomplete="off" aria-label="Rechercher"></div>' : '';
   if (key === 'licence' && !p.edit && !q) {
     var gn = (document.getElementById('gName') || {}).value || '', gk = catKey(gn), sugs = [];
@@ -5705,7 +5724,7 @@ document.addEventListener('keydown', function(e){
     e.preventDefault();
     if (!open) { openCombo(cb); return; }
     var opts = POP.el.querySelectorAll('.opt:not(.static)');
-    var a = opts[POP.active] || (POP.q.trim() ? (POP.el.querySelector('.opt-add') || (opts.length ? opts[0] : null)) : null);
+    var a = opts[POP.active] || (POP.q.trim() ? (POP.el.querySelector('.pop-list .opt:not(.opt-add):not(.static)') || POP.el.querySelector('.opt-add') || (opts.length ? opts[0] : null)) : null);
     if (a) a.click();
   }
   else if (e.key === 'Escape') { if (open) { e.preventDefault(); e.stopPropagation(); closeCombo(); } }
@@ -7984,7 +8003,7 @@ function giHtml(){
   GI.more = {};
   var tags = function(str, color, label){ var a = String(str || '').split(/,(?!\s*(?:inc|ltd|llc|co|corp|s\.?a|gmbh)\b)\s*/i).map(function(v){ return v.trim(); }).filter(Boolean).filter(function(v, k, arr){ return arr.indexOf(v) === k; }); if (!a.length) return ''; var first = tag(a[0], color || hashColor(a[0])); if (a.length < 2) return first; GI.more[label] = a; return first + '<button type="button" class="gi-more" data-gimore="' + label + '" aria-haspopup="dialog">+ ' + (a.length - 1) + ' ' + label + (a.length - 1 > 1 ? 's' : '') + '</button>'; };
   var facts = fact('Développeur', devs ? '<span class="tags">' + tags(devs, 'gray', 'développeur') + '</span>' : '') + fact('Éditeur', pubs ? '<span class="tags">' + tags(pubs, 'gray', 'éditeur') + '</span>' : '') + fact('Genre', genres ? '<span class="tags">' + tags(genres, null, 'genre') + '</span>' : '') + fact('Sortie', y ? tag(y, 'sky') : '')
-    + fact('Régions', (i.regions || []).length ? catRegBadges(i.regions) : '') + fact('Licence', lic.length ? '<span class="tags">' + lic.map(function(l){ return '<span class="tag t-gold">' + esc(l) + '</span>'; }).join('') + '</span>' : '')
+    + fact('Régions', (i.regions || []).length ? catRegBadges(i.regions) : '') + fact('Licence' + (S.readOnly ? '' : ' <button type="button" class="gi-licpen" data-gilicedit="1" title="Modifier les licences" aria-label="Modifier les licences">' + ICON_PEN + '</button>'), (function(){ var lf = licFixGet(i.title); if (lf) lic = lf; var ed = GI.licEdit && !S.readOnly; if (!lic.length && !ed) return '<span class="gh-none">Aucune licence</span>'; return '<span class="tags">' + lic.map(function(l){ return '<span class="tag t-gold" title="' + esc(l) + '">' + esc(l) + (ed ? '<button type="button" class="gi-licx" data-gilicx="' + esc(l) + '" aria-label="Retirer ' + esc(l) + '">✕</button>' : '') + '</span>'; }).join('') + '</span>' + (ed ? '<div class="gi-licadd">' + combo({key:'licence', value:'', compact:true, placeholder:'+ Ajouter une licence', id:'giLicAdd'}) + '<button type="button" class="btn small" data-gilicok="1">✓ Terminer</button></div>' : ''); })(), GI.licEdit ? 'gi-licfact editing' : 'gi-licfact')
     + fact('Titre français', i.fr && i.fr !== i.title ? esc(i.fr) : '') + fact('Titre japonais', i.jp && i.jp !== i.title ? esc(i.jp) : '')
     + (i.cf && i.cf.y ? fact('Désaccord d’année', 'MobyGames ' + esc(i.cf.y.moby) + ' · IGDB ' + esc(i.cf.y.igdb)) : '');
   var sec = function(t, c){ return '<section class="gi-sec"><h4>' + t + '</h4>' + c + '</section>'; };
@@ -9657,6 +9676,24 @@ document.addEventListener('keydown', function(e){
   if (e.key === 'Enter') { e.preventDefault(); var first = POP.el.querySelector('.pop-list .opt:not(.opt-add)'); if (first) first.click(); }
   if (e.key === 'Escape') { e.preventDefault(); closeCombo(); }
 });
+
+/* ---------- Licences d'un jeu de la Base / découverte : corrections ---------- */
+var LICFIX = {};
+(function licFixLoad(){ var tryLoad = function(){ if (!db) return setTimeout(tryLoad, 600); try { db.doc('meta/licfix').onSnapshot(function(d){ LICFIX = (d && d.exists && d.data().map) || {}; }, function(){}); } catch (x) {} }; tryLoad(); })();
+function licFixGet(t){ var v = LICFIX[gmKey(t)]; return Array.isArray(v) ? v.slice() : null; }
+async function licFixSet(t, arr){ LICFIX[gmKey(t)] = arr; try { await withRetry(function(){ return db.doc('meta/licfix').set({map:LICFIX}); }); } catch (x) { toast(failMsg(x)); } }
+function giCurLic(){ var i = GI.info, d = GI.data || {}, base = (d.franchises || []).concat(d.collections || []).map(function(f){ return f.name; }).filter(function(v, k, a){ return a.indexOf(v) === k; }); return licFixGet(i.title) || base; }
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-gilicedit],[data-gilicx],[data-gilicok]'); if (!t || !GI || S.readOnly) return;
+  e.preventDefault(); e.stopPropagation();
+  if (t.hasAttribute('data-gilicedit')) { GI.licEdit = !GI.licEdit; giRedraw(); return; }
+  if (t.hasAttribute('data-gilicok')) { GI.licEdit = false; giRedraw(); return; }
+  var cur = giCurLic().filter(function(x){ return x !== t.getAttribute('data-gilicx'); }); await licFixSet(GI.info.title, cur); giRedraw();
+});
+(function(){ var _sv2 = setVal; setVal = function(cb, val){ var r = _sv2.apply(this, arguments); if (cb && cb.id === 'giLicAdd' || (cb && cb.querySelector && cb.querySelector('#giLicAdd'))) { var v = Array.isArray(val) ? val[0] : val; if (v && GI) { var cur = giCurLic(); if (cur.indexOf(v) < 0) cur.push(v); licFixSet(GI.info.title, cur).then(function(){ setTimeout(function(){ closeCombo(); giRedraw(); }, 0); }); } } return r; }; })();
+/* bulle d'info sur les tags tronqués */
+document.addEventListener('mouseover', function(e){ var tg = e.target.closest && e.target.closest('.gi-dlg .tag, .gh-fact .tag'); if (tg && !tg.title && tg.scrollWidth > tg.clientWidth + 1) tg.title = tg.textContent.trim(); });
+
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
 function importCard(){
