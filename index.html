@@ -4105,6 +4105,68 @@ dialog:has(.wq-dlg){width:min(560px,calc(100vw - 24px)) !important;max-width:560
 .gi-dlg .gi-f .tags{min-width:0;max-width:100%}
 .gi-dlg .gi-f .tag{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle;min-width:0;box-sizing:border-box}
 .gi-dlg .gi-f .tag .gi-licx{display:inline}
+
+/* ===== fiche d'ajout d'un jeu : étapes + aperçu ===== */
+dialog:has(.gf2){width:min(1240px,calc(100vw - 24px)) !important;max-width:1240px !important;padding:0 !important;overflow:hidden}
+form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !important;max-height:calc(100dvh - 32px);display:block}
+.gf2-wrap{display:grid;grid-template-columns:230px minmax(0,1fr) 290px;height:min(820px,calc(100dvh - 40px))}
+.gf2-side,.gf2-prev{background:#1B1440;color:#fff;padding:22px 18px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;scrollbar-width:none}
+.gf2-prev{border-left:2px solid #2D2360}
+.gf2-k{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:.08em;color:#FF7CC3}
+.gf2-side .gtop-box{width:100%;margin:0}
+.gf2-side .gcov{width:100% !important;max-width:none !important}
+.gf2-side .cvl-m{display:block}.gf2-side .cvl-btn{width:100%;color:#E4DDFF !important;border-color:#4B3F86 !important;background:transparent !important}
+.gf2-side .gtop-box .link,.gf2-side .gtop-box .hint{color:#C9C2E8 !important}
+.gf2-steps{display:flex;flex-direction:column;gap:6px}
+.gf2-st{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:0;background:transparent;color:#C9C2E8;font:inherit;text-align:left;cursor:pointer;transition:background-color .2s}
+.gf2-st b{display:block;font-size:13.5px;color:#fff}.gf2-st small{font-size:11.5px}
+.gf2-st:hover{background:#2D2360}
+.gf2-n{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid #4B3F86;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.gf2-st.on{background:#6C4FE0;color:#E4DDFF}.gf2-st.on .gf2-n{background:#fff;color:#6C4FE0;border-color:#fff}
+.gf2-st.done .gf2-n{background:#1A7A45;border-color:#1A7A45;color:#fff}
+.is-wish .gf2-st.own-only{display:none}
+.gf2-prog{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#C9C2E8}
+.gf2-prog>span{flex:1;height:8px;border-radius:999px;background:#2D2360;overflow:hidden}.gf2-prog i{display:block;height:100%;width:33%;background:linear-gradient(90deg,#FF5FB8,#7B4FE0);transition:width .3s}
+.gf2-main{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--card)}
+.gf2-main>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 26px 8px !important;border:0 !important}
+.gf2-sl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6C4FE0}
+.gf2-main h2{margin:2px 0 0;font-size:22px}
+.gf2-main>.body{flex:1;min-height:0;overflow-y:auto;padding:10px 26px 20px !important;display:block !important;scrollbar-width:thin}
+.gf2-step{display:none;flex-direction:column;gap:18px}
+#gameForm[data-gfstep="1"] .gf2-step[data-step="1"],#gameForm[data-gfstep="2"] .gf2-step[data-step="2"],#gameForm[data-gfstep="3"] .gf2-step[data-step="3"]{display:flex}
+.is-wish .gf2-step.own-only{display:none !important}
+.gf2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+.gf2-grid .field.full{grid-column:1/-1}
+.gf2-brands{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin:6px 0 10px}
+.gf2-br{min-height:48px;border-radius:14px;border:1px solid var(--card-border);background:var(--card);color:var(--bc);font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.gf2-br:hover{transform:translateY(-2px)}
+.gf2-br.on{border:2px solid var(--bc);background:color-mix(in srgb,var(--bc) 10%,var(--card))}
+.gf2-kgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:6px}
+.gf2-kinds legend{font-size:13px;font-weight:600;margin-bottom:4px}
+.gf2-kinds{border:0;margin:0;padding:0}
+.gf2-kind{position:relative;min-height:84px;border-radius:16px;border:1px solid var(--card-border);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--soft);font-weight:600;font-size:13px;cursor:pointer;transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.gf2-kind:hover{transform:translateY(-2px)}
+.gf2-kind input{position:absolute;opacity:0;pointer-events:none}
+.gf2-kind.on{border:2px solid #2E6FE0;background:color-mix(in srgb,#2E6FE0 9%,var(--card));color:#1F4FB0;font-weight:700}
+.gf2-kind:has(input[value="wish"]).on{border-color:#E2304A;background:color-mix(in srgb,#E2304A 8%,var(--card));color:#B4233F}
+.gf2-main>footer{display:flex;align-items:center;gap:8px;padding:14px 26px !important;border-top:1px solid var(--card-border)}
+.gf2-main>footer .spacer{flex:1}
+#gameForm[data-gfstep="1"] .gf2-back,#gameForm[data-gfstep="3"] .gf2-next,#gameForm[data-gfstep="3"] .gf2-now,#gameForm:not([data-gfstep="3"]) .gf2-save{display:none}
+.gf2-next{box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 60%,#000)}
+.gf2-prev p{margin:0;font-size:12px;color:#C9C2E8}
+.gf2-shelf{flex:1;min-height:300px;border-radius:20px;background:radial-gradient(ellipse at 50% 30%,#4A2A6E,#1B1030 75%);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:18px}
+.gf2-box{--bc:#5A6A88;width:min(170px,80%);border-radius:8px;overflow:hidden;box-shadow:0 20px 30px -14px rgba(0,0,0,.8),0 0 0 3px var(--bc);background:linear-gradient(160deg,#2B3A6B,#0F1530)}
+.gf2-band{height:24px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gf2-box img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}
+.gf2-ph{display:flex;align-items:flex-end;aspect-ratio:3/4;padding:10px;font-size:12px;font-weight:700;color:#fff;box-sizing:border-box}
+.gf2-plank{width:100%;height:16px;margin-top:2px;border-radius:4px;background:linear-gradient(180deg,#7A4A26,#4A2A16);box-shadow:0 10px 16px -6px rgba(255,62,165,.5)}
+.gf2-sum{border-radius:16px;background:#2D2360;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.gf2-sum b{font-size:14px;line-height:1.3}.gf2-sum small{font-size:12px;color:#C9C2E8}
+.gf2-chips{display:flex;flex-wrap:wrap;gap:6px}.gf2-chips span{padding:3px 8px;border-radius:999px;background:#3B2F78;font-size:11px;color:#E4DDFF}
+@media (max-width:1100px){.gf2-wrap{grid-template-columns:210px minmax(0,1fr)}.gf2-prev{display:none}}
+@media (max-width:720px){.gf2-wrap{grid-template-columns:1fr;height:auto;max-height:calc(100dvh - 24px)}.gf2-side{flex-direction:row;flex-wrap:wrap;align-items:center;padding:14px}.gf2-side .gtop-box{width:90px}.gf2-steps{flex-direction:row;flex:1}.gf2-st small,.gf2-st b{display:none}.gf2-prog{display:none}.gf2-grid,.gf2-kgrid{grid-template-columns:1fr}}
+
+.gf2-box img[hidden],.gf2-ph[hidden]{display:none !important}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5018,36 +5080,87 @@ dlg.addEventListener('touchmove', function(e){ if (e.target === dlg) e.preventDe
 function gameForm(g){
   g = g || {kind: S.view === 'demat' ? 'demat' : (S.view === 'home' && S.home.kind === 'wish') ? 'wish' : 'physique', status:'Pas commencé'};
   formPhotos.forEach(function(p){ URL.revokeObjectURL(p.url); }); formPhotos = [];
-  var allCons = uniq(S.consoles.map(function(c){ return c.name; }).concat([].concat.apply([], S.games.map(function(x){ return list(x.consoles); }))));
-  var cv = blob(g.coverId);
-  var h = '<form class="dlg' + (g.kind === 'wish' ? ' is-wish' : '') + '" id="gameForm" data-id="' + esc(g.id || '') + '"><header><h2>' + (g.id ? 'Modifier le jeu' : 'Nouveau jeu') + '</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">×</button></header><div class="body">'
-    + '<div class="gtop">' + coverBox(g) + '<div class="gtop-fields">'
+  var multiC = list(g.consoles).length > 1, c0 = list(g.consoles)[0] || '';
+  var brands = gfBrands(), b0 = c0 ? (brandOfConsole(c0) || 'Autres') : (brands[0] || 'Nintendo'); if (brands.indexOf(b0) < 0 && b0 !== 'Autres') b0 = 'Autres';
+  var ic = function(p){ return '<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>'; };
+  var IBOX = '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"></path><path d="M3 7l9 4 9-4M12 11v10"></path>', IDL = '<path d="M12 3v12M7 10l5 5 5-5"></path><path d="M4 19h16"></path>', IHT = '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path>';
+  var kindTile = function(v, lab, svg, on){ return '<label class="gf2-kind' + (on ? ' on' : '') + '"><input type="radio" name="kind" value="' + v + '"' + (on ? ' checked' : '') + '>' + ic(svg) + '<span>' + lab + '</span></label>'; };
+  var steps = [['1', 'Le jeu', 'Nom, console, collection', ''], ['2', 'Mon exemplaire', 'Format, état, photos', ' own-only'], ['3', 'Fiche technique', 'Studio, éditeur, saga', '']];
+  var h = '<form class="dlg gf2' + (g.kind === 'wish' ? ' is-wish' : '') + '" id="gameForm" data-id="' + esc(g.id || '') + '" data-gfstep="1" novalidate><div class="gf2-wrap">'
+    + '<aside class="gf2-side"><span class="gf2-k">' + (g.id ? 'EDIT GAME' : 'NEW GAME') + '</span>' + coverBox(g)
+    + '<nav class="gf2-steps" aria-label="Étapes">' + steps.map(function(s){ return '<button type="button" class="gf2-st' + s[3] + '" data-gfgo="' + s[0] + '"><span class="gf2-n">' + s[0] + '</span><span><b>' + s[1] + '</b><small>' + s[2] + '</small></span></button>'; }).join('') + '</nav>'
+    + '<div class="gf2-prog"><span><i></i></span><small id="gfProgN">1 / 3</small></div></aside>'
+    + '<div class="gf2-main"><header><div><span class="gf2-sl" id="gfStepLab">Étape 1</span><h2 id="gfStepT">' + (g.id ? 'Modifier le jeu' : 'Quel jeu ajoutes-tu ?') + '</h2></div><button type="button" class="iconbtn gf2-x" data-act="close" aria-label="Fermer">×</button></header><div class="body">'
+    + '<section class="gf2-step" data-step="1">'
     + '<div class="field"><label for="gName">Nom du jeu</label><div class="name-row"><input id="gName" name="name" required value="' + esc(g.name || '') + '" placeholder="Ex. : The Legend of Zelda" autocomplete="off">' + aiFillBtn() + '</div><div id="igSug" class="ig-sug" hidden></div></div>'
-    + '<fieldset class="field" style="border:0;margin:0;padding:0"><legend>Collection</legend><div class="radio">'
-    + '<label><input type="radio" name="kind" value="physique"' + (g.kind !== 'demat' && g.kind !== 'wish' ? ' checked' : '') + '> Physique</label>'
-    + '<label><input type="radio" name="kind" value="demat"' + (g.kind === 'demat' ? ' checked' : '') + '> Dématérialisé</label>'
-    + '<label class="r-wish"><input type="radio" name="kind" value="wish"' + (g.kind === 'wish' ? ' checked' : '') + '> ' + ICON_HEART + ' Wishlist</label></div></fieldset>'
-    + '<p class="wish-note"' + (g.kind === 'wish' ? '' : ' hidden') + '>' + ICON_HEART + 'Format, état, langue, nombre et photos me seront demandés quand j\u2019aurai le jeu.</p>'
-    + (list(g.consoles).length > 1
-      ? cfield('gCons', 'Consoles', {key:'consoles', name:'consoles', value:list(g.consoles), multi:true, placeholder:'Choisir une console'})
-      : cfield('gCons', 'Console', {key:'consoles', name:'consoles', value:list(g.consoles)[0] || '', clearable:true, placeholder:'Choisir une console'}))
-    + '</div></div>'
     + '<div id="aiBox" hidden></div>'
-    + '<div class="own-only">' + cfield('gFormat', 'Format', {key:'format', name:'format', value:g.format, clearable:true, placeholder:'Choisir un format'}) + '</div>'
-    + '<div class="own-only">' + cfield('gEtat', 'État', {key:'etat', name:'etat', value:list(g.etat), multi:true, placeholder:'Choisir un état'}) + '</div>'
+    + '<div class="field"><span class="flabel">Console</span>' + (multiC ? '' : '<div class="gf2-brands" role="group" aria-label="Constructeur">' + brands.concat(['Autres']).map(function(b){ var col = CBRAND_COL[b] || '#5A6A88'; return '<button type="button" class="gf2-br' + (b === b0 ? ' on' : '') + '" data-gfbrand="' + esc(b) + '" style="--bc:' + col + '" aria-pressed="' + (b === b0) + '">' + esc(b) + '</button>'; }).join('') + '</div>')
+    + '<div class="gf2-con">' + (multiC ? combo({key:'consoles', name:'consoles', value:list(g.consoles), multi:true, placeholder:'Choisir une console', id:'gCons'}) : combo({key:'consoles', name:'consoles', value:c0, clearable:true, placeholder:'Choisir une console ' + (b0 === 'Autres' ? '' : b0), id:'gCons'}).replace('class="combo', 'data-brand="' + esc(b0) + '" class="combo')) + '</div></div>'
+    + '<fieldset class="field gf2-kinds"><legend>Dans quelle collection ?</legend><div class="gf2-kgrid">' + kindTile('physique', 'Physique', IBOX, g.kind !== 'demat' && g.kind !== 'wish') + kindTile('demat', 'Dématérialisé', IDL, g.kind === 'demat') + kindTile('wish', 'Wishlist', IHT, g.kind === 'wish') + '</div></fieldset>'
+    + '<p class="wish-note"' + (g.kind === 'wish' ? '' : ' hidden') + '>' + ICON_HEART + 'Format, état, langue, nombre et photos me seront demandés quand j\u2019aurai le jeu.</p>'
+    + '</section>'
+    + '<section class="gf2-step own-only" data-step="2"><div class="gf2-grid">'
+    + cfield('gFormat', 'Format', {key:'format', name:'format', value:g.format, clearable:true, placeholder:'Choisir un format'})
+    + cfield('gEtat', 'État', {key:'etat', name:'etat', value:list(g.etat), multi:true, placeholder:'Choisir un état'})
+    + cfield('gLang', 'Langue', {key:'langue', name:'langue', value:g.langue, clearable:true, placeholder:'Choisir une langue'})
+    + stepper('gNb', 'nombre', 'Nombre', g.nombre === '' || g.nombre == null ? 1 : g.nombre)
+    + '<div class="field full"><span class="flabel">Photos de mon jeu</span><span class="hint">Pour voir à quoi ressemble mon exemplaire.' + (g.id ? ' Elles s\u2019ajoutent à la première version du jeu.' : '') + '</span><div class="vphotos" id="fPhotos">' + formPhotosHtml() + '</div></div>'
+    + '</div></section>'
+    + '<section class="gf2-step" data-step="3"><div class="gf2-grid">'
     + cfield('gDev', 'Développeur(s)', {key:'developer', name:'developer', value:list(g.developer), multi:true, placeholder:'Choisir un développeur'})
     + cfield('gPub', 'Éditeur(s)', {key:'publisher', name:'publisher', value:list(g.publisher), multi:true, placeholder:'Choisir un éditeur'})
     + yearPicker('gYear', 'year', 'Date de sortie', g.year)
-    + cfield('gTypes', 'Type(s)', {key:'types', name:'types', value:list(g.types), multi:true, placeholder:'Choisir un ou plusieurs types'}, true)
     + '<div class="field"><label for="gLic">Licence</label>' + combo({key:'licence', name:'licence', value:g.licence, clearable:true, placeholder:'Choisir une licence', id:'gLic'}) + '<span class="hint">Proposée à partir du nom du jeu, modifiable.</span></div>'
-    + '<div class="own-only">' + cfield('gLang', 'Langue', {key:'langue', name:'langue', value:g.langue, clearable:true, placeholder:'Choisir une langue'}) + '</div>'
-    + '<div class="own-only">' + stepper('gNb', 'nombre', 'Nombre', g.nombre === '' || g.nombre == null ? 1 : g.nombre) + '</div>'
-    + '<div class="own-only">' + '<div class="field full"><span class="flabel">Photos de mon jeu</span><span class="hint">Pour voir à quoi ressemble mon exemplaire.' + (g.id ? ' Elles s\u2019ajoutent à la première version du jeu.' : '') + '</span><div class="vphotos" id="fPhotos">' + formPhotosHtml() + '</div></div>' + '</div>'
+    + cfield('gTypes', 'Type(s)', {key:'types', name:'types', value:list(g.types), multi:true, placeholder:'Choisir un ou plusieurs types'}, true)
     + '<div class="field full"><label for="gWiki">Lien Wikipédia</label><input id="gWiki" name="wiki" type="url" value="' + esc(g.wiki || '') + '" placeholder="https://fr.wikipedia.org/wiki/…"></div>'
-    + '</div><footer>' + (g.id ? '<button type="button" class="btn danger" data-act="deleteGame" data-id="' + esc(g.id) + '">Supprimer</button><span class="spacer"></span>' : '')
-    + '<button type="button" class="btn ghost" data-act="close">Annuler</button><button type="submit" class="btn">' + (g.id ? 'Enregistrer' : 'Ajouter le jeu') + '</button></footer></form>';
+    + '</div></section>'
+    + '</div><footer>' + (g.id ? '<button type="button" class="btn danger" data-act="deleteGame" data-id="' + esc(g.id) + '">Supprimer</button>' : '<button type="button" class="btn ghost" data-act="close">Annuler</button>')
+    + '<span class="spacer"></span><button type="button" class="btn ghost gf2-back" data-gfnav="-1">← Retour</button><button type="submit" class="btn ghost gf2-now">' + (g.id ? 'Enregistrer' : 'Ajouter tout de suite') + '</button><button type="button" class="btn gf2-next" data-gfnav="1">Suivant →</button><button type="submit" class="btn gf2-save">' + (g.id ? 'Enregistrer' : 'Ajouter le jeu') + '</button></footer></div>'
+    + '<aside class="gf2-prev" aria-label="Aperçu"><span class="gf2-k">APERÇU</span><p>Ta boîte telle qu\u2019elle apparaîtra sur l\u2019étagère.</p><div class="gf2-shelf"><div class="gf2-box" id="gfPBox"><div class="gf2-band" id="gfPBand"></div><img id="gfPImg" alt=""><span id="gfPPh" class="gf2-ph"></span></div><div class="gf2-plank"></div></div>'
+    + '<div class="gf2-sum"><b id="gfPName"></b><small id="gfPSub"></small><span class="gf2-chips" id="gfPChips"></span></div></aside>'
+    + '</div></form>';
   openDlg(h);
+  setTimeout(gfPreview, 30);
 }
+function gfBrands(){ var order = ['Nintendo', 'Sony', 'Microsoft', 'Sega'], have = {}; optValues('consoles').forEach(function(c){ var b = brandOfConsole(c); if (b) have[b] = (have[b] || 0) + 1; }); var extra = Object.keys(have).filter(function(b){ return order.indexOf(b) < 0; }).sort(function(a, b){ return have[b] - have[a]; }); return order.filter(function(b){ return have[b]; }).concat(extra).slice(0, 5); }
+function gfSetStep(n){
+  var f = document.getElementById('gameForm'); if (!f || !f.classList.contains('gf2')) return;
+  var wish = f.classList.contains('is-wish'); if (wish && n === 2) n = f.getAttribute('data-gfstep') === '3' ? 1 : 3; n = Math.max(1, Math.min(3, n));
+  f.setAttribute('data-gfstep', n);
+  var tot = wish ? 2 : 3, idx = wish && n === 3 ? 2 : n;
+  var T = {1:'Quel jeu ajoutes-tu ?', 2:'Ton exemplaire', 3:'La fiche technique'}; if (f.getAttribute('data-id')) T[1] = 'Modifier le jeu';
+  var sl = f.querySelector('#gfStepLab'), st = f.querySelector('#gfStepT'), pn = f.querySelector('#gfProgN'), pi = f.querySelector('.gf2-prog i');
+  if (sl) sl.textContent = 'Étape ' + idx; if (st) st.textContent = T[n]; if (pn) pn.textContent = idx + ' / ' + tot; if (pi) pi.style.width = (idx / tot * 100) + '%';
+  f.querySelectorAll('.gf2-st').forEach(function(b){ var k = +b.getAttribute('data-gfgo'); b.classList.toggle('on', k === n); b.classList.toggle('done', k < n); });
+  var bd = f.querySelector('.body'); if (bd) bd.scrollTop = 0;
+}
+function gfPreview(){
+  var f = document.getElementById('gameForm'); if (!f || !f.classList.contains('gf2')) return;
+  var name = (f.querySelector('#gName') || {}).value || '', cb = f.querySelector('.combo[data-key="consoles"]'), cv = cb ? getVal(cb) : '', con = Array.isArray(cv) ? cv[0] || '' : cv;
+  var br = con ? brandOfConsole(con) : '', col = CBRAND_COL[br] || '#5A6A88', kind = (f.querySelector('input[name="kind"]:checked') || {}).value || 'physique';
+  var band = f.querySelector('#gfPBand'), box = f.querySelector('#gfPBox'), img = f.querySelector('#gfPImg'), ph = f.querySelector('#gfPPh'), src = f.querySelector('#gCoverImg');
+  if (band) { band.textContent = con ? (consoleShort ? consoleShort(con) : con) : 'CONSOLE'; band.style.background = col; } if (box) box.style.setProperty('--bc', col);
+  var u = src && !src.hidden && src.getAttribute('src'); if (img) { if (u) { img.src = u; img.hidden = false; } else img.hidden = true; } if (ph) { ph.hidden = !!u; ph.textContent = name || 'Jaquette'; }
+  var pn = f.querySelector('#gfPName'), ps = f.querySelector('#gfPSub'), pc = f.querySelector('#gfPChips');
+  if (pn) pn.textContent = name || 'Nom du jeu'; if (ps) ps.textContent = [con ? (consoleFullName(con) || con) : 'Console à choisir', {physique:'Physique', demat:'Dématérialisé', wish:'Wishlist'}[kind]].join(' · ');
+  if (pc) { var fv = (f.querySelector('input[name="format"]') || {}).value || '', ev = parseMulti((f.querySelector('input[name="etat"]') || {}).value || '[]'), dv = parseMulti((f.querySelector('input[name="developer"]') || {}).value || '[]'), yv = (f.querySelector('input[name="year"]') || {}).value || '';
+    var chips = []; if (kind !== 'wish') { chips.push(fv || 'Format à choisir'); chips.push(ev.length ? ev.join(', ') : 'État à choisir'); } if (dv[0]) chips.push(dv[0]); if (yv) chips.push(yv);
+    pc.innerHTML = chips.map(function(c){ return '<span>' + esc(c) + '</span>'; }).join(''); }
+}
+function consoleShort(c){ var o = S.consoles.find(function(x){ return norm(x.name) === norm(c) || norm(x.short || '') === norm(c); }); return (o && o.short) || c; }
+document.addEventListener('click', function(e){
+  var f = document.getElementById('gameForm'); if (!f || !f.classList.contains('gf2') || !f.contains(e.target)) return;
+  var t = e.target.closest('[data-gfgo],[data-gfnav],[data-gfbrand],.gf2-now,.gf2-save');
+  if (!t) return;
+  if (t.hasAttribute('data-gfgo')) { gfSetStep(+t.getAttribute('data-gfgo')); return; }
+  if (t.hasAttribute('data-gfnav')) { var cur = +f.getAttribute('data-gfstep'), d = +t.getAttribute('data-gfnav'), nx = cur + d; if (f.classList.contains('is-wish') && nx === 2) nx += d; gfSetStep(nx); return; }
+  if (t.hasAttribute('data-gfbrand')) { var b = t.getAttribute('data-gfbrand'); f.querySelectorAll('.gf2-br').forEach(function(x){ var on = x === t; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); }); var cb = f.querySelector('.gf2-con .combo'); if (cb) { cb.setAttribute('data-brand', b); var cv = getVal(cb); if (cv && !Array.isArray(cv) && (brandOfConsole(cv) || 'Autres') !== b && !(b === 'Autres' && gfBrands().indexOf(brandOfConsole(cv)) < 0)) setVal(cb, ''); setTimeout(function(){ openCombo(cb); }, 0); } return; }
+  var nm = f.querySelector('#gName'); if (nm && !nm.value.trim()) { e.preventDefault(); gfSetStep(1); nm.focus(); toast('Indique le nom du jeu'); }
+}, true);
+document.addEventListener('input', function(e){ var f = document.getElementById('gameForm'); if (f && f.classList.contains('gf2') && f.contains(e.target)) gfPreview(); });
+document.addEventListener('change', function(e){ var f = document.getElementById('gameForm'); if (!f || !f.classList.contains('gf2') || !f.contains(e.target)) return; if (e.target.name === 'kind') { f.querySelectorAll('.gf2-kind').forEach(function(l){ l.classList.toggle('on', l.contains(e.target)); }); } gfPreview(); });
+(function(){ var _sv3 = setVal; setVal = function(cb){ var r = _sv3.apply(this, arguments); if (cb && cb.closest && cb.closest('#gameForm.gf2')) setTimeout(gfPreview, 0); return r; }; })();
+(function(){ var obs = new MutationObserver(function(ms){ if (ms.some(function(m){ return m.target.id === 'gCoverImg'; })) gfPreview(); }); obs.observe(document.body, {subtree:true, attributes:true, attributeFilter:['src', 'hidden']}); })();
 function stepper(id, name, label, v){
   v = Math.max(1, parseInt(v, 10) || 1);
   return '<div class="field"><label for="' + id + '">' + label + '</label><div class="stepper">'
@@ -5503,7 +5616,8 @@ function renderPop(){
     else if (!multi && cb.hasAttribute('data-clear') && val && !q) h += optRow('', '<span class="opt-all">Aucune valeur</span>', false, i++);
     if (canEdit && q && !vals.some(function(v){ return norm(v) === q; })) h += '<div class="opt-row" style="--i:' + (i++) + '"><button type="button" class="opt opt-add" data-add="1">' + ICON_PLUS + '<span>Ajouter « ' + esc(qRaw) + ' »</span></button></div>';
   }
-  var lastGrp = null;
+  var lastGrp = null, cbBrand = key === 'consoles' && cb.getAttribute('data-brand');
+  if (cbBrand && !q) { var mainB = gfBrands(); shown = shown.filter(function(v){ var bb = brandOfConsole(v); return cbBrand === 'Autres' ? mainB.indexOf(bb) < 0 : bb === cbBrand; }); }
   shown.forEach(function(v){
     if (key === 'consoles') { var grp = brandOfConsole(v) || 'Autres'; if (grp !== lastGrp) { h += '<div class="opt-group" role="presentation">' + esc(grp) + '</div>'; lastGrp = grp; } }
     var idx = i++;
