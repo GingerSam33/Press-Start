@@ -8693,7 +8693,7 @@ document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-catmenu]');
   if (t) { e.preventDefault(); e.stopPropagation(); var i = +t.getAttribute('data-catmenu'); S.catMenu = S.catMenu === i ? null : i; render(); return; }
   if (S.catMenu != null && !(e.target.closest && e.target.closest('.cam-pop'))) { S.catMenu = null; setTimeout(render, 0); }
-  else if (S.catMenu != null && e.target.closest('.cam-i')) { S.catMenu = null; }
+  else if (S.catMenu != null && e.target.closest('.cam-i')) { S.catMenu = null; setTimeout(render, 0); }
 }, true);
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && S.catMenu != null) { S.catMenu = null; render(); } });
 
@@ -9594,6 +9594,7 @@ function discDropWished(){
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-licwish],[data-catwish],[data-dpwish]'); if (!t || S.readOnly) return;
   e.preventDefault(); e.stopImmediatePropagation();
+  if (S.catMenu != null) { S.catMenu = null; setTimeout(render, 0); }
   if (t.hasAttribute('data-licwish')) { var d = JSON.parse(t.getAttribute('data-licwish')); var lk = licKey(S.licOpen), L = LICDB[lk], ent = L && (L.games || []).find(function(x){ return x.title === d.t; }) || {}; wishAskOpen({title:d.t, platforms:ent.platforms && ent.platforms.length ? ent.platforms : [d.p], pname:d.p, year:d.y, ig:ent.ig || '', cvu:ent.cvu || ''}, t); return; }
   if (t.hasAttribute('data-catwish')) { var p = catPlat(S.catP); if (!p) return; var r = catRows()[+t.getAttribute('data-catwish')]; if (!r) return; wishAskOpen({title:r.fr || r.t, platforms:[catConsoleName(p) || p.name], year:r.y || '', dev:r.d || '', pub:r.p || '', cvu:r.cvu || '', ig:r.ig || ''}, t); return; }
   var dd = DAILY[dailyDay(S.dpOff || 0)], pk = dd && dd.picks[+t.getAttribute('data-dpwish')]; if (!pk) return; wishAskOpen({title:pk.title, platforms:pk.pname ? [pk.pname] : [], year:pk.year || '', dev:pk.dev || '', pub:pk.pub || '', cvu:pk.cvu || '', ig:pk.ig || ''}, t);
@@ -9846,7 +9847,8 @@ function licRenDlg(ei){
   return '<div class="dlg lad-dlg"><header><h2>✎ Modifier le jeu</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="lrnForm" data-ei="' + ei + '">'
     + '<div class="ned-grid"><div class="field full"><label for="lrnName">Nom du jeu</label><input type="text" id="lrnName" maxlength="140" value="' + esc(e.title) + '">' + (sug ? '<button type="button" class="link lrn-sug" data-lrnsug="' + esc(cl.title) + '|' + esc(cl.platform) + '">✨ Utiliser « ' + esc(cl.title) + ' »' + (cl.platform && cl.platform !== e.platform ? ' et la console ' + esc(consoleFullName(cl.platform) || cl.platform) : '') + '</button>' : '') + '</div>'
     + cfield('lrnCon', 'Console', {key:'consoles', name:'lrnCon', value:e.platform || '', placeholder:'Choisir une console', clearable:true}, true)
-    + '<div class="field"><label for="lrnYear">Année de sortie</label><input type="number" id="lrnYear" min="1970" max="2100" value="' + esc(e.year || '') + '"></div></div>'
+    + '<div class="field"><label for="lrnYear">Année de sortie</label><input type="number" id="lrnYear" min="1970" max="2100" value="' + esc(e.year || '') + '"></div>'
+    + '<div class="field full"><label>Emplacement dans la collection</label><div class="ned-kind lad-type" id="lrnType">' + [['Principal', '🎮 Jeux principaux'], ['Remake', '✨ Remakes, remasters et éditions'], ['Spin-off', '🧩 Spin-offs']].map(function(t){ return '<button type="button" class="ned-ch' + ((e.type || 'Principal') === t[0] ? ' on' : '') + '" data-ladtype="' + t[0] + '" aria-pressed="' + ((e.type || 'Principal') === t[0]) + '"><b>' + t[1] + '</b></button>'; }).join('') + '</div></div></div>'
     + '</div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-lrnsave="1">Enregistrer</button></footer></div>';
 }
 document.addEventListener('click', async function(e){
@@ -9858,7 +9860,8 @@ document.addEventListener('click', async function(e){
   var ei = +f.getAttribute('data-ei'), lk = licKey(S.licOpen), cur = LICDB[lk]; if (!cur || !cur.games[ei]) return;
   var name = (document.getElementById('lrnName').value || '').trim(); if (!name) { toast('Indique le nom du jeu'); return; }
   var con = (f.querySelector('input[name="lrnCon"]') || {}).value || '', year = parseInt(document.getElementById('lrnYear').value, 10) || '';
-  var games = cur.games.slice(); games[ei] = Object.assign({}, games[ei], {title:name, platform:con, platforms:con ? Array.from(new Set([con].concat(games[ei].platforms || []))) : (games[ei].platforms || []), year:year});
+  var ty = (f.querySelector('#lrnType .on') || {getAttribute:function(){ return games0type; }}).getAttribute('data-ladtype'), games0type = cur.games[ei].type || 'Principal';
+  var games = cur.games.slice(); games[ei] = Object.assign({}, games[ei], {title:name, platform:con, platforms:con ? Array.from(new Set([con].concat(games[ei].platforms || []))) : (games[ei].platforms || []), year:year, type:ty || games0type});
   t.disabled = true;
   try { var nd = Object.assign({}, cur, {games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; closeDlg(); render(); toast('Jeu mis à jour'); }
   catch (x) { toast(failMsg(x)); t.disabled = false; }
