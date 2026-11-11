@@ -7093,7 +7093,7 @@ function nbubOpen(src, r){
   el.innerHTML = nbubBody(r); document.body.appendChild(el); NBUB = {el:el, r:r, src:src}; src.classList.add('on');
   nbubPlace(); var f = el.querySelector('a.btn'); if (f) f.focus({preventScroll:true});
 }
-async function discAdd(r){ var id = discId(r.title); try { await db.collection('discover').doc(id).set({title:r.title, platforms:list(r.platforms), date:r.date || '', url:safeUrl(r.url) || '', addedAt:Date.now()}); toast('Ajouté à Jeux à découvrir'); return true; } catch (x) { toast(failMsg(x)); return false; } }
+async function discAdd(r){ var id = discId(r.title); if (discHas(r.title)) { toast('« ' + r.title + ' » est déjà dans Jeux à découvrir'); return false; } if (S.games.some(function(g){ return g.kind === 'wish' && gmKey(g.name) === gmKey(r.title); })) { toast('« ' + r.title + ' » est déjà dans ta wishlist'); return false; } try { await db.collection('discover').doc(id).set({title:r.title, platforms:list(r.platforms), date:r.date || '', url:safeUrl(r.url) || '', addedAt:Date.now()}); toast('Ajouté à Jeux à découvrir'); return true; } catch (x) { toast(failMsg(x)); return false; } }
 function viewDiscover(){
   setTimeout(discEnsureCovers, 300);
   var rows = DISC.slice().sort(function(a, b){ return (Date.parse(a.date) || 0) - (Date.parse(b.date) || 0) || String(a.title).localeCompare(b.title, 'fr'); });
@@ -9532,7 +9532,7 @@ document.addEventListener('click', async function(e){
   e.preventDefault(); e.stopImmediatePropagation();
   var dd = DISC.filter(function(x){ return x.id === t.getAttribute('data-ndwish'); })[0]; if (!dd) return;
   var pl = list(dd.platforms);
-  WQ = {info:{title:dd.title, pname:pl[0] ? canonConsole(pl[0]) : '', ig:dd.ig, cvu:dd.cvu, year:dd.year || (Date.parse(dd.date) ? new Date(dd.date).getFullYear() : '')}, data:null, name:dd.title, cover:dd.cvu && dd.cvu !== 'none' ? dd.cvu : '', plats:pl, fromCard:t}; openDlg(wishAskDlg(WQ.info)); return;
+  wishAskOpen({title:dd.title, platforms:pl, year:dd.year || (Date.parse(dd.date) ? new Date(dd.date).getFullYear() : ''), cvu:dd.cvu, ig:dd.ig}, t); return;
   t.disabled = true; var lab = t.innerHTML; t.textContent = 'Ajout…';
   try { await wishCreate({name:dd.title, con:canonConsole(pl[0]), year:dd.year || (Date.parse(dd.date) ? new Date(dd.date).getFullYear() : ''), cvu:dd.cvu, ig:dd.ig}); toast('« ' + dd.title + ' » ajouté à ta wishlist'); t.innerHTML = ICON_HEART + ' Dans ma wishlist'; }
   catch (x) { toast(failMsg(x)); t.disabled = false; t.innerHTML = lab; }
@@ -9563,6 +9563,36 @@ document.addEventListener('click', function(e){
   var g = S.games.find(function(x){ return x.id === t.getAttribute('data-acqcancel'); }); closeDlg();
   if (g) setTimeout(function(){ giOpen(wishInfo(g)); }, 220);
 }, true);
+/* ---------- Wishlist : même parcours partout (choix de la console, infos auto, pas de doublon) ---------- */
+function wishHas(name, con){ var k = gmKey(name); return S.games.some(function(g){ return g.kind === 'wish' && gmKey(g.name) === k && (!con || !list(g.consoles).length || list(g.consoles).some(function(c){ return norm(consoleFullName(canonConsole(c)) || c) === norm(consoleFullName(canonConsole(con)) || con); })); }); }
+function wishAskOpen(o, btn){ /* o = {title, platforms[], pname, year, dev, pub, cvu, ig} */
+  var pl = list(o.platforms).map(function(x){ return canonConsole(x); }).filter(Boolean); if (o.pname && pl.indexOf(canonConsole(o.pname)) < 0) pl.unshift(canonConsole(o.pname));
+  WQ = {info:{title:o.title, pname:pl[0] || '', ig:o.ig || '', cvu:o.cvu || '', year:o.year || '', dev:o.dev || '', pub:o.pub || ''}, data:null, name:o.title, cover:o.cvu && o.cvu !== 'none' ? o.cvu : '', plats:pl, fromCard:btn || null};
+  openDlg(wishAskDlg(WQ.info));
+}
+/* jeux de « Jeux à découvrir » passés en wishlist : on les retire de la liste */
+var DISC_DROP = {};
+function discDropWished(){
+  if (S.readOnly || !DISC || !DISC.length) return;
+  DISC.forEach(function(d){ if (DISC_DROP[d.id]) return; var k = gmKey(d.title); if (S.games.some(function(g){ return g.kind === 'wish' && gmKey(g.name) === k; })) { DISC_DROP[d.id] = 1; db.collection('discover').doc(d.id).delete().catch(function(){ DISC_DROP[d.id] = 0; }); } });
+}
+(function(){ var _r12 = render; render = function(){ var r = _r12.apply(this, arguments); setTimeout(discDropWished, 0); return r; }; })();
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-licwish],[data-catwish],[data-dpwish]'); if (!t || S.readOnly) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (t.hasAttribute('data-licwish')) { var d = JSON.parse(t.getAttribute('data-licwish')); var lk = licKey(S.licOpen), L = LICDB[lk], ent = L && (L.games || []).find(function(x){ return x.title === d.t; }) || {}; wishAskOpen({title:d.t, platforms:ent.platforms && ent.platforms.length ? ent.platforms : [d.p], pname:d.p, year:d.y, ig:ent.ig || '', cvu:ent.cvu || ''}, t); return; }
+  if (t.hasAttribute('data-catwish')) { var p = catPlat(S.catP); if (!p) return; var r = catRows()[+t.getAttribute('data-catwish')]; if (!r) return; wishAskOpen({title:r.fr || r.t, platforms:[catConsoleName(p) || p.name], year:r.y || '', dev:r.d || '', pub:r.p || '', cvu:r.cvu || '', ig:r.ig || ''}, t); return; }
+  var dd = DAILY[dailyDay(S.dpOff || 0)], pk = dd && dd.picks[+t.getAttribute('data-dpwish')]; if (!pk) return; wishAskOpen({title:pk.title, platforms:pk.pname ? [pk.pname] : [], year:pk.year || '', dev:pk.dev || '', pub:pk.pub || '', cvu:pk.cvu || '', ig:pk.ig || ''}, t);
+}, true);
+/* fiche d'ajout en « Wishlist » : pas de doublon */
+document.addEventListener('submit', function(e){
+  var f = e.target; if (!f || f.id !== 'gameForm' || f.getAttribute('data-id')) return;
+  var kind = (f.querySelector('input[name="kind"]:checked') || {}).value; if (kind !== 'wish') return;
+  var nm = (f.querySelector('#gName') || {}).value || '', con = (f.querySelector('input[name="consoles"]') || {}).value || '';
+  try { var cv = JSON.parse(con); if (Array.isArray(cv)) con = cv[0] || ''; } catch (x) {}
+  if (nm && wishHas(nm, con)) { e.preventDefault(); e.stopImmediatePropagation(); GF_SUBMIT = false; toast('« ' + nm + ' » est déjà dans ta wishlist' + (con ? ' sur ' + (consoleFullName(con) || con) : '')); }
+}, true);
+
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
@@ -9855,6 +9885,7 @@ document.addEventListener('click', async function(e){
   if (t.hasAttribute('data-wqpl')) { var cb = document.querySelector('#wqForm .combo'); if (cb) setVal(cb, t.getAttribute('data-wqpl')); return; }
   if (t.hasAttribute('data-wqsave') && WQ) {
     var f = document.getElementById('wqForm'), con = (f && f.querySelector('input[name="wqCon"]') || {}).value || ''; if (!con) { toast('Choisis une console'); return; }
+    if (wishHas(WQ.name, con)) { toast('« ' + WQ.name + ' » est déjà dans ta wishlist sur ' + (consoleFullName(con) || con)); return; }
     t.disabled = true; t.textContent = 'Ajout…';
     if (!WQ.data) { var W0 = WQ; try { await wishCreate({name:W0.name, con:con, year:W0.info.year || '', cvu:W0.info.cvu, ig:W0.info.ig}); toast('« ' + W0.name + ' » ajouté à ta wishlist (' + (consoleFullName(con) || con) + ')'); closeDlg(); WQ = null; GI_BACK = null; if (W0.fromCard) { W0.fromCard.disabled = true; W0.fromCard.innerHTML = ICON_HEART + ' Dans ma wishlist'; } } catch (x) { toast(failMsg(x)); t.disabled = false; t.textContent = 'Ajouter à ma wishlist'; } return; }
     var i2 = WQ.info, d2 = WQ.data, data = {kind:'wish', status:'Pas commencé', name:WQ.name, consoles:[con], year:i2.year || '', developer:i2.dev ? [i2.dev] : [], publisher:i2.pub ? [i2.pub] : [], createdAt:Date.now()};
