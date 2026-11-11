@@ -9575,6 +9575,10 @@ function wishAskOpen(o, btn){ /* o = {title, platforms[], pname, year, dev, pub,
   window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ var d = r && r.data && r.data.game; if (!d && body.action === 'search' && body.platform) return window.PS_SB.functions.invoke('igdb', {body:{action:'search', name:o.title, platform:''}}).then(function(r2){ return r2 && r2.data && r2.data.game; }); return d; }).then(function(d){
     if (WQ !== W) return; W.loading = false;
     if (d) { W.data = d; var ps = (d.platforms || []).map(function(x){ return canonConsole(x.name); }); W.plats = Array.from(new Set(pl.concat(ps))); if (!W.cover && d.cover) W.cover = giImg(d.cover.image_id, 't_cover_big'); }
+    W.plats = Array.from(new Set((W.plats || pl).concat(wishCatPlats(o.title))));
+    return window.PS_SB.functions.invoke('igdb', {body:{action:'list', name:o.title}}).then(function(r3){ var gs = (r3 && r3.data && r3.data.games) || [], k0 = catKey(o.title); gs.forEach(function(x){ var kx = catKey(x.name || ''); if (!kx || !(kx === k0 || kx.indexOf(k0) === 0 || k0.indexOf(kx) === 0)) return; (x.platforms || []).forEach(function(pp){ var c = canonConsole(pp.name || pp); if (c && W.plats.indexOf(c) < 0) W.plats.push(c); }); }); }).catch(function(){}).then(function(){ return d; });
+  }).then(function(d){
+    if (WQ !== W) return;
     var f = document.getElementById('wqForm'), dg = f && f.closest('.wq-dlg'); if (!dg) return;
     var cur = (f.querySelector('input[name="wqCon"]') || {}).value || W.info.pname; W.info.pname = cur;
     var tmp = document.createElement('div'); tmp.innerHTML = wishAskDlg(W.info); var nb = tmp.querySelector('#wqForm'); if (nb) f.replaceWith(nb);
@@ -9603,6 +9607,9 @@ document.addEventListener('submit', function(e){
   if (nm && wishHas(nm, con)) { e.preventDefault(); e.stopImmediatePropagation(); GF_SUBMIT = false; toast('« ' + nm + ' » est déjà dans ta wishlist' + (con ? ' sur ' + (consoleFullName(con) || con) : '')); }
 }, true);
 
+
+/* plateformes sur lesquelles un jeu existe dans ma Base de jeux */
+function wishCatPlats(title){ var k = catKey(title), out = []; if (!k) return out; CAT.forEach(function(p){ var rows = CAT_CACHE[p.id + '@' + (p.updatedAt || 0)]; if (!rows) return; if (rows.some(function(r){ var a = catKey(r.t), b = catKey(r.fr || ''); return a === k || b === k || (a.indexOf(k) === 0 && a.length - k.length <= 22); })) out.push(canonConsole(catConsoleName(p) || p.name)); }); return out; }
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
@@ -9875,14 +9882,14 @@ async function giPrefillForm(info, d){
 /* ajout en wishlist : on demande la console */
 var WQ = null;
 function wishAskDlg(info){
-  var plats = (WQ && WQ.plats) ? WQ.plats.map(canonConsole) : (GI && GI.data && GI.data.platforms || []).map(function(p){ return canonConsole(p.name); });
+  var plats = (WQ && WQ.plats) ? WQ.plats.map(canonConsole) : (GI && GI.data && GI.data.platforms || []).map(function(p){ return canonConsole(p.name); }).concat(WQ ? wishCatPlats(WQ.name) : []);
   var seen = {}; plats = plats.filter(function(x){ var k = norm(consoleFullName(x) || x); if (!x || seen[k]) return false; seen[k] = 1; return true; });
   var cur = info.pname || plats[0] || '';
   return '<div class="dlg wq-dlg"><header><h2>' + ICON_HEART + ' Ajouter à ma wishlist</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="wqForm">'
     + '<div class="wq-game">' + (WQ.cover ? '<img src="' + esc(WQ.cover) + '" alt="">' : '') + '<div><b>' + esc(WQ.name) + '</b><small>Sur quelle console aimerais-tu l\u2019avoir ?</small></div></div>'
     + cfield('wqCon', 'Console', {key:'consoles', name:'wqCon', value:cur, placeholder:'Choisir une console', clearable:true}, true)
     + (WQ && WQ.loading ? '<p class="gi-load wq-load"><span class="nimp-spin"></span> Recherche des plateformes de sortie…</p>' : '')
-    + (plats.length > 1 ? '<div class="wq-pl"><span>Sorti sur :</span>' + plats.map(function(p){ return '<button type="button" class="chip" data-wqpl="' + esc(p) + '">' + esc(consoleFullName(p) || p) + '</button>'; }).join('') + '</div>' : '')
+    + (plats.length && !(WQ && WQ.loading) ? '<div class="wq-pl"><span>Sorti sur :</span>' + plats.map(function(p){ return '<button type="button" class="chip" data-wqpl="' + esc(p) + '">' + esc(consoleFullName(p) || p) + '</button>'; }).join('') + '</div>' : '')
     + '</div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-wqsave="1">' + ICON_HEART + ' Ajouter à ma wishlist</button></footer></div>';
 }
 document.addEventListener('click', async function(e){
