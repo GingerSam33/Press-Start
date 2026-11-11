@@ -4227,6 +4227,17 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 
 .combo:not(.has) .combo-vals{flex:0 0 auto}
 .combo:not(.has) .combo-in{flex:1 1 auto}
+
+/* toast toujours au premier plan */
+.toast[popover]{position:fixed;top:auto;right:auto;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));margin:0;border:0;overflow:visible;width:auto;height:auto}
+/* « À quoi on joue ? » en néon */
+.navbtn.nav-neon .nn-t{color:#FF5FB8;font-weight:700;text-shadow:0 0 4px rgba(255,95,184,.55),0 0 10px rgba(255,95,184,.35);animation:nnFlick 6s infinite}
+.navbtn.nav-neon:hover .nn-t,.navbtn.nav-neon.on .nn-t,.navbtn.nav-neon[aria-current="page"] .nn-t{text-shadow:0 0 4px #fff,0 0 10px #FF5FB8,0 0 20px #FF5FB8}
+@keyframes nnFlick{0%,94%,100%{opacity:1}95%{opacity:.6}96%{opacity:1}97.5%{opacity:.75}}
+.nav-ic .pad-neon{width:26px;height:18px;filter:drop-shadow(0 0 4px rgba(255,95,184,.6));transform-origin:50% 60%}
+.navbtn.nav-neon:hover .pad-neon{animation:padWiggle .5s ease-in-out infinite}
+@keyframes padWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg) translateY(-1px)}75%{transform:rotate(12deg) translateY(-1px)}}
+@media (prefers-reduced-motion:reduce){.navbtn.nav-neon .nn-t,.navbtn.nav-neon:hover .pad-neon{animation:none}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4253,7 +4264,7 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
       <button class="navbtn" data-nav="decouvrir">Jeux à découvrir <small data-count="decouvrir"></small></button>
       <button class="navbtn" data-nav="suivi">Suivi jeux <small data-count="suivi"></small></button>
       <button class="navbtn" data-nav="wishlist">Wishlist <small data-count="wishlist"></small></button>
-      <button class="navbtn" data-nav="roulette">À quoi on joue ? <small class="nav-ic" id="navRoulIc"></small></button>
+      <button class="navbtn nav-neon" data-nav="roulette"><span class="nn-t">À quoi on joue ?</span> <small class="nav-ic" id="navRoulIc"></small></button>
       <button class="navbtn" data-nav="catalog">Base de jeux <small data-count="catalog"></small></button>
     </nav>
     <nav class="navgroup" aria-labelledby="nav-db"><h2 id="nav-db">Gestion</h2>
@@ -4591,6 +4602,7 @@ function toast(msg){
   var t = document.querySelector('.toast');
   if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
   t.textContent = msg; t.hidden = false; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  if (typeof t.showPopover === 'function') { try { if (!t.hasAttribute('popover')) t.setAttribute('popover', 'manual'); if (t.matches(':popover-open')) t.hidePopover(); t.showPopover(); } catch (x) {} }
   clearTimeout(toastT); toastT = setTimeout(function(){ t.hidden = true; }, 3200);
 }
 
@@ -7081,7 +7093,8 @@ function viewDiscover(){
   var dnow = Date.now(), h = crtPage({kick:'RADAR', title:'À DÉCOUVRIR', sub:'Les jeux repérés dans les actus, à regarder de plus près', blink:'NOUVEAU JEU EN VUE', sc:[['REPÉRÉS', crtPad(rows.length)], ['À VENIR', crtPad(rows.filter(function(d){ return Date.parse(d.date) > dnow; }).length)], ['DÉJÀ SORTIS', crtPad(rows.filter(function(d){ return Date.parse(d.date) <= dnow; }).length)], ['PLATEFORMES', crtPad(Object.keys(rows.reduce(function(o, d){ list(d.platforms).forEach(function(p){ o[p] = 1; }); return o; }, {})).length)]]}) + (rows.length ? '<div class="actions" style="justify-content:flex-end"><button type="button" class="btn ghost" data-nav="news">Voir les actus du jour</button></div>' : '');
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
-  return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? '' : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+  discEnrich(rows);
+  return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? (d.year ? 'Sorti en ' + d.year : '') : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
     return '<article class="lg-card is-click disc-card" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><div class="lg-cov">' + (function(u){ return '<img class="bgi" src="' + esc(u) + '" alt="" aria-hidden="true" referrerpolicy="no-referrer"><img class="fgi" src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'; })(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '</div><div class="lg-b"><b class="lg-t">' + esc(d.title) + '</b>'
       + '<div class="lg-m">' + list(d.platforms).map(function(x){ return ctag(x); }).join('') + (when ? '<span class="tag t-sky">' + esc(when) + '</span>' : '') + '</div>'
       + '<div class="d-acts"><a class="btn small ghost" href="' + esc(nRelUrl(d)) + '" target="_blank" rel="noopener">Voir sur internet ↗</a>'
@@ -9766,6 +9779,7 @@ document.addEventListener('click', async function(e){
   var t = e.target.closest && e.target.closest('[data-giact="own"],[data-giact="wish"],[data-wqpl],[data-wqsave]'); if (!t || S.readOnly) return;
   if (t.hasAttribute('data-giact') && GI) {
     e.preventDefault(); e.stopImmediatePropagation();
+    GI_BACK = GI.info;
     var i = GI.info, d = GI.data, a = t.getAttribute('data-giact'), cvu = d && d.cover ? giImg(d.cover.image_id, 't_cover_big') : (info_cv(i));
     if (a === 'own') { closeDlg(); gameForm({kind:'physique', status:'Pas commencé', name:i.fr || i.title, consoles:i.pname ? [i.pname] : [], year:i.year || '', developer:i.dev ? [i.dev] : [], publisher:i.pub ? [i.pub] : []}); setTimeout(function(){ giPrefillForm(i, d); }, 80); return; }
     WQ = {info:i, data:d, name:i.fr || i.title, cover:cvu}; openDlg(wishAskDlg(i)); return;
@@ -9777,12 +9791,18 @@ document.addEventListener('click', async function(e){
     var i2 = WQ.info, d2 = WQ.data, data = {kind:'wish', status:'Pas commencé', name:WQ.name, consoles:[con], year:i2.year || '', developer:i2.dev ? [i2.dev] : [], publisher:i2.pub ? [i2.pub] : [], createdAt:Date.now()};
     try {
       if (d2 && d2.id) data.igdbId = String(d2.id);
+      if (d2) { var art2 = (d2.artworks && d2.artworks[0]) || (d2.screenshots && d2.screenshots[0]); if (art2) { try { data.artId = await igStore(giImg(art2.image_id, 't_1080p')); } catch (x) {} }
+        var co = d2.involved_companies || []; var dv = co.filter(function(c){ return c.developer; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean), pb = co.filter(function(c){ return c.publisher; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean);
+        if (dv.length) data.developer = dv; if (pb.length) data.publisher = pb; if (d2.first_release_date && !data.year) data.year = new Date(d2.first_release_date * 1000).getFullYear();
+        if (d2.genres && d2.genres.length) data.types = d2.genres.map(function(x){ return x.name; }).slice(0, 3);
+        var lf2 = licFixGet(i2.title); var lic2 = lf2 || (d2.franchises || []).concat(d2.collections || []).map(function(f){ return f.name; }); if (lic2 && lic2[0]) data.licence = lic2[0];
+        WQ.media = {shots:(d2.screenshots || []).slice(0, 12).map(function(x){ return {image_id:x.image_id}; }), vids:(d2.videos || []).slice(0, 6).map(function(v){ return {video_id:v.video_id, name:v.name}; })}; }
       if (d2 && d2.cover) data.coverId = await igStore(giImg(d2.cover.image_id, 't_cover_big_2x'));
       else if (i2.cvu && i2.cvu !== 'none') data.coverId = await igStore(i2.cvu);
       else if (/^data:image\//.test(i2.cv || '')) { var bl2 = dataUriBlob(i2.cv); if (bl2) data.coverId = await uploadFile(new File([bl2], 'jaquette.webp', {type:bl2.type})); }
     } catch (x) {}
     try { var rb = randomBanner && randomBanner(); if (rb) data.bannerId = rb; } catch (x) {}
-    try { var ref = await withRetry(function(){ return db.collection('games').add(data); }); toast('« ' + WQ.name + ' » ajouté à ta wishlist (' + (consoleFullName(con) || con) + ')'); closeDlg(); WQ = null; }
+    try { var ref = await withRetry(function(){ return db.collection('games').add(data); }); if (ref && ref.id && WQ.media) { GMEDIA[ref.id] = WQ.media; try { localStorage.setItem('ps-gm-' + ref.id, JSON.stringify(WQ.media)); } catch (x) {} } GI_BACK = null; toast('« ' + WQ.name + ' » ajouté à ta wishlist (' + (consoleFullName(con) || con) + ')'); closeDlg(); WQ = null; }
     catch (x) { toast(failMsg(x)); t.disabled = false; t.textContent = 'Ajouter à ma wishlist'; }
   }
 }, true);
@@ -9835,7 +9855,7 @@ function viewWishlist(){
 }
 
 
-(function(){ var _r11 = render; render = function(){ var r = _r11.apply(this, arguments); var ic = document.getElementById('navRoulIc'); if (ic && !ic.innerHTML) ic.innerHTML = ICON_ROUL; document.querySelectorAll('#mdrawer #navRoulIc').forEach(function(x){ if (!x.innerHTML) x.innerHTML = ICON_ROUL; }); return r; }; })();
+(function(){ var _r11 = render; render = function(){ var r = _r11.apply(this, arguments); var ic = document.getElementById('navRoulIc'); if (ic && !ic.innerHTML) ic.innerHTML = ICON_PAD_NEON; document.querySelectorAll('#mdrawer #navRoulIc').forEach(function(x){ if (!x.innerHTML) x.innerHTML = ICON_PAD_NEON; }); return r; }; })();
 async function igFillForm(form, g, keepName){
   var nm = form.querySelector('#gName'); if (nm && !keepName) nm.value = g.name;
   var y = g.first_release_date ? String(new Date(g.first_release_date * 1000).getUTCFullYear()) : '';
@@ -9884,6 +9904,27 @@ document.addEventListener('mouseover', function(e){ var tg = e.target.closest &&
 document.addEventListener('submit', function(e){ if (e.target && e.target.id === 'gameForm') GF_SUBMIT = true; }, true);
 document.addEventListener('click', function(e){ if (e.target.closest && e.target.closest('#gameForm [data-gfcancel]')) { GF_DRAFT = null; GF_SUBMIT = true; formPhotos.forEach(function(p){ try { URL.revokeObjectURL(p.url); } catch (x) {} }); formPhotos = []; } }, true);
 (function(){ var _cd = closeDlg; closeDlg = function(){ var f = document.getElementById('gameForm'); if (f && f.classList.contains('gf2') && !f.getAttribute('data-id') && !GF_SUBMIT && dlg.open && dlg.contains(f)) { var nm = (f.querySelector('#gName') || {}).value || ''; if (nm.trim() || formPhotos.length) GF_DRAFT = {node:f, photos:formPhotos.slice()}; } if (GF_SUBMIT) GF_DRAFT = null; return _cd.apply(this, arguments); }; })();
+
+
+/* Jeux à découvrir : on complète la date de sortie manquante (IGDB, une fois) */
+var DISC_ENR = {};
+function discEnrich(rows){
+  if (!window.PS_SB || S.readOnly) return;
+  var need = rows.filter(function(d){ return !d.date && !d.year && !DISC_ENR[d.id]; }).slice(0, 6);
+  need.forEach(function(d){ DISC_ENR[d.id] = 1;
+    var body = d.ig ? {action:'game', id:+d.ig} : {action:'search', name:d.title, platform:list(d.platforms)[0] || ''};
+    window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ var g = r && r.data && r.data.game; if (!g || !g.first_release_date) return; var dt = new Date(g.first_release_date * 1000), iso = dt.toISOString().slice(0, 10), up = {date:iso, year:dt.getFullYear()}; if (!d.ig && g.id) up.ig = String(g.id); if (!list(d.platforms).length && g.platforms) up.platforms = g.platforms.slice(0, 4).map(function(p){ return canonConsole(p.name); }); db.collection('discover').doc(d.id).update(up).catch(function(){}); }).catch(function(){});
+  });
+}
+/* Annuler après « Wishlist » ou « Ajouter à ma collection » : retour sur la fiche du jeu */
+var GI_BACK = null;
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-giact="own"],[data-giact="wish"]'); if (t && GI) GI_BACK = GI.info;
+  var c = e.target.closest && e.target.closest('.wq-dlg [data-act="close"]:not(.iconbtn), #gameForm [data-gfcancel]');
+  if (c && GI_BACK) { var back = GI_BACK; GI_BACK = null; setTimeout(function(){ giOpen(back); }, 220); }
+}, true);
+/* icône manette pour « À quoi on joue ? » */
+var ICON_PAD_NEON = '<svg class="pad-neon" viewBox="0 0 32 22" aria-hidden="true"><path d="M8 2h16a7 7 0 0 1 7 7v3.5a6 6 0 0 1-10.8 3.6L18 13h-4l-2.2 3.1A6 6 0 0 1 1 12.5V9a7 7 0 0 1 7-7z" fill="#1B1440" stroke="#FF5FB8" stroke-width="1.8"/><path d="M8.5 6.5v6M5.5 9.5h6" stroke="#7FE3FF" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="7.5" r="1.6" fill="#FFE14D"/><circle cx="25.5" cy="10.5" r="1.6" fill="#7CFF6B"/><circle cx="18.5" cy="10.5" r="1.6" fill="#7FE3FF"/><circle cx="22" cy="13.2" r="1.6" fill="#FF5FB8"/></svg>';
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
