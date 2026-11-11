@@ -9567,8 +9567,18 @@ document.addEventListener('click', function(e){
 function wishHas(name, con){ var k = gmKey(name); return S.games.some(function(g){ return g.kind === 'wish' && gmKey(g.name) === k && (!con || !list(g.consoles).length || list(g.consoles).some(function(c){ return norm(consoleFullName(canonConsole(c)) || c) === norm(consoleFullName(canonConsole(con)) || con); })); }); }
 function wishAskOpen(o, btn){ /* o = {title, platforms[], pname, year, dev, pub, cvu, ig} */
   var pl = list(o.platforms).map(function(x){ return canonConsole(x); }).filter(Boolean); if (o.pname && pl.indexOf(canonConsole(o.pname)) < 0) pl.unshift(canonConsole(o.pname));
-  WQ = {info:{title:o.title, pname:pl[0] || '', ig:o.ig || '', cvu:o.cvu || '', year:o.year || '', dev:o.dev || '', pub:o.pub || ''}, data:null, name:o.title, cover:o.cvu && o.cvu !== 'none' ? o.cvu : '', plats:pl, fromCard:btn || null};
+  WQ = {info:{title:o.title, pname:pl[0] || '', ig:o.ig || '', cvu:o.cvu || '', year:o.year || '', dev:o.dev || '', pub:o.pub || ''}, data:null, name:o.title, cover:o.cvu && o.cvu !== 'none' ? o.cvu : '', plats:pl, fromCard:btn || null, loading:!!window.PS_SB};
   openDlg(wishAskDlg(WQ.info));
+  if (!window.PS_SB) return;
+  /* comme sur la fiche du jeu : on récupère la fiche IGDB (plateformes de sortie, jaquette, infos) */
+  var W = WQ, body = o.ig ? {action:'game', id:+o.ig} : {action:'search', name:o.title, platform:consoleFullName(pl[0] || '') || pl[0] || ''};
+  window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ var d = r && r.data && r.data.game; if (!d && body.action === 'search' && body.platform) return window.PS_SB.functions.invoke('igdb', {body:{action:'search', name:o.title, platform:''}}).then(function(r2){ return r2 && r2.data && r2.data.game; }); return d; }).then(function(d){
+    if (WQ !== W) return; W.loading = false;
+    if (d) { W.data = d; var ps = (d.platforms || []).map(function(x){ return canonConsole(x.name); }); W.plats = Array.from(new Set(pl.concat(ps))); if (!W.cover && d.cover) W.cover = giImg(d.cover.image_id, 't_cover_big'); }
+    var f = document.getElementById('wqForm'), dg = f && f.closest('.wq-dlg'); if (!dg) return;
+    var cur = (f.querySelector('input[name="wqCon"]') || {}).value || W.info.pname; W.info.pname = cur;
+    var tmp = document.createElement('div'); tmp.innerHTML = wishAskDlg(W.info); var nb = tmp.querySelector('#wqForm'); if (nb) f.replaceWith(nb);
+  }).catch(function(){ if (WQ === W) { W.loading = false; var f2 = document.getElementById('wqForm'); var l = f2 && f2.querySelector('.wq-load'); if (l) l.remove(); } });
 }
 /* jeux de « Jeux à découvrir » passés en wishlist : on les retire de la liste */
 var DISC_DROP = {};
@@ -9866,10 +9876,12 @@ async function giPrefillForm(info, d){
 var WQ = null;
 function wishAskDlg(info){
   var plats = (WQ && WQ.plats) ? WQ.plats.map(canonConsole) : (GI && GI.data && GI.data.platforms || []).map(function(p){ return canonConsole(p.name); });
+  var seen = {}; plats = plats.filter(function(x){ var k = norm(consoleFullName(x) || x); if (!x || seen[k]) return false; seen[k] = 1; return true; });
   var cur = info.pname || plats[0] || '';
   return '<div class="dlg wq-dlg"><header><h2>' + ICON_HEART + ' Ajouter à ma wishlist</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="wqForm">'
     + '<div class="wq-game">' + (WQ.cover ? '<img src="' + esc(WQ.cover) + '" alt="">' : '') + '<div><b>' + esc(WQ.name) + '</b><small>Sur quelle console aimerais-tu l\u2019avoir ?</small></div></div>'
     + cfield('wqCon', 'Console', {key:'consoles', name:'wqCon', value:cur, placeholder:'Choisir une console', clearable:true}, true)
+    + (WQ && WQ.loading ? '<p class="gi-load wq-load"><span class="nimp-spin"></span> Recherche des plateformes de sortie…</p>' : '')
     + (plats.length > 1 ? '<div class="wq-pl"><span>Sorti sur :</span>' + plats.map(function(p){ return '<button type="button" class="chip" data-wqpl="' + esc(p) + '">' + esc(consoleFullName(p) || p) + '</button>'; }).join('') + '</div>' : '')
     + '</div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-wqsave="1">' + ICON_HEART + ' Ajouter à ma wishlist</button></footer></div>';
 }
