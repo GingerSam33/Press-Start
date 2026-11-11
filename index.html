@@ -4241,6 +4241,10 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 
 .gi-inwish{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#C2304A;font-size:13.5px}.gi-inwish svg{width:15px;height:15px}
 .covs-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+.roul-pad{display:inline-flex}.roul-pad .pad-neon{width:40px;height:28px;filter:drop-shadow(0 0 6px rgba(255,95,184,.65));transform-origin:50% 60%}
+.roul-head h2:hover .pad-neon,.roul-dh:hover .pad-neon{animation:padWiggle .5s ease-in-out infinite}
+.gi-indisc{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:var(--accent-text,var(--accent))}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -8227,7 +8231,7 @@ function giHtml(){
     + ((d.similar_games || []).length ? sec('Jeux similaires', '<div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>') : '')
     + sec('Liens', '<div class="gi-links">' + links.map(function(l){ return '<a class="gi-link" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span aria-hidden="true">↗</span></a>'; }).join('') + '</div>')
     + '</div>'
-    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer><button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button><span class="spacer"></span><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
+    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer>' + ((i.ctx && i.ctx.t === 'disc') || (typeof discHas === 'function' && discHas(i.title)) ? '<span class="gi-indisc">✦ Dans Jeux à découvrir</span>' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button>') + '<span class="spacer"></span><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
 }
 
 document.addEventListener('click', function(e){
@@ -9457,7 +9461,7 @@ function roulResult(){
   return '<div class="roul-res pop"><img src="' + esc(roulCv(g)) + '" alt=""><div><small>Ton prochain jeu</small><b>' + esc(g.name) + '</b><span class="tags">' + list(g.consoles).map(consoleTag).join('') + '</span></div><div class="roul-acts">' + (S.readOnly ? '' : '<button type="button" class="btn small" data-roulplay="' + esc(g.id) + '">▶ Je lance !</button>') + '<button type="button" class="btn ghost small" data-game="' + esc(g.id) + '">Voir la fiche</button></div></div>';
 }
 function roulHtml(inDlg){
-  return '<div class="roul' + (inDlg ? ' in-dlg' : '') + '" id="roulRoot"><div class="roul-head"><div><h2>' + ICON_ROUL + 'À quoi on joue ?</h2><small>La plateforme tire au sort un jeu de ta collection.</small></div>' + roulSwitch() + '</div>' + roulFilters() + '<div id="roulStageBox">' + roulStage() + '</div><div class="roul-go"><button type="button" class="btn roul-btn" data-roulgo="1">' + (ROUL.mode === 'slot' ? '🎰 Tirer le levier' : ROUL.mode === 'flow' ? '✨ Choisis pour moi' : '🎡 Tourner la roue') + '</button></div><div id="roulResBox">' + roulResult() + '</div></div>';
+  return '<div class="roul' + (inDlg ? ' in-dlg' : '') + '" id="roulRoot"><div class="roul-head"><div><h2><span class="roul-pad">' + ICON_PAD_NEON + '</span>À quoi on joue ?</h2><small>La plateforme tire au sort un jeu de ta collection.</small></div>' + roulSwitch() + '</div>' + roulFilters() + '<div id="roulStageBox">' + roulStage() + '</div><div class="roul-go"><button type="button" class="btn roul-btn" data-roulgo="1">' + (ROUL.mode === 'slot' ? '🎰 Tirer le levier' : ROUL.mode === 'flow' ? '✨ Choisis pour moi' : '🎡 Tourner la roue') + '</button></div><div id="roulResBox">' + roulResult() + '</div></div>';
 }
 function viewRoulette(){ return crtPage({kick:'RANDOM SELECT', title:'À QUOI ON JOUE ?', sub:'Laisse le hasard choisir ta prochaine partie', blink:'INSERT COIN', sc:[['JEUX', crtPad(S.games.filter(function(g){ return g.kind !== 'wish'; }).length)], ['PAS COMMENCÉS', crtPad(S.games.filter(function(g){ return g.kind !== 'wish' && (g.status || 'Pas commencé') === 'Pas commencé'; }).length)], ['EN COURS', crtPad(S.games.filter(function(g){ return g.status === 'En cours'; }).length)]]}) + '<section class="card">' + roulHtml(false) + '</section>'; }
 function roulShuffle(a){ a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
@@ -9488,7 +9492,7 @@ function roulSpin(){
 function roulRefresh(){ var root = document.getElementById('roulRoot'); if (!root) return; var inDlg = root.classList.contains('in-dlg'); root.outerHTML = roulHtml(inDlg); setTimeout(function(){ roulPrep(true); }, 0); }
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-roulmode],[data-roulf],[data-roulgo],[data-roulplay],[data-roulopen]'); if (!t) return;
-  if (t.hasAttribute('data-roulopen')) { openDlg('<div class="dlg roul-dlg"><header><h2 class="roul-dh">' + ICON_ROUL + 'À quoi on joue ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">' + roulHtml(true) + '</div></div>'); setTimeout(roulPrep, 30); return; }
+  if (t.hasAttribute('data-roulopen')) { openDlg('<div class="dlg roul-dlg"><header><h2 class="roul-dh"><span class="roul-pad">' + ICON_PAD_NEON + '</span>À quoi on joue ?</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">' + roulHtml(true) + '</div></div>'); setTimeout(roulPrep, 30); return; }
   if (ROUL.busy && !t.hasAttribute('data-roulplay')) return;
   if (t.hasAttribute('data-roulmode')) { ROUL.mode = t.getAttribute('data-roulmode'); try { localStorage.setItem('ps-roul', ROUL.mode); } catch (x) {} roulRefresh(); return; }
   if (t.hasAttribute('data-roulf')) { var p = t.getAttribute('data-roulf').split('|'); ROUL[p[0]] = p[1]; roulRefresh(); return; }
@@ -9528,7 +9532,7 @@ document.addEventListener('click', async function(e){
   e.preventDefault(); e.stopImmediatePropagation();
   var dd = DISC.filter(function(x){ return x.id === t.getAttribute('data-ndwish'); })[0]; if (!dd) return;
   var pl = list(dd.platforms);
-  if (pl.length !== 1) { WQ = {info:{title:dd.title, pname:pl[0] || '', ig:dd.ig, cvu:dd.cvu}, data:null, name:dd.title, cover:dd.cvu && dd.cvu !== 'none' ? dd.cvu : '', plats:pl}; openDlg(wishAskDlg(WQ.info)); return; }
+  WQ = {info:{title:dd.title, pname:pl[0] ? canonConsole(pl[0]) : '', ig:dd.ig, cvu:dd.cvu, year:dd.year || (Date.parse(dd.date) ? new Date(dd.date).getFullYear() : '')}, data:null, name:dd.title, cover:dd.cvu && dd.cvu !== 'none' ? dd.cvu : '', plats:pl, fromCard:t}; openDlg(wishAskDlg(WQ.info)); return;
   t.disabled = true; var lab = t.innerHTML; t.textContent = 'Ajout…';
   try { await wishCreate({name:dd.title, con:canonConsole(pl[0]), year:dd.year || (Date.parse(dd.date) ? new Date(dd.date).getFullYear() : ''), cvu:dd.cvu, ig:dd.ig}); toast('« ' + dd.title + ' » ajouté à ta wishlist'); t.innerHTML = ICON_HEART + ' Dans ma wishlist'; }
   catch (x) { toast(failMsg(x)); t.disabled = false; t.innerHTML = lab; }
@@ -9540,7 +9544,7 @@ document.addEventListener('click', function(e){
   var g = S.games.find(function(x){ return x.id === t.getAttribute('data-id'); }); if (!g) return;
   e.preventDefault(); e.stopImmediatePropagation();
   if (typeof gdlgClose === 'function') gdlgClose(); closeDlg();
-  setTimeout(function(){ gameForm(Object.assign({}, g, {kind:'physique'})); setTimeout(function(){ var f = document.getElementById('gameForm'); if (!f) return; gfSetStep(2); var st = f.querySelector('#gfStepT'); if (st) st.textContent = 'J\u2019ai ce jeu !'; var k = f.querySelector('.gf2-k'); if (k) k.textContent = 'GOT IT!'; f.setAttribute('data-acquire', '1'); }, 60); }, 120);
+  setTimeout(function(){ gameForm(Object.assign({}, g, {kind:'physique'})); setTimeout(function(){ var f = document.getElementById('gameForm'); if (!f) return; gfSetStep(2); var st = f.querySelector('#gfStepT'); if (st) st.textContent = 'J\u2019ai ce jeu !'; var k = f.querySelector('.gf2-k'); if (k) k.textContent = 'GOT IT!'; f.setAttribute('data-acquire', '1'); var del = f.querySelector('footer [data-act="deleteGame"]'); if (del) { var cb = document.createElement('button'); cb.type = 'button'; cb.className = 'btn ghost'; cb.textContent = 'Annuler'; cb.setAttribute('data-acqcancel', g.id); del.replaceWith(cb); } }, 60); }, 120);
 }, true);
 
 /* ---------- Jeux de ma wishlist : on ouvre la fiche « découverte » (Base de jeux) ---------- */
@@ -9552,6 +9556,13 @@ document.addEventListener('click', function(e){
   e.preventDefault(); e.stopImmediatePropagation(); if (typeof gdlgClose === 'function') gdlgClose(); giOpen(wishInfo(g));
 }, true);
 
+
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-acqcancel]'); if (!t) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  var g = S.games.find(function(x){ return x.id === t.getAttribute('data-acqcancel'); }); closeDlg();
+  if (g) setTimeout(function(){ giOpen(wishInfo(g)); }, 220);
+}, true);
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
@@ -9845,6 +9856,7 @@ document.addEventListener('click', async function(e){
   if (t.hasAttribute('data-wqsave') && WQ) {
     var f = document.getElementById('wqForm'), con = (f && f.querySelector('input[name="wqCon"]') || {}).value || ''; if (!con) { toast('Choisis une console'); return; }
     t.disabled = true; t.textContent = 'Ajout…';
+    if (!WQ.data) { var W0 = WQ; try { await wishCreate({name:W0.name, con:con, year:W0.info.year || '', cvu:W0.info.cvu, ig:W0.info.ig}); toast('« ' + W0.name + ' » ajouté à ta wishlist (' + (consoleFullName(con) || con) + ')'); closeDlg(); WQ = null; GI_BACK = null; if (W0.fromCard) { W0.fromCard.disabled = true; W0.fromCard.innerHTML = ICON_HEART + ' Dans ma wishlist'; } } catch (x) { toast(failMsg(x)); t.disabled = false; t.textContent = 'Ajouter à ma wishlist'; } return; }
     var i2 = WQ.info, d2 = WQ.data, data = {kind:'wish', status:'Pas commencé', name:WQ.name, consoles:[con], year:i2.year || '', developer:i2.dev ? [i2.dev] : [], publisher:i2.pub ? [i2.pub] : [], createdAt:Date.now()};
     try {
       if (d2 && d2.id) data.igdbId = String(d2.id);
