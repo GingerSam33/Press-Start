@@ -4238,6 +4238,9 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 .navbtn.nav-neon:hover .pad-neon{animation:padWiggle .5s ease-in-out infinite}
 @keyframes padWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg) translateY(-1px)}75%{transform:rotate(12deg) translateY(-1px)}}
 @media (prefers-reduced-motion:reduce){.navbtn.nav-neon .nn-t,.navbtn.nav-neon:hover .pad-neon{animation:none}}
+
+.gi-inwish{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#C2304A;font-size:13.5px}.gi-inwish svg{width:15px;height:15px}
+.covs-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -8224,7 +8227,7 @@ function giHtml(){
     + ((d.similar_games || []).length ? sec('Jeux similaires', '<div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>') : '')
     + sec('Liens', '<div class="gi-links">' + links.map(function(l){ return '<a class="gi-link" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span aria-hidden="true">↗</span></a>'; }).join('') + '</div>')
     + '</div>'
-    + (S.readOnly ? '' : '<footer><button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button><span class="spacer"></span><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>');
+    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer><button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button><span class="spacer"></span><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
 }
 
 document.addEventListener('click', function(e){
@@ -8326,16 +8329,19 @@ function covSuggestCard(g){
   var p = covPlatFor(g), all = covAllRows(), fam = catPlatsFamily(list(g.consoles).concat(getVersions(g).map(function(v){ return v.console; })).filter(Boolean)).map(function(x){ return x.id; }); if (p) fam.push(p.id);
   if (!all.length) return '';
   var st = CS[g.id] || (CS[g.id] = {mode:'ask', q:''});
+  var scoped = !st.all && fam.length > 0, allRows = all; if (scoped) all = all.filter(function(x){ return fam.indexOf(x[0].id) >= 0; });
+  var famNames = Array.from(new Set(allRows.filter(function(x){ return fam.indexOf(x[0].id) >= 0; }).map(function(x){ return x[0].name; }))).join(', ');
   var best = null, bs = 0, bp = null; all.forEach(function(x){ var r = x[1]; if (!(r.cvu || /^data:image\//.test(r.cv))) return; var s1 = Math.max(gmSim(g.name, r.t), r.fr ? gmSim(g.name, r.fr) : 0) + (fam.indexOf(x[0].id) >= 0 ? 0.04 : 0); if (s1 > bs) { bs = s1; best = r; bp = x[0]; } }); bs = Math.min(1, bs);
   var usable = function(r){ return r.cvu || /^data:image\//.test(r.cv); };
   if (st.busy) return '<section class="card covs"><p class="gi-load"><span class="nimp-spin"></span> Ajout de la jaquette et de l’illustration…</p></section>';
   if (st.mode === 'ask' && !forced && best && bs >= 0.72) return '<section class="card covs"><div class="covs-in">' + (best.cvu ? '<img src="' + esc(best.cvu) + '" alt="" referrerpolicy="no-referrer">' : '<img src="' + best.cv + '" alt="">') + '<div><b>Ce jeu n’a pas de jaquette.</b><p>Il ressemble à <b>« ' + esc(best.t) + ' »</b> dans la Base de jeux (' + esc(bp.name) + (best.y ? ' · ' + esc(best.y) : '') + ', ' + Math.round(bs * 100) + ' % de ressemblance). Utiliser sa jaquette et son illustration ?</p><div class="covs-act"><button type="button" class="btn small" data-covok="' + esc(bp.id) + '|' + best.i + '">✓ Oui</button><button type="button" class="btn ghost small" data-covno="1">✕ Non, chercher un autre jeu</button><button type="button" class="link" data-covskip="1">Ignorer</button></div></div></div></section>';
   var q = st.q || g.name, kq = catKey(q), res = all.filter(function(x){ return usable(x[1]); }).map(function(x){ var r = x[1], sc = Math.max(gmSim(q, r.t), r.fr ? gmSim(q, r.fr) : 0); if (kq.length > 2 && catKey(r.t + ' ' + r.fr).indexOf(kq) >= 0) sc = Math.max(sc, 0.8); return [r, sc + (fam.indexOf(x[0].id) >= 0 ? 0.03 : 0), x[0]]; }).filter(function(x){ return x[1] > 0.3; }).sort(function(a, b){ return b[1] - a[1]; }).slice(0, 12);
-  return '<section class="card covs"><b>Choisir le bon jeu dans toute la Base de jeux</b>' + (covAllLoading() ? '<span class="gi-load"><span class="nimp-spin"></span> Chargement des plateformes…</span>' : '') + '<label class="search covs-q"><span class="sr">Rechercher</span><input id="covQ" type="search" value="' + esc(st.q || '') + '" placeholder="Rechercher un titre…" autocomplete="off"></label><div class="covs-res">' + (res.length ? res.map(function(x){ var r = x[0]; return '<button type="button" class="covs-r" data-covok="' + esc(x[2].id) + '|' + r.i + '">' + (r.cvu ? '<img src="' + esc(r.cvu) + '" alt="" referrerpolicy="no-referrer" loading="lazy">' : '<img src="' + r.cv + '" alt="">') + '<span><b>' + esc(r.t) + '</b><small>' + esc([x[2].name, r.y, r.d].filter(Boolean).join(' · ')) + '</small></span></button>'; }).join('') : '<p class="gi-note">Aucun jeu avec jaquette ne correspond.</p>') + '</div><button type="button" class="link" data-covclose="1">Fermer</button></section>';
+  return '<section class="card covs"><div class="covs-top"><b>' + (scoped ? 'Choisir le bon jeu sur ' + esc(famNames || 'ta console') : 'Choisir le bon jeu dans toute la Base de jeux') + '</b>' + (fam.length ? '<button type="button" class="btn ghost small" data-covall="1">' + (scoped ? '🔎 Chercher dans toute la Base de jeux' : '↩ Revenir à ma console') + '</button>' : '') + '</div>' + (covAllLoading() ? '<span class="gi-load"><span class="nimp-spin"></span> Chargement des plateformes…</span>' : '') + '<label class="search covs-q"><span class="sr">Rechercher</span><input id="covQ" type="search" value="' + esc(st.q || '') + '" placeholder="Rechercher un titre…" autocomplete="off"></label><div class="covs-res">' + (res.length ? res.map(function(x){ var r = x[0]; return '<button type="button" class="covs-r" data-covok="' + esc(x[2].id) + '|' + r.i + '">' + (r.cvu ? '<img src="' + esc(r.cvu) + '" alt="" referrerpolicy="no-referrer" loading="lazy">' : '<img src="' + r.cv + '" alt="">') + '<span><b>' + esc(r.t) + '</b><small>' + esc([x[2].name, r.y, r.d].filter(Boolean).join(' · ')) + '</small></span></button>'; }).join('') : '<p class="gi-note">Aucun jeu avec jaquette ne correspond.</p>') + '</div><button type="button" class="link" data-covclose="1">Fermer</button></section>';
 }
 document.addEventListener('click', async function(e){
-  var t = e.target.closest && e.target.closest('[data-covok],[data-covno],[data-covskip]'); if (!t) return;
+  var t = e.target.closest && e.target.closest('[data-covok],[data-covno],[data-covskip],[data-covall]'); if (!t) return;
   var g = S.games.find(function(x){ return x.id === S.gameId; }); if (!g) return;
+  if (t.hasAttribute('data-covall')) { var cs0 = CS[g.id] || (CS[g.id] = {mode:'search', q:''}); cs0.all = !cs0.all; cs0.mode = 'search'; render(); return; }
   if (t.hasAttribute('data-covskip')) { S.covSkip[g.id] = true; render(); return; }
   if (t.hasAttribute('data-covno')) { CS[g.id] = {mode:'search', q:''}; render(); var i = document.getElementById('covQ'); if (i) i.focus(); return; }
   var ck = String(t.getAttribute('data-covok')), p = ck.indexOf('|') >= 0 ? catPlat(ck.split('|')[0]) : covPlatFor(g), rows = p && CAT_CACHE[p.id + '@' + (p.updatedAt || 0)], r = rows && rows[+ck.split('|').pop()]; if (!r) return;
@@ -9495,6 +9501,57 @@ document.addEventListener('change', function(e){ if (!e.target.hasAttribute || !
 
 (function(){ var _sv = setVal; setVal = function(cb, val){ var r = _sv.apply(this, arguments); if (cb && cb.closest && cb.closest('#roulRoot') && cb.getAttribute('data-key') === 'consoles' && !ROUL.busy) { var v = Array.isArray(val) ? (val[0] || '') : String(val || ''); if (v !== ROUL.con) { ROUL.con = v; setTimeout(function(){ closeCombo(); roulRefresh(); }, 0); } } return r; }; })();
 
+/* ---------- Wishlist : ajout direct (Jeux à découvrir) ---------- */
+async function wishCreate(o){
+  /* o = {name, con, year, dev, pub, cvu, cv, ig, data(IGDB)} */
+  var d = o.data || null;
+  if (!d && window.PS_SB) { try { var r = o.ig ? await window.PS_SB.functions.invoke('igdb', {body:{action:'game', id:+o.ig}}) : await window.PS_SB.functions.invoke('igdb', {body:{action:'search', name:o.name, platform:consoleFullName(o.con) || o.con || ''}}); d = r && r.data && r.data.game || null; } catch (x) {} }
+  var data = {kind:'wish', status:'Pas commencé', name:o.name, consoles:o.con ? [o.con] : [], year:o.year || '', developer:o.dev ? [o.dev] : [], publisher:o.pub ? [o.pub] : [], createdAt:Date.now()}, media = null;
+  try {
+    if (d && d.id) data.igdbId = String(d.id);
+    if (d && d.cover) data.coverId = await igStore(giImg(d.cover.image_id, 't_cover_big_2x'));
+    else if (o.cvu && o.cvu !== 'none') data.coverId = await igStore(o.cvu);
+    if (d) { var art = (d.artworks && d.artworks[0]) || (d.screenshots && d.screenshots[0]); if (art) data.artId = await igStore(giImg(art.image_id, 't_1080p'));
+      var co = d.involved_companies || [], dv = co.filter(function(c){ return c.developer; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean), pb = co.filter(function(c){ return c.publisher; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean);
+      if (dv.length) data.developer = dv; if (pb.length) data.publisher = pb; if (d.first_release_date && !data.year) data.year = new Date(d.first_release_date * 1000).getFullYear();
+      if (d.genres && d.genres.length) data.types = d.genres.map(function(x){ return x.name; }).slice(0, 3);
+      var lf = licFixGet(o.name), lic = lf || (d.franchises || []).concat(d.collections || []).map(function(f){ return f.name; }); if (lic && lic[0]) data.licence = lic[0];
+      media = {shots:(d.screenshots || []).slice(0, 12).map(function(x){ return {image_id:x.image_id}; }), vids:(d.videos || []).slice(0, 6).map(function(v){ return {video_id:v.video_id, name:v.name}; })}; }
+  } catch (x) {}
+  try { var rb = randomBanner && randomBanner(); if (rb) data.bannerId = rb; } catch (x) {}
+  var ref = await withRetry(function(){ return db.collection('games').add(data); });
+  if (ref && ref.id && media) { GMEDIA[ref.id] = media; try { localStorage.setItem('ps-gm-' + ref.id, JSON.stringify(media)); } catch (x) {} }
+  return ref;
+}
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-ndwish]'); if (!t || S.readOnly) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  var dd = DISC.filter(function(x){ return x.id === t.getAttribute('data-ndwish'); })[0]; if (!dd) return;
+  var pl = list(dd.platforms);
+  if (pl.length !== 1) { WQ = {info:{title:dd.title, pname:pl[0] || '', ig:dd.ig, cvu:dd.cvu}, data:null, name:dd.title, cover:dd.cvu && dd.cvu !== 'none' ? dd.cvu : '', plats:pl}; openDlg(wishAskDlg(WQ.info)); return; }
+  t.disabled = true; var lab = t.innerHTML; t.textContent = 'Ajout…';
+  try { await wishCreate({name:dd.title, con:canonConsole(pl[0]), year:dd.year || (Date.parse(dd.date) ? new Date(dd.date).getFullYear() : ''), cvu:dd.cvu, ig:dd.ig}); toast('« ' + dd.title + ' » ajouté à ta wishlist'); t.innerHTML = ICON_HEART + ' Dans ma wishlist'; }
+  catch (x) { toast(failMsg(x)); t.disabled = false; t.innerHTML = lab; }
+}, true);
+
+/* ---------- « Je l'ai maintenant » : la nouvelle fiche, directement sur « Mon exemplaire » ---------- */
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-act="acquire"]'); if (!t || S.readOnly) return;
+  var g = S.games.find(function(x){ return x.id === t.getAttribute('data-id'); }); if (!g) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (typeof gdlgClose === 'function') gdlgClose(); closeDlg();
+  setTimeout(function(){ gameForm(Object.assign({}, g, {kind:'physique'})); setTimeout(function(){ var f = document.getElementById('gameForm'); if (!f) return; gfSetStep(2); var st = f.querySelector('#gfStepT'); if (st) st.textContent = 'J\u2019ai ce jeu !'; var k = f.querySelector('.gf2-k'); if (k) k.textContent = 'GOT IT!'; f.setAttribute('data-acquire', '1'); }, 60); }, 120);
+}, true);
+
+/* ---------- Jeux de ma wishlist : on ouvre la fiche « découverte » (Base de jeux) ---------- */
+function wishInfo(g){ var c = list(g.consoles)[0] || ''; return {title:g.name, platform:consoleFullName(c) || c, pname:c, year:g.year || '', dev:list(g.developer)[0] || '', pub:list(g.publisher)[0] || '', cvu:g.coverId ? new URL(blob(g.coverId), location.href).href : '', ig:g.igdbId || '', ctx:{t:'wish', id:g.id}}; }
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-game]'); if (!t) return;
+  var g = S.games.find(function(x){ return x.id === t.getAttribute('data-game'); }); if (!g || g.kind !== 'wish') return;
+  if (t.closest('.msearch')) return;
+  e.preventDefault(); e.stopImmediatePropagation(); if (typeof gdlgClose === 'function') gdlgClose(); giOpen(wishInfo(g));
+}, true);
+
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
@@ -9767,7 +9824,7 @@ async function giPrefillForm(info, d){
 /* ajout en wishlist : on demande la console */
 var WQ = null;
 function wishAskDlg(info){
-  var plats = (GI && GI.data && GI.data.platforms || []).map(function(p){ return canonConsole(p.name); });
+  var plats = (WQ && WQ.plats) ? WQ.plats.map(canonConsole) : (GI && GI.data && GI.data.platforms || []).map(function(p){ return canonConsole(p.name); });
   var cur = info.pname || plats[0] || '';
   return '<div class="dlg wq-dlg"><header><h2>' + ICON_HEART + ' Ajouter à ma wishlist</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="wqForm">'
     + '<div class="wq-game">' + (WQ.cover ? '<img src="' + esc(WQ.cover) + '" alt="">' : '') + '<div><b>' + esc(WQ.name) + '</b><small>Sur quelle console aimerais-tu l\u2019avoir ?</small></div></div>'
@@ -9842,7 +9899,7 @@ async function gameMediaLoad(g){
 /* ---------- Page Wishlist ---------- */
 function viewWishlist(){
   var ws = S.games.filter(function(g){ return g.kind === 'wish'; }), by = {};
-  ws.forEach(function(g){ var c = list(g.consoles)[0] || 'Sans console'; (by[c] = by[c] || []).push(g); });
+  ws.forEach(function(g){ var c0 = list(g.consoles)[0], c = c0 ? (canonConsole(c0) || c0) : 'Sans console'; var k = Object.keys(by).find(function(x){ return x !== 'Sans console' && c !== 'Sans console' && norm(consoleFullName(x) || x) === norm(consoleFullName(c) || c); }) || c; (by[k] = by[k] || []).push(g); });
   var cons = Object.keys(by).sort(function(a, b){ return a === 'Sans console' ? 1 : b === 'Sans console' ? -1 : a.localeCompare(b, 'fr'); });
   var h = crtPage({kick:'WISHLIST', title:'MA WISHLIST', sub:ws.length + ' jeu' + (ws.length > 1 ? 'x' : '') + ' que j\u2019aimerais avoir', blink:ws.length ? 'NEXT LEVEL' : 'AUCUN JEU', sc:[['JEUX', crtPad(ws.length)], ['CONSOLES', crtPad(cons.filter(function(c){ return c !== 'Sans console'; }).length)]]});
   if (!ws.length) return h + '<div class="card empty"><strong>Ta wishlist est vide</strong><span>Sur la fiche d\u2019un jeu (Base de jeux, Jeux à découvrir, actus…), clique sur « ♥ Wishlist » et choisis la console.</span></div>';
