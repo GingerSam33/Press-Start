@@ -4270,6 +4270,41 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 .tip-pop.tp-wide .tip-row{border-bottom:1px solid var(--card-border) !important;border-top:0 !important}
 .tip-pop.tp-wide .tip-row:last-child{border-bottom:0 !important}
 .tip-pop.tp-wide .tip-row:first-child{padding-top:8px}
+
+/* accueil : vues grille et cartes */
+.hv-sw{margin-right:4px}
+.hv-sw button{white-space:nowrap}
+.hv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:18px 18px}
+.hv-gc{display:flex;flex-direction:column;gap:6px;cursor:pointer;min-width:0;border-radius:14px;padding:4px;transition:translate .25s cubic-bezier(.2,.8,.2,1)}
+.hv-gc:hover,.hv-gc:focus-visible{translate:0 -4px}
+.hv-cov{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--sunken);box-shadow:0 12px 22px -14px rgba(20,18,40,.55)}
+.hv-cov img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.hv-gc:hover .hv-cov img{transform:scale(1.05) rotate(-1.5deg)}
+.hv-con{position:absolute;top:8px;left:8px;max-width:calc(100% - 52px)}.hv-con .tag{font-size:9px !important;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.hv-ex{position:absolute;top:6px;right:6px}
+.hv-ex .btn.ex-pill{min-width:28px;height:28px;min-height:28px;font-size:13px;padding:0 8px}
+.hv-fe{position:absolute;left:6px;right:6px;bottom:6px;display:flex;flex-wrap:wrap;gap:4px}
+.hv-fe .tag{font-size:10px !important;padding:2px 8px !important;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.hv-t{font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.hv-m{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11.5px;color:var(--muted);min-width:0}
+.hv-m>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hv-s{display:flex}
+.hv-gc.wish .hv-cov{outline:2px dashed color-mix(in srgb,#E2304A 50%,transparent);outline-offset:-2px}
+.hv-wish{display:flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;background:#fff;color:#E2304A;box-shadow:0 3px 8px -3px rgba(0,0,0,.4)}.hv-wish svg{width:14px;height:14px}
+.hv-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hv-cc{display:flex;gap:14px;padding:12px;border-radius:18px;background:var(--sunken);border:1px solid var(--card-border);cursor:pointer;min-width:0;transition:translate .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.hv-cc:hover,.hv-cc:focus-visible{translate:0 -3px;box-shadow:0 14px 26px -18px rgba(20,18,40,.55)}
+.hv-ccov{width:78px;aspect-ratio:3/4;object-fit:cover;border-radius:10px;flex:none;box-shadow:0 10px 18px -12px rgba(0,0,0,.6)}
+.hv-cb{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.hv-ch{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.hv-ch b{font-size:14.5px;line-height:1.3;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hv-ch .btn.ex-pill{min-width:28px;height:28px;min-height:28px;font-size:13px;padding:0 8px}
+.hv-cb .tags{gap:5px}
+.hv-cf{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.hv-cs{display:flex;align-items:center;gap:8px}
+.hv-cc.wish{border-style:dashed}
+.tag.hv-more{background:var(--card);color:var(--muted)}
+@media (max-width:1100px){.hv-cards{grid-template-columns:1fr}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -4895,10 +4930,10 @@ function viewHome(counts){
   if (H.multi) chips.push(['multi', 'Affichage', 'Multi-plateformes', FCOL.multi]);
   if (H.q) chips.push(['q', 'Recherche', H.q, FCOL.q]);
   h += '<section class="card' + (swap ? ' swap' : '') + '" id="homeList" style="display:flex;flex-direction:column;gap:14px"><div class="rowhead"><div><h2>' + (chips.length ? 'Jeux filtrés' : 'Tous les jeux') + '</h2><div class="sub" role="status">' + rows.length + ' jeu' + (rows.length > 1 ? 'x' : '') + (chips.length ? ' sur ' + S.games.length : '') + '</div></div>'
-    + '<div class="list-tools"><button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><button type="button" class="btn home-roul" data-roulopen="1"><span class="hr-ico" aria-hidden="true">🎲</span> À quoi on joue ?</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
+    + '<div class="list-tools">' + (isMob() ? '' : hvSwitch()) + '<button class="btn" data-act="newGame"' + writeGuard() + '>+ Nouveau jeu</button><button type="button" class="btn home-roul" data-roulopen="1"><span class="hr-ico" aria-hidden="true">🎲</span> À quoi on joue ?</button><label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher</span><input id="homeSearch" type="search" placeholder="Rechercher un jeu…" value="' + esc(H.q) + '" autocomplete="off"></label></div></div>';
   h += homeFilters(H);
   if (chips.length) h += '<div class="activef"><span class="af-label">Filtres actifs :</span>' + chips.map(function(c){ return '<button class="fchip" style="--fc:' + c[3] + '" data-hclear="' + c[0] + '"' + (c[4] != null ? ' data-hval="' + esc(c[4]) + '"' : '') + '><span class="fk">' + esc(c[1]) + ' :</span><b>' + esc(c[2]) + '</b><span aria-hidden="true" class="fx">×</span><span class="sr">Retirer ce filtre</span></button>'; }).join('') + '<button class="af-clear" data-hclear="all">Effacer tous les filtres</button></div>';
-  h += (S.games.length ? (rows.length ? (isMob() ? '<div class="mgrid">' + rows.map(function(g){ return mTile(g.g || g); }).join('') + '</div>' : table(rows, true)) : '<div class="empty"><strong>Aucun jeu ne correspond</strong><span>Retire un filtre pour voir plus de jeux.</span></div>') : emptyGames()) + '</section>';
+  h += (S.games.length ? (rows.length ? (isMob() ? '<div class="mgrid">' + rows.map(function(g){ return mTile(g.g || g); }).join('') + '</div>' : HVIEW === 'grid' ? hvGrid(rows) : HVIEW === 'cards' ? hvCards(rows) : table(rows, true)) : '<div class="empty"><strong>Aucun jeu ne correspond</strong><span>Retire un filtre pour voir plus de jeux.</span></div>') : emptyGames()) + '</section>';
   return h;
 }
 var FCOL = {wish:'#1F6FD6', dup:'#B4236A', multi:'#0E7C86', physique:'#4049E8', demat:'#A5670A', q:'#4A5468', autres:'#5B5872', format:'#C2501A', type:'#7A3FD1', status:'#16796A', note:'#A36A00', year:'#2A64B8'};
@@ -10098,6 +10133,27 @@ document.addEventListener('click', function(e){
 function lmMatchCard(){ document.querySelectorAll('.lm').forEach(function(lm){ var root = lm.closest('.main') || document; var c = root.querySelector('.card:not(.lm)'); if (!c) return; var cs = getComputedStyle(c); lm.style.borderWidth = cs.borderTopWidth === '0px' ? '2px' : (parseFloat(cs.borderTopWidth) < 2 ? '2px' : cs.borderTopWidth); lm.style.borderStyle = 'solid'; lm.style.borderColor = cs.borderTopColor; lm.style.boxShadow = cs.boxShadow && cs.boxShadow !== 'none' ? cs.boxShadow : '0 6px 0 ' + cs.borderTopColor; }); }
 (function(){ var _r13 = render; render = function(){ var r = _r13.apply(this, arguments); setTimeout(lmMatchCard, 0); return r; }; })();
 (function(){ var _gd = gdlgDraw; gdlgDraw = function(){ var r = _gd.apply(this, arguments); setTimeout(lmMatchCard, 0); return r; }; })();
+
+/* ---------- Accueil : 3 affichages de mes jeux (tableau, grille, cartes) ---------- */
+var HVIEW = (function(){ try { return localStorage.getItem('ps-hview') || 'table'; } catch (x) { return 'table'; } })();
+function hvSwitch(){ return '<div class="ch-switch hv-sw" role="group" aria-label="Affichage des jeux">' + [['table', '▤ Tableau'], ['grid', '▦ Grille'], ['cards', '▥ Cartes']].map(function(v){ return '<button type="button" data-hview="' + v[0] + '" aria-pressed="' + (HVIEW === v[0]) + '">' + v[1] + '</button>'; }).join('') + '</div>'; }
+function hvEx(g){ if (g.kind === 'wish') return '<span class="hv-wish" title="Wishlist">' + ICON_HEART + '</span>'; var gc = gameCopies(g), lv = gc.n >= 3 ? 3 : gc.n; return '<span class="ex-wrap" tabindex="0"><span class="btn ex-pill ex-' + lv + '">' + gc.n + '</span><span class="ex-tip" role="tooltip">' + gc.n + ' exemplaire' + (gc.n > 1 ? 's' : '') + (gc.boxes ? ' + ' + gc.boxes + ' boîte' + (gc.boxes > 1 ? 's' : '') + ' en plus' : '') + '</span></span>'; }
+function hvCover(g){ return g.coverId ? blob(g.coverId) : genCover(g.name, list(g.consoles)[0] || ''); }
+function hvMeta(g){ return [g.year, list(g.types).slice(0, 2).join(' · ')].filter(Boolean).join(' · '); }
+function hvFmtEt(g){ var f = bestFormat(g); return (f ? fmtTag(f) : '') + bestEtats(g).slice(0, 2).map(function(e){ return optTag('etat', e); }).join('') + (bestEtats(g).length > 2 ? '<span class="tag hv-more">+' + (bestEtats(g).length - 2) + '</span>' : ''); }
+function hvGrid(rows){
+  return '<div class="hv-grid">' + rows.map(function(g){ g = g.g || g; return '<article class="hv-gc' + (g.kind === 'wish' ? ' wish' : '') + '" data-game="' + esc(g.id) + '" tabindex="0">'
+    + '<div class="hv-cov"><img src="' + esc(hvCover(g)) + '" alt="" loading="lazy" decoding="async"><span class="hv-con">' + list(g.consoles).slice(0, 1).map(consoleTag).join('') + '</span><span class="hv-ex">' + hvEx(g) + '</span><span class="hv-fe">' + hvFmtEt(g) + '</span></div>'
+    + '<b class="hv-t" title="' + esc(g.name) + '">' + esc(g.name) + '</b><div class="hv-m"><span>' + esc(hvMeta(g)) + '</span>' + (g.note === '' || g.note == null ? '' : noteBadge(g.note)) + '</div><div class="hv-s">' + statusTag(g.status) + '</div></article>'; }).join('') + '</div>';
+}
+function hvCards(rows){
+  return '<div class="hv-cards">' + rows.map(function(g){ g = g.g || g; return '<article class="hv-cc' + (g.kind === 'wish' ? ' wish' : '') + '" data-game="' + esc(g.id) + '" tabindex="0">'
+    + '<img class="hv-ccov" src="' + esc(hvCover(g)) + '" alt="" loading="lazy" decoding="async">'
+    + '<div class="hv-cb"><div class="hv-ch"><b title="' + esc(g.name) + '">' + esc(g.name) + '</b>' + hvEx(g) + '</div>'
+    + '<div class="tags">' + list(g.consoles).map(consoleTag).join('') + hvFmtEt(g) + '</div>'
+    + '<div class="hv-cf"><span>' + esc(hvMeta(g)) + '</span><span class="hv-cs">' + statusTag(g.status) + (g.note === '' || g.note == null ? '' : noteBadge(g.note)) + '</span></div></div></article>'; }).join('') + '</div>';
+}
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-hview]'); if (!t) return; HVIEW = t.getAttribute('data-hview'); try { localStorage.setItem('ps-hview', HVIEW); } catch (x) {} render(); });
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
