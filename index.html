@@ -3876,7 +3876,7 @@ html .main .btn.ex-pill.ex-3,html[data-bgfull] .main .btn.ex-pill.ex-3,html[data
 /* machine à sous */
 .roul-slot{background:linear-gradient(180deg,#2A0B3E,#140B30);padding:40px 60px 30px 24px}
 .rs-machine{position:relative;display:flex;gap:10px;padding:16px;border-radius:22px;background:linear-gradient(180deg,#E9C46A,#B8862A);box-shadow:inset 0 2px 0 #fff6,0 10px 0 #7A5200,0 0 30px rgba(233,196,106,.4)}
-.rs-machine::before{content:'★ À QUOI JE JOUE ? ★';position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:10px;color:#FFE14D;text-shadow:0 0 8px #FF8A1C;white-space:nowrap}
+.rs-machine::before{content:'★ À QUOI ON JOUE ? ★';position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:10px;color:#FFE14D;text-shadow:0 0 8px #FF8A1C;white-space:nowrap}
 .rs-reel{width:min(140px,24vw);height:170px;border-radius:12px;background:#0B0820;overflow:hidden;position:relative;box-shadow:inset 0 10px 20px rgba(0,0,0,.8),inset 0 -10px 20px rgba(0,0,0,.8)}
 .rs-reel::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent 30%,transparent 70%,rgba(0,0,0,.6));pointer-events:none}
 .rs-strip{display:flex;flex-direction:column}
@@ -4245,6 +4245,25 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 .roul-pad{display:inline-flex}.roul-pad .pad-neon{width:40px;height:28px;filter:drop-shadow(0 0 6px rgba(255,95,184,.65));transform-origin:50% 60%}
 .roul-head h2:hover .pad-neon,.roul-dh:hover .pad-neon{animation:padWiggle .5s ease-in-out infinite}
 .gi-indisc{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:var(--accent-text,var(--accent))}
+
+/* mur de jaquettes (roulette) */
+.roul-wheel,.roul-slot{position:relative;overflow:hidden;isolation:isolate}
+.rwall{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.rwall::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 70% at 50% 50%,rgba(20,11,48,.55),rgba(20,11,48,.88) 70%),linear-gradient(180deg,rgba(20,11,48,.35),rgba(20,11,48,.6))}
+.rwall-in{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;padding:10px;animation:rwallDrift 60s linear infinite;transform:rotate(-6deg) scale(1.15);transform-origin:50% 0}
+.rwall-c{display:block;aspect-ratio:3/4;border-radius:8px;overflow:hidden;box-shadow:0 8px 14px -8px rgba(0,0,0,.8)}
+.rwall-c img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.1) brightness(.9)}
+@keyframes rwallDrift{from{translate:0 0}to{translate:0 -50%}}
+@media (prefers-reduced-motion:reduce){.rwall-in{animation:none}}
+.rw-wheel,.rs-machine{position:relative;z-index:1}
+/* Jeux à découvrir : confirmation sur la carte */
+.nd-ask{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;text-align:center;border-radius:inherit;background:rgba(20,16,40,.82);backdrop-filter:blur(3px);color:#fff;opacity:0;transition:opacity .18s}
+.nd-ask.on{opacity:1}
+.nd-ask b{font-size:14px;line-height:1.35}
+.nd-ask-b{display:flex;gap:8px}
+.nd-ask .nd-no{background:#fff !important;color:#1E2A44 !important;border-color:#fff !important}
+.nd-ask .nd-yes{background:#C2304A !important;color:#fff !important;border-color:#C2304A !important;box-shadow:none !important}
+.disc-card{position:relative}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -7097,7 +7116,7 @@ async function discAdd(r){ var id = discId(r.title); if (discHas(r.title)) { toa
 function viewDiscover(){
   setTimeout(discEnsureCovers, 300);
   var rows = DISC.slice().sort(function(a, b){ return (Date.parse(a.date) || 0) - (Date.parse(b.date) || 0) || String(a.title).localeCompare(b.title, 'fr'); });
-  var dnow = Date.now(), h = crtPage({kick:'RADAR', title:'À DÉCOUVRIR', sub:'Les jeux repérés dans les actus, à regarder de plus près', blink:'NOUVEAU JEU EN VUE', sc:[['REPÉRÉS', crtPad(rows.length)], ['À VENIR', crtPad(rows.filter(function(d){ return Date.parse(d.date) > dnow; }).length)], ['DÉJÀ SORTIS', crtPad(rows.filter(function(d){ return Date.parse(d.date) <= dnow; }).length)], ['PLATEFORMES', crtPad(Object.keys(rows.reduce(function(o, d){ list(d.platforms).forEach(function(p){ o[p] = 1; }); return o; }, {})).length)]]}) + (rows.length ? '<div class="actions" style="justify-content:flex-end"><button type="button" class="btn ghost" data-nav="news">Voir les actus du jour</button></div>' : '');
+  var dnow = Date.now(), h = crtPage({kick:'RADAR', title:'À DÉCOUVRIR', sub:'Les jeux repérés dans les actus, à regarder de plus près', blink:'NOUVEAU JEU EN VUE', sc:[['REPÉRÉS', crtPad(rows.length)], ['À VENIR', crtPad(rows.filter(function(d){ return Date.parse(d.date) > dnow; }).length)], ['DÉJÀ SORTIS', crtPad(rows.filter(function(d){ return Date.parse(d.date) <= dnow; }).length)], ['PLATEFORMES', crtPad(Object.keys(rows.reduce(function(o, d){ list(d.platforms).forEach(function(p){ o[p] = 1; }); return o; }, {})).length)]]});
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
   discEnrich(rows);
@@ -9450,10 +9469,10 @@ function roulFilters(){
 function roulStage(){
   var n = roulPool().length;
   if (!n) return '<div class="roul-stage roul-empty"><b>Aucun jeu ne correspond à ces filtres.</b><small>Change le statut ou la console pour élargir le tirage.</small></div>';
-  if (ROUL.mode === 'slot') return '<div class="roul-stage roul-slot"><div class="rs-machine"><div class="rs-reel"><div class="rs-strip" id="rsR1"></div></div><div class="rs-reel"><div class="rs-strip" id="rsR2"></div></div><div class="rs-reel big"><div class="rs-strip" id="rsR3"></div></div><span class="rs-lever" id="rsLever"></span></div></div>';
+  if (ROUL.mode === 'slot') return '<div class="roul-stage roul-slot">' + roulWall() + '<div class="rs-machine"><div class="rs-reel"><div class="rs-strip" id="rsR1"></div></div><div class="rs-reel"><div class="rs-strip" id="rsR2"></div></div><div class="rs-reel big"><div class="rs-strip" id="rsR3"></div></div><span class="rs-lever" id="rsLever"></span></div></div>';
   if (ROUL.mode === 'flow') return '<div class="roul-stage roul-flow"><span class="rf-mark"></span><div class="rf-track" id="rfTrack"></div><div class="rf-conf" id="rfConf"></div></div>';
   var lights = ''; for (var i = 0; i < 20; i++) { var a = i / 20 * 2 * Math.PI; lights += '<i style="left:calc(' + (50 + 50 * Math.sin(a)).toFixed(2) + '% - 4px);top:calc(' + (50 - 50 * Math.cos(a)).toFixed(2) + '% - 4px);animation-delay:' + (i % 2 * 0.5) + 's"></i>'; }
-  return '<div class="roul-stage roul-wheel"><div class="rw-wheel"><span class="rw-ptr"></span><div class="rw-lights" id="rwLights">' + lights + '</div><svg id="rwSvg" viewBox="-110 -110 220 220" aria-hidden="true"></svg><div class="rw-hub">GO!</div></div></div>';
+  return '<div class="roul-stage roul-wheel">' + roulWall() + '<div class="rw-wheel"><span class="rw-ptr"></span><div class="rw-lights" id="rwLights">' + lights + '</div><svg id="rwSvg" viewBox="-110 -110 220 220" aria-hidden="true"></svg><div class="rw-hub">GO!</div></div></div>';
 }
 function roulResult(){
   var g = ROUL.last && S.games.find(function(x){ return x.id === ROUL.last; });
@@ -10047,6 +10066,26 @@ document.addEventListener('click', function(e){
 }, true);
 /* icône manette pour « À quoi on joue ? » */
 var ICON_PAD_NEON = '<svg class="pad-neon" viewBox="0 0 32 22" aria-hidden="true"><path d="M8 2h16a7 7 0 0 1 7 7v3.5a6 6 0 0 1-10.8 3.6L18 13h-4l-2.2 3.1A6 6 0 0 1 1 12.5V9a7 7 0 0 1 7-7z" fill="#1B1440" stroke="#FF5FB8" stroke-width="1.8"/><path d="M8.5 6.5v6M5.5 9.5h6" stroke="#7FE3FF" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="7.5" r="1.6" fill="#FFE14D"/><circle cx="25.5" cy="10.5" r="1.6" fill="#7CFF6B"/><circle cx="18.5" cy="10.5" r="1.6" fill="#7FE3FF"/><circle cx="22" cy="13.2" r="1.6" fill="#FF5FB8"/></svg>';
+
+
+/* mur de jaquettes derrière la roue et la machine à sous */
+var ROUL_WALL = null;
+function roulWall(){
+  if (!ROUL_WALL) { var gs = roulShuffle(S.games.filter(function(g){ return g.kind !== 'wish' && g.coverId; })); if (gs.length < 12) gs = gs.concat(roulShuffle(S.games.filter(function(g){ return g.kind !== 'wish' && !g.coverId; }))); var cells = []; for (var i = 0; i < 72 && gs.length; i++) cells.push(gs[i % gs.length]); ROUL_WALL = cells.map(function(g){ return '<span class="rwall-c"><img src="' + esc(roulCv(g)) + '" alt="" loading="lazy" decoding="async"></span>'; }).join(''); }
+  return '<div class="rwall" aria-hidden="true"><div class="rwall-in">' + ROUL_WALL + ROUL_WALL + '</div></div>';
+}
+/* Jeux à découvrir : confirmation de suppression sur la carte */
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-ndrm]'); if (!t) return;
+  if (t.hasAttribute('data-ndok')) { t.removeAttribute('data-ndok'); return; }
+  e.preventDefault(); e.stopImmediatePropagation();
+  var card = t.closest('.disc-card, article, .lg-card') || t.parentNode; if (!card || card.querySelector('.nd-ask')) return;
+  var ask = document.createElement('div'); ask.className = 'nd-ask'; ask.setAttribute('role', 'alertdialog'); ask.setAttribute('aria-label', 'Confirmer la suppression');
+  ask.innerHTML = '<b>Retirer ce jeu de Jeux à découvrir ?</b><div class="nd-ask-b"><button type="button" class="btn ghost small nd-no">Annuler</button><button type="button" class="btn small nd-yes">Supprimer</button></div>';
+  card.appendChild(ask); requestAnimationFrame(function(){ ask.classList.add('on'); });
+  ask.querySelector('.nd-no').onclick = function(ev){ ev.stopPropagation(); ask.remove(); };
+  ask.querySelector('.nd-yes').onclick = function(ev){ ev.stopPropagation(); ask.remove(); t.setAttribute('data-confirm', '1'); t.setAttribute('data-ndok', '1'); t.click(); };
+}, true);
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
