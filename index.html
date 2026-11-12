@@ -4349,6 +4349,12 @@ dialog:has(.ltg-dlg){width:min(640px,calc(100vw - 24px)) !important;max-width:64
 .ltg-it input{width:18px;height:18px;accent-color:#D92B3A;flex:none}
 .ltg-it img{width:34px;height:46px;object-fit:cover;border-radius:6px;flex:none}
 .ltg-it span{display:flex;flex-direction:column;min-width:0}.ltg-it b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ltg-it small{font-size:11.5px;color:var(--muted)}
+
+.lg-card{position:relative}
+.lg-card>.lg-xtags{top:10px;z-index:8}
+.lg-xtag,.lg-card.miss .lg-xtag{background:#E5152B !important;color:#FFFFFF !important;filter:none !important;opacity:1 !important;box-shadow:0 4px 12px -4px rgba(229,21,43,.7),0 0 0 2px #FFFFFF !important}
+.ltg-it input:focus,.ltg-it input:focus-visible{outline:none !important;box-shadow:none !important}
+.ltg-it:has(input:focus-visible){outline:2px solid #D92B3A;outline-offset:2px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5784,6 +5790,7 @@ function renderPop(){
   var p = POP, key = p.key, o = OPT[key], cb = p.cb, multi = cb.hasAttribute('data-multi'), isFilter = cb.hasAttribute('data-filter');
   var val = getVal(cb), sel = multi ? val.map(norm) : [norm(val)];
   var vals = optValues(key), qRaw = p.q.trim(), q = norm(qRaw);
+  if (key === 'licence' && cb.closest('#claForm')) { var lpn = licPageNames().map(licKey); vals = vals.filter(function(v){ return lpn.indexOf(licKey(v)) >= 0; }); licPageNames().forEach(function(n){ if (!vals.some(function(v){ return licKey(v) === licKey(n); })) vals.push(n); }); vals.sort(function(a, b){ return a.localeCompare(b, 'fr'); }); }
   var cq = catKey(qRaw), shown = vals.filter(function(v){ return !q || norm(optLabel(key, v)).indexOf(q) >= 0 || (cq && catKey(optLabel(key, v)).indexOf(cq) >= 0); });
   var canEdit = o.editable && !S.readOnly && !!db;
   var oldList = p.el.querySelector('.pop-list'), st = oldList ? oldList.scrollTop : 0;
@@ -8068,7 +8075,7 @@ function licGroup(title, rs, lic){
     var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">★ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
     var ren = S.licEdit2 && !S.readOnly && r.ei != null ? '<button type="button" class="lg-ren" data-lgren="' + r.ei + '" title="Modifier le nom ou la console" aria-label="Modifier">' + ICON_PEN + '</button>' : '';
     var del = ren + (S.licEdit2 && !S.readOnly ? '<button type="button" class="lg-del" data-lgdel="' + (r.ei != null ? r.ei : 'g:' + (g && g.id)) + '" title="' + (r.ei != null ? 'Retirer de la liste de la saga' : 'Retirer ce jeu de la licence') + '" aria-label="Retirer">' + ICON_TRASH + '</button>' : '');
-    return '<article class="lg-card is-click' + (S.licEdit2 ? ' editing' : '') + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || '', r.ei != null ? r.ei : '', e.ig || ''].join('|').replace(/"/g, '')) + '"') + '><div class="lg-cov">' + del + licTagsHtml(lic, e.title) + (function(u){ return '<img class="bgi" src="' + u + '" alt="" aria-hidden="true"><img class="fgi" src="' + u + '" alt="">'; })(cv || (e.cvu && e.cvu !== 'none' ? e.cvu : '') || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + (r.owned ? '<span class="lg-rib">POSSÉDÉ</span><span class="lg-sheen" aria-hidden="true"></span>' : '') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
+    return '<article class="lg-card is-click' + (S.licEdit2 ? ' editing' : '') + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || '', r.ei != null ? r.ei : '', e.ig || ''].join('|').replace(/"/g, '')) + '"') + '>' + licTagsHtml(lic, e.title) + '<div class="lg-cov">' + del + (function(u){ return '<img class="bgi" src="' + u + '" alt="" aria-hidden="true"><img class="fgi" src="' + u + '" alt="">'; })(cv || (e.cvu && e.cvu !== 'none' ? e.cvu : '') || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + (r.owned ? '<span class="lg-rib">POSSÉDÉ</span><span class="lg-sheen" aria-hidden="true"></span>' : '') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
   }).join('') + '</div></section>';
 }
 function licFlag(c){ try { var k = String(c).toLowerCase(); return typeof FLAGS !== 'undefined' && (FLAGS[k] || (k === 'gb' && (FLAGS.en || FLAGS.uk))) || ''; } catch (x) { return ''; } }
@@ -9763,8 +9770,9 @@ document.addEventListener('click', async function(e){
 var LTG = null;
 function licTagsOf(lic, title){ var L = LICDB[licKey(lic)], T = L && L.tags || {}, k = gmKey(title); return Object.keys(T).filter(function(n){ return (T[n] || []).indexOf(k) >= 0; }); }
 function licTagsHtml(lic, title){ var ts = licTagsOf(lic, title); return ts.length ? '<span class="lg-xtags">' + ts.map(function(n){ return '<span class="lg-xtag">' + esc(n) + '</span>'; }).join('') + '</span>' : ''; }
-function licTagItems(lic){ var LM = licMatch(lic), out = [], seen = {};
-  LM.rows.forEach(function(r){ var k = gmKey(r.e.title); if (seen[k]) return; seen[k] = 1; out.push({k:k, t:r.e.title, p:r.e.platform || '', cv:r.g && r.g.coverId ? blob(r.g.coverId) : (r.e.cvu && r.e.cvu !== 'none' ? r.e.cvu : genCover(r.e.title, r.e.platform || ''))}); });
+function licTagItems(lic){ var LM = licMatch(lic), out = [], seen = {}, TO = {Principal:0, Remake:1, 'Spin-off':2};
+  var yOf2 = function(r){ var y = parseInt(r.e.year, 10) || (r.g && parseInt(r.g.year, 10)) || 9999; return y; };
+  LM.rows.slice().sort(function(a, b){ return (TO[a.e.type || 'Principal'] || 0) - (TO[b.e.type || 'Principal'] || 0) || yOf2(a) - yOf2(b) || String(a.e.title).localeCompare(String(b.e.title), 'fr'); }).forEach(function(r){ var k = gmKey(r.e.title); if (seen[k]) return; seen[k] = 1; out.push({k:k, t:r.e.title, p:r.e.platform || '', cv:r.g && r.g.coverId ? blob(r.g.coverId) : (r.e.cvu && r.e.cvu !== 'none' ? r.e.cvu : genCover(r.e.title, r.e.platform || ''))}); });
   (LM.extra || []).forEach(function(g){ var k = gmKey(g.name); if (seen[k]) return; seen[k] = 1; out.push({k:k, t:g.name, p:list(g.consoles)[0] || '', cv:g.coverId ? blob(g.coverId) : genCover(g.name, list(g.consoles)[0] || '')}); });
   return out; }
 function licTagDlg(){
@@ -9798,6 +9806,8 @@ document.addEventListener('click', async function(e){
 });
 document.addEventListener('change', function(e){ var c = e.target; if (!c || !c.hasAttribute || !c.hasAttribute('data-ltgk') || !LTG) return; var k = c.getAttribute('data-ltgk'); LTG.sel = LTG.sel.filter(function(x){ return x !== k; }); if (c.checked) LTG.sel.push(k); c.closest('.ltg-it').classList.toggle('on', c.checked); var n = document.querySelector('.ltg-n'); if (n) n.textContent = LTG.sel.length + ' sélectionné' + (LTG.sel.length > 1 ? 's' : ''); });
 
+
+function licPageNames(){ var groups = {}; S.games.forEach(function(g){ var l = (g.licence || '').trim(); if (!l || g.kind === 'wish') return; (groups[l] = groups[l] || []).push(g); }); var out = Object.keys(groups).filter(function(k){ return groups[k].length >= 2 || LICDB[licKey(k)]; }); Object.keys(LICDB).forEach(function(k){ var n = LICDB[k] && LICDB[k].name; if (n && !out.some(function(x){ return licKey(x) === k; })) out.push(n); }); return out; }
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
