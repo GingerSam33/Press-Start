@@ -4368,6 +4368,10 @@ dialog:has(.ltg-dlg){width:min(640px,calc(100vw - 24px)) !important;max-width:64
 .sort-bar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:2px 0 14px}
 .sort-lab{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .sort-bar .ch-switch button{white-space:nowrap}
+
+.sv-toprow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.sv-toprow .sv-tabs{margin-bottom:0 !important}
+.sv-toprow .sort-bar{margin:0;margin-left:auto}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -7133,10 +7137,9 @@ function viewSuivi(){
   var tab = S.suiviTab === 'done' ? 'done' : 'cours', list2 = tab === 'done' ? done : cours;
   var sn = done.map(function(g){ return g.note === '' || g.note == null ? null : +g.note / 2; }).filter(function(x){ return x != null; });
   var h = crtPage({kick:'SAVE FILE', title:'SUIVI JEUX', sub:'Mes parties en cours et les jeux que j\u2019ai terminés', blink:'CONTINUE ?', sc:[['EN COURS', crtPad(cours.length)], ['TERMINÉS', crtPad(done.length)], ['À NOTER', crtPad(done.length - sn.length)], ['NOTE MOYENNE', sn.length ? '★ ' + noteFmt(Math.round(sn.reduce(function(a, b){ return a + b; }, 0) / sn.length * 10) / 10) : '—']]})
-    + (function(){ var t = crtTheme(); return '<div class="tabs sv-tabs crt-tabs" role="tablist" aria-label="Suivi" style="--crt-bg:' + t.bg + ';--crt-glow:' + t.glow + ';--crt-lab:' + t.lab + ';--crt-blink:' + t.blink + ';--crt-frame:' + t.frame + (t.font ? ';--crt-font:' + t.font + ';--crt-tsize:10px' : '') + '">'; })()
+    + '<div class="sv-toprow">' + (function(){ var t = crtTheme(); return '<div class="tabs sv-tabs crt-tabs" role="tablist" aria-label="Suivi" style="--crt-bg:' + t.bg + ';--crt-glow:' + t.glow + ';--crt-lab:' + t.lab + ';--crt-blink:' + t.blink + ';--crt-frame:' + t.frame + (t.font ? ';--crt-font:' + t.font + ';--crt-tsize:10px' : '') + '">'; })()
     + '<button type="button" role="tab" aria-selected="' + (tab === 'cours') + '" data-stab="cours">' + STATUS_ICON['En cours'] + ' Jeux en cours <span class="sv-n">' + cours.length + '</span></button>'
-    + '<button type="button" role="tab" aria-selected="' + (tab === 'done') + '" data-stab="done">' + STATUS_ICON['Terminé'] + ' Jeux terminés <span class="sv-n">' + done.length + '</span></button></div>';
-  if (list2.length > 1) h += sortBar('suivi', tab === 'done' ? 'Terminés récemment' : 'Commencés récemment');
+    + '<button type="button" role="tab" aria-selected="' + (tab === 'done') + '" data-stab="done">' + STATUS_ICON['Terminé'] + ' Jeux terminés <span class="sv-n">' + done.length + '</span></button></div>' + ((tab === 'done' ? done : cours).length > 1 ? sortBar('suivi', tab === 'done' ? 'Terminés récemment' : 'Commencés récemment') : '') + '</div>';
   if (!list2.length) return h + '<div class="card empty"><strong>' + (tab === 'done' ? 'Aucun jeu terminé pour l\u2019instant' : 'Aucune partie en cours') + '</strong><span>' + (tab === 'done' ? 'Passe le statut d\u2019un jeu en « Terminé » depuis sa fiche.' : 'Passe le statut d\u2019un jeu en « En cours » depuis sa fiche pour le retrouver ici.') + '</span></div>';
   return h + '<div class="sv-grid' + (S.svAnim ? ' anim' : '') + '">' + list2.map(function(g, i){ return suiviCard(g, tab === 'done', i); }).join('') + '</div>';
 }
