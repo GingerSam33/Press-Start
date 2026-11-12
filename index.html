@@ -4359,6 +4359,15 @@ dialog:has(.ltg-dlg){width:min(640px,calc(100vw - 24px)) !important;max-width:64
 .ghero,.gi-hero{position:relative}
 .hero-xtags{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:6;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:60%;pointer-events:none}
 .hero-xtags .lg-xtag{font-size:12.5px;padding:6px 14px}
+
+.gi-inlic{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:#8A5A00;margin-right:6px}
+/* mur de jaquettes : aussi visible que le mode Défilé */
+.rwall::after{background:radial-gradient(ellipse 34% 48% at 50% 50%,rgba(14,10,36,.5),rgba(14,10,36,0) 75%) !important}
+.rwall-c img{filter:brightness(.55) saturate(.85) !important}
+
+.sort-bar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:2px 0 14px}
+.sort-lab{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sort-bar .ch-switch button{white-space:nowrap}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -7119,14 +7128,15 @@ function fdate(t){ return t ? new Date(t).toLocaleDateString('fr-FR', {day:'nume
 function viewSuivi(){
   ensureStarDefs();
   var own = S.games.filter(function(g){ return g.kind !== 'wish'; });
-  var cours = own.filter(function(g){ return g.status === 'En cours'; }).sort(function(a, b){ return (b.startedAt || 0) - (a.startedAt || 0) || String(a.name).localeCompare(b.name, 'fr'); });
-  var done = own.filter(function(g){ return g.status === 'Terminé'; }).sort(function(a, b){ return (b.finishedAt || b.ratedAt || 0) - (a.finishedAt || a.ratedAt || 0) || String(a.name).localeCompare(b.name, 'fr'); });
+  var cours = own.filter(function(g){ return g.status === 'En cours'; }).sort(function(a, b){ return sortPref('suivi') === 'date' ? ((b.startedAt || 0) - (a.startedAt || 0) || String(a.name).localeCompare(String(b.name), 'fr', {sensitivity:'base', numeric:true})) : String(a.name).localeCompare(String(b.name), 'fr', {sensitivity:'base', numeric:true}); });
+  var done = own.filter(function(g){ return g.status === 'Terminé'; }).sort(function(a, b){ return sortPref('suivi') === 'date' ? ((b.finishedAt || b.ratedAt || 0) - (a.finishedAt || a.ratedAt || 0) || String(a.name).localeCompare(String(b.name), 'fr', {sensitivity:'base', numeric:true})) : String(a.name).localeCompare(String(b.name), 'fr', {sensitivity:'base', numeric:true}); });
   var tab = S.suiviTab === 'done' ? 'done' : 'cours', list2 = tab === 'done' ? done : cours;
   var sn = done.map(function(g){ return g.note === '' || g.note == null ? null : +g.note / 2; }).filter(function(x){ return x != null; });
   var h = crtPage({kick:'SAVE FILE', title:'SUIVI JEUX', sub:'Mes parties en cours et les jeux que j\u2019ai terminés', blink:'CONTINUE ?', sc:[['EN COURS', crtPad(cours.length)], ['TERMINÉS', crtPad(done.length)], ['À NOTER', crtPad(done.length - sn.length)], ['NOTE MOYENNE', sn.length ? '★ ' + noteFmt(Math.round(sn.reduce(function(a, b){ return a + b; }, 0) / sn.length * 10) / 10) : '—']]})
     + (function(){ var t = crtTheme(); return '<div class="tabs sv-tabs crt-tabs" role="tablist" aria-label="Suivi" style="--crt-bg:' + t.bg + ';--crt-glow:' + t.glow + ';--crt-lab:' + t.lab + ';--crt-blink:' + t.blink + ';--crt-frame:' + t.frame + (t.font ? ';--crt-font:' + t.font + ';--crt-tsize:10px' : '') + '">'; })()
     + '<button type="button" role="tab" aria-selected="' + (tab === 'cours') + '" data-stab="cours">' + STATUS_ICON['En cours'] + ' Jeux en cours <span class="sv-n">' + cours.length + '</span></button>'
     + '<button type="button" role="tab" aria-selected="' + (tab === 'done') + '" data-stab="done">' + STATUS_ICON['Terminé'] + ' Jeux terminés <span class="sv-n">' + done.length + '</span></button></div>';
+  if (list2.length > 1) h += sortBar('suivi', tab === 'done' ? 'Terminés récemment' : 'Commencés récemment');
   if (!list2.length) return h + '<div class="card empty"><strong>' + (tab === 'done' ? 'Aucun jeu terminé pour l\u2019instant' : 'Aucune partie en cours') + '</strong><span>' + (tab === 'done' ? 'Passe le statut d\u2019un jeu en « Terminé » depuis sa fiche.' : 'Passe le statut d\u2019un jeu en « En cours » depuis sa fiche pour le retrouver ici.') + '</span></div>';
   return h + '<div class="sv-grid' + (S.svAnim ? ' anim' : '') + '">' + list2.map(function(g, i){ return suiviCard(g, tab === 'done', i); }).join('') + '</div>';
 }
@@ -7215,11 +7225,12 @@ function nbubOpen(src, r){
 async function discAdd(r){ var id = discId(r.title); if (discHas(r.title)) { toast('« ' + r.title + ' » est déjà dans Jeux à découvrir'); return false; } if (S.games.some(function(g){ return g.kind === 'wish' && gmKey(g.name) === gmKey(r.title); })) { toast('« ' + r.title + ' » est déjà dans ta wishlist'); return false; } try { await db.collection('discover').doc(id).set({title:r.title, platforms:list(r.platforms), date:r.date || '', url:safeUrl(r.url) || '', addedAt:Date.now()}); toast('Ajouté à Jeux à découvrir'); return true; } catch (x) { toast(failMsg(x)); return false; } }
 function viewDiscover(){
   setTimeout(discEnsureCovers, 300);
-  var rows = DISC.slice().sort(function(a, b){ return (Date.parse(a.date) || 0) - (Date.parse(b.date) || 0) || String(a.title).localeCompare(b.title, 'fr'); });
+  var rows = DISC.slice().sort(function(a, b){ return sortPref('disc') === 'date' ? ((Date.parse(a.date) || (a.year ? Date.parse(a.year + '-12-31') : 0) || 9e15) - (Date.parse(b.date) || (b.year ? Date.parse(b.year + '-12-31') : 0) || 9e15) || String(a.title).localeCompare(String(b.title), 'fr', {sensitivity:'base', numeric:true})) : String(a.title).localeCompare(String(b.title), 'fr', {sensitivity:'base', numeric:true}); });
   var dnow = Date.now(), h = crtPage({kick:'RADAR', title:'À DÉCOUVRIR', sub:'Les jeux repérés dans les actus, à regarder de plus près', blink:'NOUVEAU JEU EN VUE', sc:[['REPÉRÉS', crtPad(rows.length)], ['À VENIR', crtPad(rows.filter(function(d){ return Date.parse(d.date) > dnow; }).length)], ['DÉJÀ SORTIS', crtPad(rows.filter(function(d){ return Date.parse(d.date) <= dnow; }).length)], ['PLATEFORMES', crtPad(Object.keys(rows.reduce(function(o, d){ list(d.platforms).forEach(function(p){ o[p] = 1; }); return o; }, {})).length)]]});
   if (!rows.length) return h + '<div class="card empty"><strong>Rien à découvrir pour l\u2019instant</strong><span>Dans « Actus du jour », clique sur un jeu des sorties de la semaine ou du calendrier, puis sur « Ajouter à Jeux à découvrir ».</span><button type="button" class="btn" data-nav="news" style="margin-top:12px">Aller aux actus</button></div>';
   var now = Date.now();
   discEnrich(rows);
+  h += sortBar('disc', 'Par date de sortie');
   return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? (d.year ? 'Sorti en ' + d.year : '') : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
     return '<article class="lg-card is-click disc-card" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><div class="lg-cov">' + (function(u){ return '<img class="bgi" src="' + esc(u) + '" alt="" aria-hidden="true" referrerpolicy="no-referrer"><img class="fgi" src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'; })(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '</div><div class="lg-b"><b class="lg-t">' + esc(d.title) + '</b>'
       + '<div class="lg-m">' + list(d.platforms).map(function(x){ return ctag(x); }).join('') + (when ? '<span class="tag t-sky">' + esc(when) + '</span>' : '') + '</div>'
@@ -7474,7 +7485,7 @@ function viewCatPlat(p){
       return '<div class="cat-row' + (o ? ' is-' + o : '') + '" role="row" data-catinfo="' + r.i + '"><div class="cr-tw" role="cell">' + catCv(r, hasCv) + '<div class="cr-t"><button type="button" class="cr-open" data-catinfo="' + r.i + '" title="Voir la fiche du jeu"><b>' + esc(r.t) + '</b></button>' + (r.fr && r.fr !== r.t ? '<small>FR : ' + esc(r.fr) + '</small>' : '') + (r.jp && r.jp !== r.t ? '<small>JP : ' + esc(r.jp) + '</small>' : '') + (r.gn ? '<small class="cr-g">' + esc(r.gn) + '</small>' : '') + '</div></div><div class="cr-y" role="cell">' + esc(r.y || '—') + '</div><div class="cr-dp" role="cell"><span>' + esc(r.d || '—') + '</span>' + (r.p && r.p !== r.d ? '<small>' + esc(r.p) + '</small>' : '') + '</div><div class="cr-r" role="cell">' + catRegBadges(r.r) + '</div><div class="cr-st" role="cell">' + (o ? '<span class="tag ' + (o === 'own' ? 't-mint' : 't-rose') + '">' + (o === 'own' ? '✓ Collection' : '♥ Wishlist') + '</span>' : '') + '</div><div class="cr-a" role="cell">'
         + (function(){ if (S.readOnly) return ''; var it = [];
             if (!o) { it.push('<button type="button" role="menuitem" class="cam-i cam-own" data-catadd="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Ajouter à ma collection</button>'); it.push('<button type="button" role="menuitem" class="cam-i cam-wish" data-catwish="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="currentColor"></path></svg>Ajouter à la wishlist</button>'); }
-            if (!S.readOnly) it.push('<button type="button" role="menuitem" class="cam-i cam-lic" data-catlic="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"></path></svg>Ajouter à une licence</button>');
+            if (!S.readOnly && !inLicence(r.fr || r.t) && !inLicence(r.t)) it.push('<button type="button" role="menuitem" class="cam-i cam-lic" data-catlic="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"></path></svg>Ajouter à une licence</button>');
             it.push('<button type="button" role="menuitem" class="cam-i cam-disc" data-catdisc="' + r.i + '"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" fill="currentColor"></path></svg>Ajouter à Jeux à découvrir</button>');
             var open = S.catMenu === r.i;
             return '<span class="cam' + (open ? ' open' : '') + '"><button type="button" class="cam-btn" data-catmenu="' + r.i + '" aria-haspopup="menu" aria-expanded="' + open + '"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg><span>Ajouter</span><svg class="cam-chev" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>' + (open ? '<span class="cam-pop" role="menu">' + it.join('') + '</span>' : '') + '</span>'; })()
@@ -8351,7 +8362,7 @@ function giHtml(){
     + ((d.similar_games || []).length ? sec('Jeux similaires', '<div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>') : '')
     + sec('Liens', '<div class="gi-links">' + links.map(function(l){ return '<a class="gi-link" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span aria-hidden="true">↗</span></a>'; }).join('') + '</div>')
     + '</div>'
-    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer>' + ((i.ctx && i.ctx.t === 'disc') || (typeof discHas === 'function' && discHas(i.title)) ? '<span class="gi-indisc">✦ Dans Jeux à découvrir</span>' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button>') + '<span class="spacer"></span><button type="button" class="btn ghost" data-gilic="1">👑 Ajouter à une licence</button><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
+    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer>' + ((i.ctx && i.ctx.t === 'disc') || (typeof discHas === 'function' && discHas(i.title)) ? '<span class="gi-indisc">✦ Dans Jeux à découvrir</span>' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button>') + '<span class="spacer"></span>' + (function(){ var il = (i.ctx && i.ctx.t === 'lic') ? ((LICDB[i.ctx.lk] || {}).name || 'une licence') : inLicence(i.fr || i.title) || inLicence(i.title); return il ? '<span class="gi-inlic">👑 Dans « ' + esc(il) + ' »</span>' : '<button type="button" class="btn ghost" data-gilic="1">👑 Ajouter à une licence</button>'; })() + '<button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
 }
 
 document.addEventListener('click', function(e){
@@ -9846,6 +9857,9 @@ document.addEventListener('click', function(e){
 }, true);
 document.addEventListener('click', function(e){ var c = e.target.closest && e.target.closest('#claForm') ? null : e.target.closest && e.target.closest('.lad-dlg footer [data-act="close"], .lad-dlg header [data-act="close"]'); if (!c || !CLA || !CLA.back || !document.getElementById('claForm')) return; var bk = CLA.back; CLA = null; setTimeout(function(){ giOpen(bk); }, 220); }, true);
 
+
+/* ce jeu est-il déjà dans une collection par licence ? */
+function inLicence(title){ var k = gmKey(title), hit = ''; Object.keys(LICDB).some(function(lk){ var L = LICDB[lk]; if (L && (L.games || []).some(function(e){ return gmKey(e.title) === k; })) { hit = L.name || lk; return true; } return false; }); if (!hit) { var g = S.games.find(function(x){ return gmKey(x.name) === k && x.licence && LICDB[licKey(x.licence)]; }); if (g) hit = g.licence; } return hit; }
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
@@ -10344,6 +10358,12 @@ document.addEventListener('click', async function(e){
   catch (x) { toast(failMsg(x)); t.disabled = false; }
 });
 document.addEventListener('keydown', function(e){ if (e.key === 'Enter' && e.target && e.target.id === 'lnwName') { e.preventDefault(); var b = document.querySelector('[data-lnwsave]'); if (b) b.click(); } });
+
+
+/* tri : ordre alphabétique ou par date (Jeux à découvrir, Suivi jeux) */
+function sortPref(k){ try { return localStorage.getItem('ps-sort-' + k) || 'alpha'; } catch (x) { return 'alpha'; } }
+function sortBar(k, dateLab){ var v = sortPref(k); return '<div class="sort-bar"><span class="sort-lab">Trier :</span><div class="ch-switch" role="group" aria-label="Trier">' + [['alpha', 'A → Z'], ['date', dateLab]].map(function(o){ return '<button type="button" data-sortk="' + k + '" data-sortv="' + o[0] + '" aria-pressed="' + (v === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div></div>'; }
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-sortk]'); if (!t) return; try { localStorage.setItem('ps-sort-' + t.getAttribute('data-sortk'), t.getAttribute('data-sortv')); } catch (x) {} render(); });
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
