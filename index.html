@@ -4264,6 +4264,12 @@ form.dlg.gf2{width:100% !important;max-width:none !important;padding:0 !importan
 .nd-ask .nd-no{background:#fff !important;color:#1E2A44 !important;border-color:#fff !important}
 .nd-ask .nd-yes{background:#C2304A !important;color:#fff !important;border-color:#C2304A !important;box-shadow:none !important}
 .disc-card{position:relative}
+
+/* info-bulle des états (2-3 colonnes) : un seul trait entre deux lignes */
+.tip-pop.tp-wide .tip-row+.tip-row{border-top:0 !important}
+.tip-pop.tp-wide .tip-row{border-bottom:1px solid var(--card-border) !important;border-top:0 !important}
+.tip-pop.tp-wide .tip-row:last-child{border-bottom:0 !important}
+.tip-pop.tp-wide .tip-row:first-child{padding-top:8px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -10086,6 +10092,12 @@ document.addEventListener('click', function(e){
   ask.querySelector('.nd-no').onclick = function(ev){ ev.stopPropagation(); ask.remove(); };
   ask.querySelector('.nd-yes').onclick = function(ev){ ev.stopPropagation(); ask.remove(); t.setAttribute('data-confirm', '1'); t.setAttribute('data-ndok', '1'); t.click(); };
 }, true);
+
+
+/* encart Synopsis/Histoire : même relief que les autres sections du thème */
+function lmMatchCard(){ document.querySelectorAll('.lm').forEach(function(lm){ var root = lm.closest('.main') || document; var c = root.querySelector('.card:not(.lm)'); if (!c) return; var cs = getComputedStyle(c); lm.style.borderWidth = cs.borderTopWidth === '0px' ? '2px' : (parseFloat(cs.borderTopWidth) < 2 ? '2px' : cs.borderTopWidth); lm.style.borderStyle = 'solid'; lm.style.borderColor = cs.borderTopColor; lm.style.boxShadow = cs.boxShadow && cs.boxShadow !== 'none' ? cs.boxShadow : '0 6px 0 ' + cs.borderTopColor; }); }
+(function(){ var _r13 = render; render = function(){ var r = _r13.apply(this, arguments); setTimeout(lmMatchCard, 0); return r; }; })();
+(function(){ var _gd = gdlgDraw; gdlgDraw = function(){ var r = _gd.apply(this, arguments); setTimeout(lmMatchCard, 0); return r; }; })();
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
