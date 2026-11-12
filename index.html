@@ -4313,6 +4313,12 @@ html[data-mode="dark"] .hv-con .tag,html.dark .hv-con .tag{background:linear-gra
 .hv-con .ctag{background:linear-gradient(color-mix(in srgb,var(--fc) 16%,transparent),color-mix(in srgb,var(--fc) 16%,transparent)),#FFFFFF !important;opacity:1 !important;box-shadow:0 2px 8px rgba(0,0,0,.4) !important}
 html[data-mode="dark"] .hv-con .ctag,html.dark .hv-con .ctag{background:linear-gradient(color-mix(in srgb,var(--fc) 26%,transparent),color-mix(in srgb,var(--fc) 26%,transparent)),#16182A !important}
 .hv-con .ctag>*{opacity:1 !important}
+
+.hv-con{display:flex;flex-direction:column;align-items:flex-start;gap:6px;max-width:calc(100% - 16px) !important}
+.hv-con .ctag{max-width:100%}
+.hv-con .hv-ex{position:static}
+.lic-newb{order:-1;white-space:nowrap}
+.lic-bar:not(.lic-bar2){display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5139,6 +5145,7 @@ function viewLicences(){
   var groups = {}, wish = {};
   S.games.forEach(function(g){ var l = (g.licence || '').trim(); if (!l) return; if (g.kind === 'wish') (wish[l] = wish[l] || []).push(g); else (groups[l] = groups[l] || []).push(g); });
   Object.keys(groups).forEach(function(k){ if (groups[k].length < 2 && !LICDB[licKey(k)]) delete groups[k]; });
+  Object.keys(LICDB).forEach(function(k){ var LD0 = LICDB[k]; if (LD0 && LD0.name && !Object.keys(groups).some(function(x){ return licKey(x) === k; })) groups[LD0.name] = []; });
   var T = META.licTotals || {}, info = Object.keys(groups).map(function(k){ var o = groups[k].length, LD = LICDB[licKey(k)], t = +T[k] || 0; if (LD && LD.games) { var lm = licMatch(k); o = lm.rows.filter(function(r){ return r.owned; }).length + lm.extra.length; t = lm.entries.length + lm.extra.length; } return {k:k, o:o, t:t, m:t ? Math.max(0, t - o) : null, p:t ? Math.min(1, o / t) : null, w:(wish[k] || []).length}; });
   var q = norm(S.licQ || ''), srt = ['most', 'missing', 'almost', 'complete'].indexOf(S.licSort) >= 0 ? S.licSort : 'most';
   var list = info.filter(function(x){ return (!q || catKey(x.k).indexOf(catKey(q)) >= 0) && (srt !== 'complete' || x.p === 1) && (srt !== 'almost' || x.p !== 1); }).sort(function(a, b){
@@ -5149,8 +5156,8 @@ function viewLicences(){
   });
   var owned = info.reduce(function(s, x){ return s + x.o; }, 0), missing = info.reduce(function(s, x){ return s + (x.m || 0); }, 0), full = info.filter(function(x){ return x.p === 1; }).length;
   var h = crtPage({kick:'PLAYER 1', title:'LICENCES', sub:'Ma collection, saga par saga', blink:'CHOISIS TA SAGA', sc:[['LICENCES', crtPad(info.length)], ['POSSÉDÉS', crtPad(owned)], ['MANQUANTS', crtPad(missing)], ['COMPLÈTES', crtPad(full)]]});
-  if (!info.length) return h + '<div class="card empty"><strong>Aucune licence renseignée</strong><span>Ajoute une licence (Zelda, Assassin\u2019s Creed…) dans la fiche d\u2019un jeu pour le regrouper ici.</span></div>';
-  h += '<div class="lic-bar"><div class="lic-sorts" role="group" aria-label="Trier"><span class="lic-sorts-lab">Trier par :</span>' + [['most', 'Le plus de jeux'], ['missing', 'Le plus de manquants'], ['almost', 'Presque complètes'], ['complete', 'Complètes']].map(function(s){ return '<button type="button" data-licsort="' + s[0] + '" aria-pressed="' + (srt === s[0]) + '">' + s[1] + '</button>'; }).join('') + '</div>'
+  if (!info.length) return h + '<div class="card empty"><strong>Aucune licence renseignée</strong><span>Crée une licence ici, ou ajoute-en une (Zelda, Assassin\u2019s Creed…) dans la fiche d\u2019un jeu pour le regrouper ici.</span>' + (S.readOnly ? '' : '<button type="button" class="btn" data-licnew="1">+ Nouvelle licence</button>') + '</div>';
+  h += '<div class="lic-bar">' + (S.readOnly ? '' : '<button type="button" class="btn lic-newb" data-licnew="1">+ Nouvelle licence</button>') + '<div class="lic-sorts" role="group" aria-label="Trier"><span class="lic-sorts-lab">Trier par :</span>' + [['most', 'Le plus de jeux'], ['missing', 'Le plus de manquants'], ['almost', 'Presque complètes'], ['complete', 'Complètes']].map(function(s){ return '<button type="button" data-licsort="' + s[0] + '" aria-pressed="' + (srt === s[0]) + '">' + s[1] + '</button>'; }).join('') + '</div>'
     + (S.readOnly ? '' : '<div class="lic-selbar">' + (S.licSel ? '<button type="button" class="btn danger small" data-licdel="__sel"' + (S.licSel.length ? '' : ' disabled') + '>' + ICON_TRASH + ' Supprimer (' + S.licSel.length + ')</button><button type="button" class="btn ghost small" data-licselmode="1">Annuler</button>' : '<button type="button" class="btn ghost small" data-licselmode="1">☑ Sélectionner</button>') + '</div>')
     + '<label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher une licence</span><input id="licSearch" type="search" placeholder="Rechercher une licence…" value="' + esc(S.licQ || '') + '" autocomplete="off"></label></div>';
   if (!list.length) return h + '<div class="card empty"><strong>Aucune licence trouvée</strong><span>Essaie un autre nom.</span></div>';
@@ -10151,7 +10158,7 @@ function hvMeta(g){ return [g.year, list(g.types).slice(0, 2).join(' · ')].filt
 function hvFmtEt(g){ var f = bestFormat(g); return (f ? fmtTag(f) : '') + bestEtats(g).slice(0, 2).map(function(e){ return optTag('etat', e); }).join('') + (bestEtats(g).length > 2 ? '<span class="tag hv-more">+' + (bestEtats(g).length - 2) + '</span>' : ''); }
 function hvGrid(rows){
   return '<div class="hv-grid">' + rows.map(function(g){ g = g.g || g; return '<article class="hv-gc' + (g.kind === 'wish' ? ' wish' : '') + '" data-game="' + esc(g.id) + '" tabindex="0">'
-    + '<div class="hv-cov"><img src="' + esc(hvCover(g)) + '" alt="" loading="lazy" decoding="async"><span class="hv-con">' + list(g.consoles).slice(0, 1).map(consoleTag).join('') + '</span><span class="hv-ex">' + hvEx(g) + '</span><span class="hv-fe">' + hvFmtEt(g) + '</span></div>'
+    + '<div class="hv-cov"><img src="' + esc(hvCover(g)) + '" alt="" loading="lazy" decoding="async"><span class="hv-con">' + list(g.consoles).slice(0, 1).map(consoleTag).join('') + '<span class="hv-ex">' + hvEx(g) + '</span></span><span class="hv-fe">' + hvFmtEt(g) + '</span></div>'
     + '<b class="hv-t" title="' + esc(g.name) + '">' + esc(g.name) + '</b><div class="hv-m"><span>' + esc(hvMeta(g)) + '</span>' + (g.note === '' || g.note == null ? '' : noteBadge(g.note)) + '</div><div class="hv-s">' + statusTag(g.status) + '</div></article>'; }).join('') + '</div>';
 }
 function hvCards(rows){
@@ -10162,6 +10169,21 @@ function hvCards(rows){
     + '<div class="hv-cf"><span>' + esc(hvMeta(g)) + '</span><span class="hv-cs">' + statusTag(g.status) + (g.note === '' || g.note == null ? '' : noteBadge(g.note)) + '</span></div></div></article>'; }).join('') + '</div>';
 }
 document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-hview]'); if (!t) return; HVIEW = t.getAttribute('data-hview'); try { localStorage.setItem('ps-hview', HVIEW); } catch (x) {} render(); });
+
+
+/* ---------- Créer une licence depuis Collection par licence ---------- */
+function licNewDlg(){ return '<div class="dlg lad-dlg"><header><h2>+ Nouvelle licence</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="lnwForm"><div class="field"><label for="lnwName">Nom de la licence</label><input type="text" id="lnwName" maxlength="80" placeholder="Ex. Metroid, Final Fantasy, Crash Bandicoot…" autocomplete="off"></div><p class="gi-note">La collection est créée vide. Tu pourras ensuite y ajouter les jeux à la main, ou avec les suggestions IGDB et Claude.</p></div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-lnwsave="1">Créer la licence</button></footer></div>'; }
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-licnew],[data-lnwsave]'); if (!t || S.readOnly) return;
+  if (t.hasAttribute('data-licnew')) { openDlg(licNewDlg()); setTimeout(function(){ var i = document.getElementById('lnwName'); if (i) i.focus(); }, 60); return; }
+  var name = ((document.getElementById('lnwName') || {}).value || '').trim(); if (!name) { toast('Indique le nom de la licence'); return; }
+  var lk = licKey(name), exist = LICDB[lk] || null, ownL = S.games.some(function(g){ return licKey(g.licence || '') === lk; });
+  if (exist || ownL) { closeDlg(); S.licOpen = exist && exist.name || name; S.licF = 'all'; go('licence'); toast('Cette licence existe déjà : je l\u2019ouvre'); return; }
+  t.disabled = true;
+  try { var nd = {name:name, games:[], updatedAt:Date.now()}; await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; closeDlg(); S.licOpen = name; S.licF = 'all'; S.licQ = ''; go('licence'); toast('Licence « ' + name + ' » créée'); }
+  catch (x) { toast(failMsg(x)); t.disabled = false; }
+});
+document.addEventListener('keydown', function(e){ if (e.key === 'Enter' && e.target && e.target.id === 'lnwName') { e.preventDefault(); var b = document.querySelector('[data-lnwsave]'); if (b) b.click(); } });
 
 /* ---------- (version hébergée) Import d'une archive Press Start ---------- */
 var IMPA = null;
