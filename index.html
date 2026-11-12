@@ -5187,17 +5187,18 @@ function viewLicences(){
   Object.keys(groups).forEach(function(k){ if (groups[k].length < 2 && !LICDB[licKey(k)]) delete groups[k]; });
   Object.keys(LICDB).forEach(function(k){ var LD0 = LICDB[k]; if (LD0 && LD0.name && !Object.keys(groups).some(function(x){ return licKey(x) === k; })) groups[LD0.name] = []; });
   var T = META.licTotals || {}, info = Object.keys(groups).map(function(k){ var o = groups[k].length, LD = LICDB[licKey(k)], t = +T[k] || 0; if (LD && LD.games) { var lm = licMatch(k); o = lm.rows.filter(function(r){ return r.owned; }).length + lm.extra.length; t = lm.entries.length + lm.extra.length; } return {k:k, o:o, t:t, m:t ? Math.max(0, t - o) : null, p:t ? Math.min(1, o / t) : null, w:(wish[k] || []).length}; });
-  var q = norm(S.licQ || ''), srt = ['most', 'missing', 'almost', 'complete'].indexOf(S.licSort) >= 0 ? S.licSort : 'most';
+  var q = norm(S.licQ || ''), srt = ['alpha', 'most', 'missing', 'almost', 'complete'].indexOf(S.licSort) >= 0 ? S.licSort : 'alpha';
   var list = info.filter(function(x){ return (!q || catKey(x.k).indexOf(catKey(q)) >= 0) && (srt !== 'complete' || x.p === 1) && (srt !== 'almost' || x.p !== 1); }).sort(function(a, b){
     if (srt === 'missing') return (b.m == null ? -1 : b.m) - (a.m == null ? -1 : a.m) || a.k.localeCompare(b.k, 'fr');
     if (srt === 'almost') return (b.p == null ? -1 : b.p) - (a.p == null ? -1 : a.p) || (a.m || 0) - (b.m || 0) || a.k.localeCompare(b.k, 'fr');
     if (srt === 'complete') return b.o - a.o || a.k.localeCompare(b.k, 'fr');
+    if (srt === 'alpha') return a.k.localeCompare(b.k, 'fr', {sensitivity:'base'});
     return b.o - a.o || a.k.localeCompare(b.k, 'fr');
   });
   var owned = info.reduce(function(s, x){ return s + x.o; }, 0), missing = info.reduce(function(s, x){ return s + (x.m || 0); }, 0), full = info.filter(function(x){ return x.p === 1; }).length;
   var h = crtPage({kick:'PLAYER 1', title:'LICENCES', sub:'Ma collection, saga par saga', blink:'CHOISIS TA SAGA', sc:[['LICENCES', crtPad(info.length)], ['POSSÉDÉS', crtPad(owned)], ['MANQUANTS', crtPad(missing)], ['COMPLÈTES', crtPad(full)]]});
   if (!info.length) return h + '<div class="card empty"><strong>Aucune licence renseignée</strong><span>Crée une licence ici, ou ajoute-en une (Zelda, Assassin\u2019s Creed…) dans la fiche d\u2019un jeu pour le regrouper ici.</span>' + (S.readOnly ? '' : '<button type="button" class="btn" data-licnew="1">+ Nouvelle licence</button>') + '</div>';
-  h += '<div class="lic-bar">' + (S.readOnly ? '' : '<button type="button" class="btn lic-newb" data-licnew="1">+ Nouvelle licence</button>') + '<div class="lic-sorts" role="group" aria-label="Trier"><span class="lic-sorts-lab">Trier par :</span>' + [['most', 'Le plus de jeux'], ['missing', 'Le plus de manquants'], ['almost', 'Presque complètes'], ['complete', 'Complètes']].map(function(s){ return '<button type="button" data-licsort="' + s[0] + '" aria-pressed="' + (srt === s[0]) + '">' + s[1] + '</button>'; }).join('') + '</div>'
+  h += '<div class="lic-bar">' + (S.readOnly ? '' : '<button type="button" class="btn lic-newb" data-licnew="1">+ Nouvelle licence</button>') + '<div class="lic-sorts" role="group" aria-label="Trier"><span class="lic-sorts-lab">Trier par :</span>' + [['alpha', 'A → Z'], ['most', 'Le plus de jeux'], ['missing', 'Le plus de manquants'], ['almost', 'Presque complètes'], ['complete', 'Complètes']].map(function(s){ return '<button type="button" data-licsort="' + s[0] + '" aria-pressed="' + (srt === s[0]) + '">' + s[1] + '</button>'; }).join('') + '</div>'
     + (S.readOnly ? '' : '<div class="lic-selbar">' + (S.licSel ? '<button type="button" class="btn danger small" data-licdel="__sel"' + (S.licSel.length ? '' : ' disabled') + '>' + ICON_TRASH + ' Supprimer (' + S.licSel.length + ')</button><button type="button" class="btn ghost small" data-licselmode="1">Annuler</button>' : '<button type="button" class="btn ghost small" data-licselmode="1">☑ Sélectionner</button>') + '</div>')
     + '<label class="search">' + ICON_SEARCH + '<span class="sr">Rechercher une licence</span><input id="licSearch" type="search" placeholder="Rechercher une licence…" value="' + esc(S.licQ || '') + '" autocomplete="off"></label></div>';
   if (!list.length) return h + '<div class="card empty"><strong>Aucune licence trouvée</strong><span>Essaie un autre nom.</span></div>';
@@ -8350,13 +8351,13 @@ function giHtml(){
     + ((d.similar_games || []).length ? sec('Jeux similaires', '<div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>') : '')
     + sec('Liens', '<div class="gi-links">' + links.map(function(l){ return '<a class="gi-link" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span aria-hidden="true">↗</span></a>'; }).join('') + '</div>')
     + '</div>'
-    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer>' + ((i.ctx && i.ctx.t === 'disc') || (typeof discHas === 'function' && discHas(i.title)) ? '<span class="gi-indisc">✦ Dans Jeux à découvrir</span>' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button>') + '<span class="spacer"></span><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
+    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer>' + ((i.ctx && i.ctx.t === 'disc') || (typeof discHas === 'function' && discHas(i.title)) ? '<span class="gi-indisc">✦ Dans Jeux à découvrir</span>' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button>') + '<span class="spacer"></span><button type="button" class="btn ghost" data-gilic="1">👑 Ajouter à une licence</button><button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
 }
 
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-giact],[data-catinfo],[data-catch],[data-catdel],[data-catdelok],[data-dinfo],[data-lginfo]'); if (!t) return;
   if (t.hasAttribute('data-catinfo') || t.hasAttribute('data-dinfo') || t.hasAttribute('data-lginfo')) { var inner = e.target.closest('button,a,select,input,label'); if (inner && inner !== t && !inner.hasAttribute('data-catinfo') && !inner.hasAttribute('data-dinfo')) return; }
-  if (t.hasAttribute('data-lginfo')) { var lp = t.getAttribute('data-lginfo').split('|'), le = lp[3] !== '' && lp[3] != null ? (LICDB[licKey(S.licOpen)] || {games:[]}).games[+lp[3]] : null; giOpen({title:lp[0], platform:lp[1] || '', pname:lp[1] || '', year:lp[2] || '', ig:lp[4] || '', cvu:le && le.cvu || '', ctx:le ? {t:'lic', lk:licKey(S.licOpen), ei:+lp[3]} : null}); return; }
+  if (t.hasAttribute('data-lginfo')) { var lp = t.getAttribute('data-lginfo').split('|'), le = lp[3] !== '' && lp[3] != null ? (LICDB[licKey(S.licOpen)] || {games:[]}).games[+lp[3]] : null; var cf0 = catFind(lp[0], lp[1] || ''), cr = cf0 && cf0.r, cp = cf0 && cf0.p; giOpen(Object.assign({title:lp[0], platform:lp[1] || '', pname:lp[1] || '', year:lp[2] || '', ig:lp[4] || (le && le.ig) || (cr && cr.ig) || '', cvu:le && le.cvu || (cr && cr.cvu) || '', dev:(le && le.dev) || (cr && cr.d) || '', pub:(le && le.pub) || (cr && cr.p) || ''}, cr ? {regions:cr.r, fr:cr.fr, jp:cr.jp, genre:cr.gn, url:cr.u, art:cr.art, cf:cr.cf, platform:cp.name} : {}, {ctx:le ? {t:'lic', lk:licKey(S.licOpen), ei:+lp[3]} : null})); return; }
   if (t.hasAttribute('data-catch')) { S.catF.ch = t.getAttribute('data-catch'); S.catLim = 100; render(); return; }
   if (t.hasAttribute('data-catinfo')) { var p = catPlat(S.catP), r = catRows()[+t.getAttribute('data-catinfo')]; if (!r || !p) return; giOpen({title:r.t, platform:p.name, pname:catConsoleName(p), year:r.y, dev:r.d, pub:r.p, regions:r.r, fr:r.fr, jp:r.jp, genre:r.gn, url:r.u, ig:r.ig, cvu:r.cvu, cv:/^data:image\//.test(r.cv) ? r.cv : '', art:r.art, cf:r.cf, ctx:{t:'cat', pid:p.id, key:p.id + '@' + (p.updatedAt || 0), i:r.i}}); return; }
   if (t.hasAttribute('data-dinfo')) { var dd = DISC.filter(function(x){ return x.id === t.getAttribute('data-dinfo'); })[0]; if (dd) giOpen({title:dd.title, platform:list(dd.platforms)[0] || '', pname:list(dd.platforms)[0] || '', url:safeUrl(dd.url) || '', ig:dd.ig || '', cvu:dd.cvu || '', ctx:{t:'disc', id:dd.id}}); return; }
@@ -9758,7 +9759,7 @@ document.addEventListener('click', async function(e){
   e.preventDefault(); e.stopImmediatePropagation();
   if (t.hasAttribute('data-catlic')) {
     S.catMenu = null; var p = catPlat(S.catP), r = p && catRows()[+t.getAttribute('data-catlic')]; if (!r) { render(); return; }
-    var nm = r.fr || r.t; CLA = {title:nm, con:catConsoleName(p) || p.name, year:r.y || '', cvu:r.cvu && r.cvu !== 'none' ? r.cvu : '', lic:guessLicence(nm) && LICDB[licKey(guessLicence(nm))] ? guessLicence(nm) : ''};
+    var nm = r.fr || r.t; CLA = {title:nm, con:catConsoleName(p) || p.name, year:r.y || '', cvu:r.cvu && r.cvu !== 'none' ? r.cvu : '', ig:r.ig || '', dev:r.d || '', pub:r.p || '', lic:guessLicence(nm) && LICDB[licKey(guessLicence(nm))] ? guessLicence(nm) : ''};
     render(); openDlg(catLicDlg()); return;
   }
   var f = document.getElementById('claForm'); if (!f || !CLA) return;
@@ -9766,9 +9767,9 @@ document.addEventListener('click', async function(e){
   var ty = (f.querySelector('#claType .on') || {getAttribute:function(){ return 'Principal'; }}).getAttribute('data-ladtype');
   var lk = licKey(lic), cur = LICDB[lk] || {name:lic, games:[]}, games = (cur.games || []).slice();
   if (games.some(function(x){ return gmKey(x.title) === gmKey(CLA.title) && (!x.platform || norm(canonConsole(x.platform)) === norm(canonConsole(CLA.con))); })) { toast('Ce jeu est déjà dans la licence « ' + (cur.name || lic) + ' »'); return; }
-  var cl = licTitleClean(CLA.title, CLA.con); games.push({title:cl.title, platform:cl.platform || CLA.con, platforms:[CLA.con], year:CLA.year ? +CLA.year : '', lang:'', type:ty, cvu:CLA.cvu || ''});
+  var cl = licTitleClean(CLA.title, CLA.con); games.push({title:cl.title, platform:cl.platform || CLA.con, platforms:[CLA.con], year:CLA.year ? +CLA.year : '', lang:'', type:ty, cvu:CLA.cvu || '', ig:CLA.ig ? String(CLA.ig) : '', dev:CLA.dev || '', pub:CLA.pub || ''});
   t.disabled = true;
-  try { var nd = Object.assign({}, cur, {name:cur.name || lic, games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; closeDlg(); toast('« ' + CLA.title + ' » ajouté à la licence « ' + nd.name + ' »'); CLA = null; }
+  try { var nd = Object.assign({}, cur, {name:cur.name || lic, games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; closeDlg(); toast('« ' + CLA.title + ' » ajouté à la licence « ' + nd.name + ' »'); var bk = CLA.back; CLA = null; if (bk) setTimeout(function(){ giOpen(bk); }, 220); }
   catch (x) { toast(failMsg(x)); t.disabled = false; }
 }, true);
 
@@ -9829,6 +9830,21 @@ function licCovEnrich(lic){
 /* tags spéciaux d'un jeu (toutes licences) */
 function gameXTags(title, lic){ var k = gmKey(title), out = []; var scan = function(L){ var T = L && L.tags || {}; Object.keys(T).forEach(function(n){ if ((T[n] || []).indexOf(k) >= 0 && out.indexOf(n) < 0) out.push(n); }); }; if (lic && LICDB[licKey(lic)]) scan(LICDB[licKey(lic)]); Object.keys(LICDB).forEach(function(lk){ scan(LICDB[lk]); }); return out; }
 function heroXTags(title, lic){ var ts = gameXTags(title, lic); return ts.length ? '<span class="hero-xtags">' + ts.map(function(n){ return '<span class="lg-xtag">' + esc(n) + '</span>'; }).join('') + '</span>' : ''; }
+
+
+/* retrouver un jeu dans la Base de jeux (titre + plateforme) */
+function catFind(title, plat){ var k = catKey(title), pk = norm(consoleFullName(canonConsole(plat || '')) || plat || ''), hit = null; if (!k) return null;
+  CAT.some(function(p){ var rows = CAT_CACHE[p.id + '@' + (p.updatedAt || 0)]; if (!rows) return false; if (pk && norm(consoleFullName(canonConsole(catConsoleName(p) || p.name)) || p.name) !== pk && norm(p.name) !== pk) return false; var r = rows.find(function(x){ return catKey(x.t) === k || catKey(x.fr || '') === k; }); if (r) { hit = {r:r, p:p}; return true; } return false; });
+  return hit; }
+/* fiche d'un jeu : « Ajouter à une licence » */
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-gilic]'); if (!t || !GI || S.readOnly) return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  var i = GI.info, d = GI.data, nm = i.fr || i.title, con = i.pname || i.platform || '';
+  CLA = {title:nm, con:con, year:i.year || (d && d.first_release_date ? new Date(d.first_release_date * 1000).getFullYear() : ''), cvu:i.cvu && i.cvu !== 'none' ? i.cvu : (d && d.cover ? giImg(d.cover.image_id, 't_cover_big') : ''), ig:i.ig || (d && d.id) || '', dev:i.dev || '', pub:i.pub || '', back:i, lic:guessLicence(nm) && LICDB[licKey(guessLicence(nm))] ? guessLicence(nm) : ''};
+  openDlg(catLicDlg());
+}, true);
+document.addEventListener('click', function(e){ var c = e.target.closest && e.target.closest('#claForm') ? null : e.target.closest && e.target.closest('.lad-dlg footer [data-act="close"], .lad-dlg header [data-act="close"]'); if (!c || !CLA || !CLA.back || !document.getElementById('claForm')) return; var bk = CLA.back; CLA = null; setTimeout(function(){ giOpen(bk); }, 220); }, true);
 
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
