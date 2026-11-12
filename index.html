@@ -4355,6 +4355,10 @@ dialog:has(.ltg-dlg){width:min(640px,calc(100vw - 24px)) !important;max-width:64
 .lg-xtag,.lg-card.miss .lg-xtag{background:#E5152B !important;color:#FFFFFF !important;filter:none !important;opacity:1 !important;box-shadow:0 4px 12px -4px rgba(229,21,43,.7),0 0 0 2px #FFFFFF !important}
 .ltg-it input:focus,.ltg-it input:focus-visible{outline:none !important;box-shadow:none !important}
 .ltg-it:has(input:focus-visible){outline:2px solid #D92B3A;outline-offset:2px}
+
+.ghero,.gi-hero{position:relative}
+.hero-xtags{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:6;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:60%;pointer-events:none}
+.hero-xtags .lg-xtag{font-size:12.5px;padding:6px 14px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -5130,7 +5134,7 @@ function viewGame(){
     + fact('Langue', g.langue ? gotag('lang', g.langue, 'gray', 'en ' + g.langue, langFlag(g.langue) + esc(g.langue), ' ltag') : '')
     + fact('Wikipédia', w ? '<a class="tag t-lav gh-wiki" href="' + esc(w) + '" target="_blank" rel="noopener">Ouvrir ↗</a>' : '')
     + '</dl>';
-  var h = '<section class="ghero' + (gameBanner(g) ? ' has-banner' : '') + '"' + (gameBanner(g) ? ' style="background-image:url(' + gameBanner(g) + ')"' : '') + '><div class="gh-top"><button class="btn ghost gh-btn" data-nav="' + esc(S.prev) + '">← Retour</button><span class="gh-right">' + (S.readOnly ? '' : '<button class="btn ghost gh-btn" data-covopen="1" title="Chercher ou remplacer la jaquette et le fond">🖼 Jaquette</button>') + (metaBanners().length && !S.readOnly ? '<button class="btn ghost gh-btn" data-act="shuffleBanner" data-id="' + esc(g.id) + '" title="Choisir un autre fond au hasard">🎲 Changer le fond</button>' : '') + '<button class="btn ghost gh-btn" data-act="editGame" data-id="' + esc(g.id) + '"' + writeGuard() + '>Modifier les infos</button></span></div>'
+  var h = '<section class="ghero' + (gameBanner(g) ? ' has-banner' : '') + '"' + (gameBanner(g) ? ' style="background-image:url(' + gameBanner(g) + ')"' : '') + '>' + heroXTags(g.name, g.licence) + '<div class="gh-top"><button class="btn ghost gh-btn" data-nav="' + esc(S.prev) + '">← Retour</button><span class="gh-right">' + (S.readOnly ? '' : '<button class="btn ghost gh-btn" data-covopen="1" title="Chercher ou remplacer la jaquette et le fond">🖼 Jaquette</button>') + (metaBanners().length && !S.readOnly ? '<button class="btn ghost gh-btn" data-act="shuffleBanner" data-id="' + esc(g.id) + '" title="Choisir un autre fond au hasard">🎲 Changer le fond</button>' : '') + '<button class="btn ghost gh-btn" data-act="editGame" data-id="' + esc(g.id) + '"' + writeGuard() + '>Modifier les infos</button></span></div>'
     + '<div class="gh-body"><div class="gh-cover' + (cv ? ' has-img' : '') + '">' + (cv ? '<img src="' + cv + '" alt="Jaquette de ' + esc(g.name) + '">' : '<span>' + esc(g.name) + '</span>') + '</div>'
     + '<div class="gh-info"><h1>' + esc(g.name) + '</h1>' + meta + '</div>'
     + '<div class="gh-side"><div class="gh-card"><span>Statut</span>' + combo({key:'status', value:g.status || 'Pas commencé', save:g.id + '|status', id:'ghStatus', cell:true}) + '</div>'
@@ -5204,7 +5208,9 @@ function licTier(p){ return p == null ? '#A8A3B8' : p >= 1 ? '#1A8048' : p >= .6
 function licRing(p){ var r = 26, C = 2 * Math.PI * r, c = licTier(p); return '<svg class="lic-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="' + r + '" fill="none" stroke="var(--track)" stroke-width="7"></circle>' + (p ? '<circle cx="32" cy="32" r="' + r + '" fill="none" stroke="' + c + '" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + (p * C).toFixed(1) + ' ' + C.toFixed(1) + '" transform="rotate(-90 32 32)"></circle>' : '') + '<text x="32" y="37" text-anchor="middle" font-family="Poppins, sans-serif" font-size="14" font-weight="600" fill="var(--text)">' + (p == null ? '?' : Math.round(p * 100) + '%') + '</text></svg>'; }
 function licCard(x, games, i){
   var gs = games.slice().sort(function(a, b){ return (+a.year || 0) - (+b.year || 0); }), covers = gs.filter(function(g){ return g.coverId; }).slice(-4);
-  var stack = '<div class="lic-stack" aria-hidden="true">' + (covers.length ? covers.map(function(g, k){ return '<img src="' + blob(g.coverId) + '" alt="" style="--k:' + k + '">'; }).join('') : gs.slice(0, 3).map(function(g, k){ return '<span style="--k:' + k + '">' + esc(initials(g.name)) + '</span>'; }).join('')) + '</div>';
+  var LDc = LICDB[licKey(x.k)], ecov = !covers.length && LDc && LDc.games && LDc.games.length ? LDc.games.slice().sort(function(a, b){ return (+a.year || 9999) - (+b.year || 9999); }).slice(0, 4).map(function(e){ return e.cvu && e.cvu !== 'none' ? e.cvu : genCover(e.title, e.platform || ''); }) : [];
+  if (!covers.length && LDc) licCovEnrich(x.k);
+  var stack = '<div class="lic-stack" aria-hidden="true">' + (covers.length ? covers.map(function(g, k){ return '<img src="' + blob(g.coverId) + '" alt="" style="--k:' + k + '">'; }).join('') : ecov.length ? ecov.map(function(u, k){ return '<img src="' + esc(u) + '" alt="" style="--k:' + k + '" referrerpolicy="no-referrer">'; }).join('') : gs.slice(0, 3).map(function(g, k){ return '<span style="--k:' + k + '">' + esc(initials(g.name)) + '</span>'; }).join('')) + '</div>';
   var edit = S.licEdit === x.k, ro = S.readOnly;
   var total = edit ? '<span class="lic-edit"><label class="sr" for="licTot">Nombre total de jeux de la licence</label><input id="licTot" type="number" min="' + x.o + '" max="999" inputmode="numeric" value="' + (x.t || '') + '" placeholder="Total"><button type="button" class="opt-ic ok" data-licok="' + esc(x.k) + '" aria-label="Valider">' + ICON_CHECK + '</button>' + (sampleFn ? '<button type="button" class="ai-btn mini" data-licai="' + esc(x.k) + '"' + (S.licBusy ? ' disabled' : '') + '>' + ICON_SPARK + (S.licBusy ? '…' : 'Claude') + '</button>' : '') + '</span>'
     : '<button type="button" class="tag t-sky lic-tot" data-licedit="' + esc(x.k) + '"' + (ro ? ' disabled' : '') + ' title="Modifier le nombre total de jeux">' + (x.t ? x.t + ' jeux' : 'Total ?') + (ro ? '' : ' ✎') + '</button>';
@@ -8328,7 +8334,7 @@ function giHtml(){
   var trd = GITR[String(d.id || i.title)], fr = GI.lang === 'fr', sumTxt = fr && trd && trd.summary ? trd.summary : d.summary, stoTxt = fr && trd && trd.storyline ? trd.storyline : d.storyline;
   return '<header class="gi-head"><h2 class="sr">' + esc(i.title) + '</h2>' + ((d.summary || d.storyline) ? '<div class="ch-switch gi-lang" role="group" aria-label="Langue"><button type="button" data-gilang="fr" aria-pressed="' + fr + '">FR</button><button type="button" data-gilang="en" aria-pressed="' + !fr + '">EN</button></div>' : '<span></span>') + '<button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
     + '<div class="body gi-body">'
-    + '<div class="gi-hero"' + (art ? ' style="--gi-art:url(\'' + esc(art) + '\')"' : '') + '>' + (cover ? '<img class="gi-cover" src="' + esc(cover) + '" alt="Jaquette de ' + esc(i.title) + '" referrerpolicy="no-referrer">' : '<span class="gi-cover gi-cover0">' + esc(initials(i.title)) + '</span>')
+    + '<div class="gi-hero"' + (art ? ' style="--gi-art:url(\'' + esc(art) + '\')"' : '') + '>' + heroXTags(i.title, '') + (cover ? '<img class="gi-cover" src="' + esc(cover) + '" alt="Jaquette de ' + esc(i.title) + '" referrerpolicy="no-referrer">' : '<span class="gi-cover gi-cover0">' + esc(initials(i.title)) + '</span>')
     + '<div class="gi-hd"><span class="gi-plat">' + esc(plats.length ? plats.slice(0, 4).join(' · ') + (plats.length > 4 ? ' +' + (plats.length - 4) : '') : (i.platform || '')) + '</span><h3 class="gi-title">' + esc(i.title) + '</h3><span class="gi-sub">' + esc([y, genres.split(', ')[0]].filter(Boolean).join(' · ')) + '</span>' + (rating ? '<span class="gi-rate"><b>' + rating[0] + '</b>/100 · ' + rating[1] + '</span>' : '') + '</div></div>'
     + (GI.loading ? '<p class="gi-load"><span class="nimp-spin"></span> Chargement des infos détaillées…</p>' : '')
     + (GI.err ? '<p class="gi-note">' + esc(GI.err) + '</p>' : '')
@@ -9808,6 +9814,22 @@ document.addEventListener('change', function(e){ var c = e.target; if (!c || !c.
 
 
 function licPageNames(){ var groups = {}; S.games.forEach(function(g){ var l = (g.licence || '').trim(); if (!l || g.kind === 'wish') return; (groups[l] = groups[l] || []).push(g); }); var out = Object.keys(groups).filter(function(k){ return groups[k].length >= 2 || LICDB[licKey(k)]; }); Object.keys(LICDB).forEach(function(k){ var n = LICDB[k] && LICDB[k].name; if (n && !out.some(function(x){ return licKey(x) === k; })) out.push(n); }); return out; }
+
+/* jaquettes des jeux d'une licence (IGDB, une fois) pour les cartes de collection */
+var LICCOV = {};
+function licCovEnrich(lic){
+  var lk = licKey(lic); if (LICCOV[lk] || !window.PS_SB || S.readOnly) return; var L = LICDB[lk]; if (!L || !L.games) return; LICCOV[lk] = 1;
+  var todo = L.games.map(function(e, i){ return {e:e, i:i}; }).filter(function(o){ return !o.e.cvu; }).slice(0, 6); if (!todo.length) return;
+  Promise.all(todo.map(function(o){ var body = o.e.ig ? {action:'game', id:+o.e.ig} : {action:'search', name:o.e.title, platform:consoleFullName(o.e.platform || '') || o.e.platform || ''}; return window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ var d = r && r.data && r.data.game; return d && d.cover ? {i:o.i, u:giImg(d.cover.image_id, 't_cover_big'), ig:d.id} : null; }).catch(function(){ return null; }); })).then(function(res){
+    res = res.filter(Boolean); if (!res.length) return; var cur = LICDB[lk]; if (!cur) return; var games = cur.games.slice();
+    res.forEach(function(r){ if (games[r.i] && !games[r.i].cvu) games[r.i] = Object.assign({}, games[r.i], {cvu:r.u}, games[r.i].ig ? {} : {ig:String(r.ig)}); });
+    var nd = Object.assign({}, cur, {games:games, updatedAt:Date.now()}); LICDB[lk] = nd; db.collection('licences').doc(lk).set(nd).catch(function(){}); render();
+  });
+}
+/* tags spéciaux d'un jeu (toutes licences) */
+function gameXTags(title, lic){ var k = gmKey(title), out = []; var scan = function(L){ var T = L && L.tags || {}; Object.keys(T).forEach(function(n){ if ((T[n] || []).indexOf(k) >= 0 && out.indexOf(n) < 0) out.push(n); }); }; if (lic && LICDB[licKey(lic)]) scan(LICDB[licKey(lic)]); Object.keys(LICDB).forEach(function(lk){ scan(LICDB[lk]); }); return out; }
+function heroXTags(title, lic){ var ts = gameXTags(title, lic); return ts.length ? '<span class="hero-xtags">' + ts.map(function(n){ return '<span class="lg-xtag">' + esc(n) + '</span>'; }).join('') + '</span>' : ''; }
+
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
