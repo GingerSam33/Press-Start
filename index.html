@@ -4390,6 +4390,18 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
 .lm-sc{padding:2px 8px;border-radius:999px;background:#E2F4E8;color:#1A6B3D;font-weight:800}
 .lm-a{display:flex;gap:6px;flex:none}
 @media (max-width:560px){.lm-it{flex-wrap:wrap}.lm-a{width:100%;justify-content:flex-end}}
+
+.lm-open-g{flex:none;padding:0;border:0;background:none;cursor:pointer;border-radius:8px;transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.lm-open-g:hover{transform:translateY(-2px) rotate(-2deg)}
+.lm-open-g img,.lm-open-g .lm-ph{box-shadow:0 8px 14px -8px rgba(0,0,0,.55)}
+.lm-t{padding:0;border:0;background:none;font:inherit;font-size:14.5px;font-weight:700;color:var(--text);text-align:left;cursor:pointer}
+.lm-t:hover{color:var(--accent-text,var(--accent));text-decoration:underline}
+.lm-bar{display:flex;justify-content:flex-end;margin:-4px 0 16px}
+.lm-openb{position:relative;padding-right:18px}
+.lm-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;margin-left:6px;border-radius:999px;background:#E5152B;color:#fff;font-size:12px;font-weight:800;box-shadow:0 0 0 2px #fff;animation:lmBadge 1.8s ease-in-out infinite}
+@keyframes lmBadge{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.lm-badge{animation:none}}
+.gi-lmback{padding:10px 24px 0;display:flex}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -8383,7 +8395,7 @@ function giHtml(){
     + ((d.similar_games || []).length ? sec('Jeux similaires', '<div class="tags">' + d.similar_games.slice(0, 10).map(function(x){ return '<span class="tag t-lav">' + esc(x.name) + '</span>'; }).join('') + '</div>') : '')
     + sec('Liens', '<div class="gi-links">' + links.map(function(l){ return '<a class="gi-link" href="' + esc(l[1]) + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span aria-hidden="true">↗</span></a>'; }).join('') + '</div>')
     + '</div>'
-    + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer>' + ((i.ctx && i.ctx.t === 'disc') || (typeof discHas === 'function' && discHas(i.title)) ? '<span class="gi-indisc">✦ Dans Jeux à découvrir</span>' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button>') + '<span class="spacer"></span>' + (function(){ var il = (i.ctx && i.ctx.t === 'lic') ? ((LICDB[i.ctx.lk] || {}).name || 'une licence') : inLicence(i.fr || i.title) || inLicence(i.title); return il ? '<span class="gi-inlic">👑 Dans « ' + esc(il) + ' »</span>' : '<button type="button" class="btn ghost" data-gilic="1">👑 Ajouter à une licence</button>'; })() + '<button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
+    + (i.ctx && i.ctx.t === 'lmatch' ? '<div class="gi-lmback"><button type="button" class="btn ghost small" data-lmback="1">← Retour aux nouveautés pour mes licences</button></div>' : '') + (S.readOnly ? '' : (i.ctx && i.ctx.t === 'wish' ? '<footer><span class="gi-inwish">' + ICON_HEART + ' Dans ma wishlist</span><span class="spacer"></span><button type="button" class="btn ghost danger" data-act="deleteGame" data-id="' + esc(i.ctx.id) + '">Retirer de ma wishlist</button><button type="button" class="btn" data-act="acquire" data-id="' + esc(i.ctx.id) + '">' + ICON_CHECK + ' Je l\u2019ai maintenant</button></footer>' : '<footer>' + ((i.ctx && i.ctx.t === 'disc') || (typeof discHas === 'function' && discHas(i.title)) ? '<span class="gi-indisc">✦ Dans Jeux à découvrir</span>' : '<button type="button" class="btn ghost" data-giact="disc">✦ Jeux à découvrir</button>') + '<span class="spacer"></span>' + (function(){ var il = (i.ctx && i.ctx.t === 'lic') ? ((LICDB[i.ctx.lk] || {}).name || 'une licence') : inLicence(i.fr || i.title) || inLicence(i.title); return il ? '<span class="gi-inlic">👑 Dans « ' + esc(il) + ' »</span>' : '<button type="button" class="btn ghost" data-gilic="1">👑 Ajouter à une licence</button>'; })() + '<button type="button" class="btn ghost" data-giact="wish">' + ICON_HEART + ' Wishlist</button><button type="button" class="btn" data-giact="own">+ Ajouter à ma collection</button></footer>'));
 }
 
 document.addEventListener('click', function(e){
@@ -9906,26 +9918,48 @@ function lmFind(){
 function lmDlg(){
   return '<div class="dlg lm-dlg"><header><h2>👑 Nouveautés pour tes licences</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">'
     + '<p class="gi-note">Ces jeux qui sortent semblent appartenir à une de tes collections par licence. Ajoute-les pour garder tes licences à jour (remake, remaster, portage, nouvel épisode…).</p>'
-    + '<div class="lm-list">' + LMATCH.map(function(m, i){ var d = new Date(Date.parse(m.r.date)), cv = m.r.cv || ''; return '<div class="lm-it" data-lmi="' + i + '">' + (cv ? '<img src="' + esc(cv) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : '<span class="lm-ph">🎮</span>') + '<div class="lm-b"><b>' + esc(m.r.title) + '</b><small>' + d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'}) + (list(m.r.platforms).length ? ' · ' + esc(list(m.r.platforms).slice(0, 3).join(', ')) : '') + '</small><span class="lm-m"><span class="lm-sc">' + m.sc + ' %</span> avec <span class="tag t-gold">' + esc(m.lic) + '</span></span></div><div class="lm-a"><button type="button" class="btn ghost small" data-lmno="' + i + '">Ignorer</button><button type="button" class="btn small" data-lmadd="' + i + '">Ajouter</button></div></div>'; }).join('') + '</div>'
+    + '<div class="lm-list">' + LMATCH.map(function(m, i){ var d = new Date(Date.parse(m.r.date)), cv = m.r.cv || ''; var cv2 = cv || LM_COV[m.key] || ''; return '<div class="lm-it" data-lmi="' + i + '"><button type="button" class="lm-open-g" data-lmgo="' + i + '" aria-label="Ouvrir la fiche de ' + esc(m.r.title) + '">' + (cv2 ? '<img src="' + esc(cv2) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : '<span class="lm-ph" data-lmcov="' + esc(m.key) + '">🎮</span>') + '</button><div class="lm-b"><button type="button" class="lm-t" data-lmgo="' + i + '">' + esc(m.r.title) + '</button><small>' + d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'}) + (list(m.r.platforms).length ? ' · ' + esc(list(m.r.platforms).slice(0, 3).join(', ')) : '') + '</small><span class="lm-m"><span class="lm-sc">' + m.sc + ' %</span> avec <span class="tag t-gold">' + esc(m.lic) + '</span></span></div><div class="lm-a"><button type="button" class="btn ghost small" data-lmno="' + i + '">Ignorer</button><button type="button" class="btn small" data-lmadd="' + i + '">Ajouter</button></div></div>'; }).join('') + '</div>'
     + '</div><footer><span class="spacer"></span><button type="button" class="btn ghost" data-act="close">Plus tard</button></footer></div>';
+}
+var LM_COV = {};
+function lmCovers(){ if (!window.PS_SB) return; LMATCH.forEach(function(m){ if (m.r.cv || LM_COV[m.key] !== undefined) return; LM_COV[m.key] = '';
+  var body = m.r.ig ? {action:'game', id:+m.r.ig} : {action:'search', name:m.r.title, platform:list(m.r.platforms)[0] ? consoleFullName(canonConsole(list(m.r.platforms)[0])) || '' : ''};
+  window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ var d = r && r.data && r.data.game; if (!d) return; if (d.cover) { LM_COV[m.key] = giImg(d.cover.image_id, 't_cover_big'); m.r.cv = LM_COV[m.key]; } if (!m.r.ig && d.id) m.r.ig = String(d.id);
+    var ph = document.querySelector('[data-lmcov="' + CSS.escape(m.key) + '"]'); if (ph && LM_COV[m.key]) { var im = document.createElement('img'); im.src = LM_COV[m.key]; im.alt = ''; im.referrerPolicy = 'no-referrer'; ph.replaceWith(im); } lmBtnSync(); }).catch(function(){}); }); }
+function lmOpen(){ LMATCH = lmFind(); LMATCH.forEach(function(m){ LMATCH_SEEN[m.key] = 1; }); if (!LMATCH.length) { toast('Aucune nouveauté en attente pour tes licences'); return; } openDlg(lmDlg()); lmCovers(); }
+function lmBtnSync(){
+  if (S.view !== 'news' || S.readOnly) return; var n = lmFind().length, b = document.getElementById('lmBtn');
+  if (!n) { if (b) b.remove(); return; }
+  if (!b) { var host = document.querySelector('.main .crt, .main .crt-page, .main > header, .main > section'); if (!host) return; b = document.createElement('div'); b.className = 'lm-bar'; b.id = 'lmBtn'; host.parentNode.insertBefore(b, host.nextSibling); }
+  b.innerHTML = '<button type="button" class="btn lm-openb" data-lmopen="1">👑 Nouveautés pour mes licences <span class="lm-badge" aria-label="' + n + ' en attente">' + n + '</span></button>';
 }
 function lmCheck(){
   if (S.readOnly || S.view !== 'news' || dlg.open) return;
   var ms = lmFind().filter(function(m){ return !LMATCH_SEEN[m.key]; }); if (!ms.length) return;
-  ms.forEach(function(m){ LMATCH_SEEN[m.key] = 1; }); LMATCH = ms; openDlg(lmDlg());
+  ms.forEach(function(m){ LMATCH_SEEN[m.key] = 1; }); LMATCH = lmFind(); openDlg(lmDlg()); lmCovers();
 }
-(function(){ var _r15 = render; render = function(){ var r = _r15.apply(this, arguments); if (S.view === 'news') { if (typeof relArchLoad === 'function') relArchLoad(); clearTimeout(lmCheck.t); lmCheck.t = setTimeout(lmCheck, 900); } return r; }; })();
+(function(){ var _r15 = render; render = function(){ var r = _r15.apply(this, arguments); if (S.view === 'news') { if (typeof relArchLoad === 'function') relArchLoad(); clearTimeout(lmCheck.t); lmCheck.t = setTimeout(lmCheck, 900); setTimeout(lmBtnSync, 0); } return r; }; })();
 function lmRemoveRow(i){ var row = document.querySelector('.lm-it[data-lmi="' + i + '"]'); if (row) { row.classList.add('gone'); setTimeout(function(){ row.remove(); if (!document.querySelector('.lm-it')) closeDlg(); }, 260); } }
 document.addEventListener('click', async function(e){
   var t = e.target.closest && e.target.closest('[data-lmadd],[data-lmno]'); if (!t) return;
   var m = LMATCH[+(t.getAttribute('data-lmadd') || t.getAttribute('data-lmno'))]; if (!m) return;
-  if (t.hasAttribute('data-lmno')) { lmDismiss(m.key); lmRemoveRow(LMATCH.indexOf(m)); return; }
+  if (t.hasAttribute('data-lmno')) { lmDismiss(m.key); lmRemoveRow(LMATCH.indexOf(m)); setTimeout(lmBtnSync, 300); return; }
   t.disabled = true;
   var lk = licKey(m.lic), cur = LICDB[lk] || {name:m.lic, games:[]}, games = (cur.games || []).slice(), pl = list(m.r.platforms).map(canonConsole), y = new Date(Date.parse(m.r.date)).getFullYear();
   var cl = licTitleClean(m.r.title, pl[0] || '');
   games.push({title:cl.title, platform:cl.platform || pl[0] || '', platforms:pl, year:y, lang:'', type:'Principal', cvu:m.r.cv || '', ig:m.r.ig ? String(m.r.ig) : ''});
-  try { var nd = Object.assign({}, cur, {name:cur.name || m.lic, games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; lmDismiss(m.key); toast('« ' + cl.title + ' » ajouté à « ' + nd.name + ' »'); lmRemoveRow(LMATCH.indexOf(m)); }
+  try { var nd = Object.assign({}, cur, {name:cur.name || m.lic, games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; lmDismiss(m.key); toast('« ' + cl.title + ' » ajouté à « ' + nd.name + ' »'); lmRemoveRow(LMATCH.indexOf(m)); setTimeout(lmBtnSync, 300); }
   catch (x) { toast(failMsg(x)); t.disabled = false; }
+});
+
+
+document.addEventListener('click', function(e){
+  var t = e.target.closest && e.target.closest('[data-lmopen],[data-lmgo],[data-lmback]'); if (!t) return;
+  e.preventDefault();
+  if (t.hasAttribute('data-lmopen')) { lmOpen(); return; }
+  if (t.hasAttribute('data-lmback')) { closeDlg(); setTimeout(lmOpen, 220); return; }
+  var m = LMATCH[+t.getAttribute('data-lmgo')]; if (!m) return; var pl = list(m.r.platforms)[0] ? canonConsole(list(m.r.platforms)[0]) : '';
+  closeDlg(); setTimeout(function(){ giOpen({title:m.r.title, platform:consoleFullName(pl) || pl, pname:pl, year:Date.parse(m.r.date) ? new Date(m.r.date).getFullYear() : '', ig:m.r.ig || '', cvu:m.r.cv || LM_COV[m.key] || '', url:m.r.url || '', ctx:{t:'lmatch'}}); }, 220);
 });
 
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
