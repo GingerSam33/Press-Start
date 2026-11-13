@@ -4402,6 +4402,10 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
 @keyframes lmBadge{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 @media (prefers-reduced-motion:reduce){.lm-badge{animation:none}}
 .gi-lmback{padding:10px 24px 0;display:flex}
+
+.lm-bar{margin:14px 0 18px !important}
+.lm-openb{transition:transform .12s ease,box-shadow .12s ease !important}
+.lm-openb:active{transform:translateY(3px) !important}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -9897,17 +9901,24 @@ function inLicence(title){ var k = gmKey(title), hit = ''; Object.keys(LICDB).so
 var LMATCH_SEEN = {}, LMATCH = [];
 function lmDismissed(){ try { return JSON.parse(localStorage.getItem('ps-licmatch-no') || '{}'); } catch (x) { return {}; } }
 function lmDismiss(k){ var d = lmDismissed(); d[k] = 1; try { localStorage.setItem('ps-licmatch-no', JSON.stringify(d)); } catch (x) {} }
+var LMF_CACHE = {sig:'', res:[]};
 function lmFind(){
+  var rels0 = (S._ncal && S._ncal.rels) || [], sig = rels0.length + '|' + (typeof RELARCH !== 'undefined' ? RELARCH.length : 0) + '|' + Object.keys(LICDB).map(function(k){ return k + ':' + ((LICDB[k] || {}).updatedAt || 0); }).join(',') + '|' + S.games.length + '|' + Object.keys(lmDismissed()).length;
+  if (LMF_CACHE.sig === sig) return LMF_CACHE.res.slice();
+  var res = lmFindRaw(); LMF_CACHE = {sig:sig, res:res}; return res.slice();
+}
+function lmFindRaw(){
   var rels = relMerged((S._ncal && S._ncal.rels) || []), now = Date.now(), out = [], no = lmDismissed();
   var lics = licPageNames().map(function(n){ var L = LICDB[licKey(n)]; return {n:n, k:catKey(n), L:L, titles:(L && L.games || []).map(function(e){ return e.title; }).concat(S.games.filter(function(g){ return licKey(g.licence || '') === licKey(n); }).map(function(g){ return g.name; }))}; }).filter(function(x){ return x.k && x.k.length >= 3; });
+  lics.forEach(function(l){ l.tw = l.titles.map(function(t){ return {t:t, w:String(t).toLowerCase().split(/[^a-z0-9à-ÿ]+/).filter(function(w){ return w.length > 2; })}; }); });
   rels.forEach(function(r){
     var t = Date.parse(r.date); if (!r.title || isNaN(t) || t < now - 30 * 864e5) return;
-    var tk = catKey(r.title), best = null;
+    var tk = catKey(r.title), best = null, rw = String(r.title).toLowerCase().split(/[^a-z0-9à-ÿ]+/).filter(function(w){ return w.length > 2; });
     lics.forEach(function(l){
       if (l.titles.some(function(x){ return gmKey(x) === gmKey(r.title); })) return;
       var sc = 0;
       if (tk === l.k || tk.indexOf(l.k) === 0) sc = 96; else if (l.k.length >= 5 && tk.indexOf(l.k) >= 0) sc = 88;
-      l.titles.forEach(function(x){ var v = Math.round(gmSim(r.title, x) * 100); if (v > sc) sc = Math.min(v, 95); });
+      if (sc < 90) l.tw.forEach(function(o){ if (!o.w.some(function(w){ return rw.indexOf(w) >= 0; })) return; var v = Math.round(gmSim(r.title, o.t) * 100); if (v > sc) sc = Math.min(v, 95); });
       if (sc >= 70 && (!best || sc > best.sc)) best = {lic:l.n, sc:sc};
     });
     if (!best) return; var key = gmKey(r.title) + '|' + licKey(best.lic); if (no[key]) return;
@@ -9926,11 +9937,11 @@ function lmCovers(){ if (!window.PS_SB) return; LMATCH.forEach(function(m){ if (
   var body = m.r.ig ? {action:'game', id:+m.r.ig} : {action:'search', name:m.r.title, platform:list(m.r.platforms)[0] ? consoleFullName(canonConsole(list(m.r.platforms)[0])) || '' : ''};
   window.PS_SB.functions.invoke('igdb', {body:body}).then(function(r){ var d = r && r.data && r.data.game; if (!d) return; if (d.cover) { LM_COV[m.key] = giImg(d.cover.image_id, 't_cover_big'); m.r.cv = LM_COV[m.key]; } if (!m.r.ig && d.id) m.r.ig = String(d.id);
     var ph = document.querySelector('[data-lmcov="' + CSS.escape(m.key) + '"]'); if (ph && LM_COV[m.key]) { var im = document.createElement('img'); im.src = LM_COV[m.key]; im.alt = ''; im.referrerPolicy = 'no-referrer'; ph.replaceWith(im); } lmBtnSync(); }).catch(function(){}); }); }
-function lmOpen(){ LMATCH = lmFind(); LMATCH.forEach(function(m){ LMATCH_SEEN[m.key] = 1; }); if (!LMATCH.length) { toast('Aucune nouveauté en attente pour tes licences'); return; } openDlg(lmDlg()); lmCovers(); }
+function lmOpen(){ var bb = document.querySelector('[data-lmopen]'); if (bb) bb.classList.add('pressed'); LMATCH = lmFind(); LMATCH.forEach(function(m){ LMATCH_SEEN[m.key] = 1; }); if (!LMATCH.length) { toast('Aucune nouveauté en attente pour tes licences'); return; } openDlg(lmDlg()); lmCovers(); }
 function lmBtnSync(){
   if (S.view !== 'news' || S.readOnly) return; var n = lmFind().length, b = document.getElementById('lmBtn');
   if (!n) { if (b) b.remove(); return; }
-  if (!b) { var host = document.querySelector('.main .crt, .main .crt-page, .main > header, .main > section'); if (!host) return; b = document.createElement('div'); b.className = 'lm-bar'; b.id = 'lmBtn'; host.parentNode.insertBefore(b, host.nextSibling); }
+  if (!b) { var host = document.querySelector('.main .nhead') || document.querySelector('.main > header, .main > section'); if (!host) return; b = document.createElement('div'); b.className = 'lm-bar'; b.id = 'lmBtn'; host.parentNode.insertBefore(b, host.nextSibling); }
   b.innerHTML = '<button type="button" class="btn lm-openb" data-lmopen="1">👑 Nouveautés pour mes licences <span class="lm-badge" aria-label="' + n + ' en attente">' + n + '</span></button>';
 }
 function lmCheck(){
