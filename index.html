@@ -4372,6 +4372,24 @@ dialog:has(.ltg-dlg){width:min(640px,calc(100vw - 24px)) !important;max-width:64
 .sv-toprow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .sv-toprow .sv-tabs{margin-bottom:0 !important}
 .sv-toprow .sort-bar{margin:0;margin-left:auto}
+
+/* calendrier : jour actuel bien visible */
+.ncal-c.today{position:relative;overflow:visible !important;border:3px solid var(--accent) !important;box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 22%,transparent),0 14px 30px -12px color-mix(in srgb,var(--accent) 70%,transparent) !important;z-index:2;animation:todayPulse 2.6s ease-in-out infinite}
+.ncal-c.today::before{content:'Aujourd\2019hui';position:absolute;top:-11px;left:50%;transform:translateX(-50%);padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;box-shadow:0 4px 10px -4px rgba(0,0,0,.4);z-index:3}
+@keyframes todayPulse{0%,100%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 22%,transparent),0 14px 30px -12px color-mix(in srgb,var(--accent) 70%,transparent)}50%{box-shadow:0 0 0 9px color-mix(in srgb,var(--accent) 12%,transparent),0 14px 30px -12px color-mix(in srgb,var(--accent) 70%,transparent)}}
+@media (prefers-reduced-motion:reduce){.ncal-c.today{animation:none}}
+/* propositions de licence */
+dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680px !important}
+.dlg.lm-dlg{width:100% !important;max-width:none !important}.dlg.lm-dlg .body{display:flex !important;flex-direction:column;gap:12px}
+.lm-list{display:flex;flex-direction:column;gap:8px;max-height:min(56vh,480px);overflow-y:auto;padding-right:4px}
+.lm-it{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid var(--card-border);background:var(--card);transition:opacity .25s,transform .25s}
+.lm-it.gone{opacity:0;transform:translateX(20px)}
+.lm-it img,.lm-ph{width:44px;height:58px;border-radius:7px;object-fit:cover;flex:none;background:var(--sunken);display:flex;align-items:center;justify-content:center;font-size:20px}
+.lm-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.lm-b b{font-size:14px}.lm-b small{font-size:12px;color:var(--muted)}
+.lm-m{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.lm-sc{padding:2px 8px;border-radius:999px;background:#E2F4E8;color:#1A6B3D;font-weight:800}
+.lm-a{display:flex;gap:6px;flex:none}
+@media (max-width:560px){.lm-it{flex-wrap:wrap}.lm-a{width:100%;justify-content:flex-end}}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -9863,6 +9881,53 @@ document.addEventListener('click', function(e){ var c = e.target.closest && e.ta
 
 /* ce jeu est-il déjà dans une collection par licence ? */
 function inLicence(title){ var k = gmKey(title), hit = ''; Object.keys(LICDB).some(function(lk){ var L = LICDB[lk]; if (L && (L.games || []).some(function(e){ return gmKey(e.title) === k; })) { hit = L.name || lk; return true; } return false; }); if (!hit) { var g = S.games.find(function(x){ return gmKey(x.name) === k && x.licence && LICDB[licKey(x.licence)]; }); if (g) hit = g.licence; } return hit; }
+/* ---------- Nouvelles sorties qui correspondent à mes licences ---------- */
+var LMATCH_SEEN = {}, LMATCH = [];
+function lmDismissed(){ try { return JSON.parse(localStorage.getItem('ps-licmatch-no') || '{}'); } catch (x) { return {}; } }
+function lmDismiss(k){ var d = lmDismissed(); d[k] = 1; try { localStorage.setItem('ps-licmatch-no', JSON.stringify(d)); } catch (x) {} }
+function lmFind(){
+  var rels = relMerged((S._ncal && S._ncal.rels) || []), now = Date.now(), out = [], no = lmDismissed();
+  var lics = licPageNames().map(function(n){ var L = LICDB[licKey(n)]; return {n:n, k:catKey(n), L:L, titles:(L && L.games || []).map(function(e){ return e.title; }).concat(S.games.filter(function(g){ return licKey(g.licence || '') === licKey(n); }).map(function(g){ return g.name; }))}; }).filter(function(x){ return x.k && x.k.length >= 3; });
+  rels.forEach(function(r){
+    var t = Date.parse(r.date); if (!r.title || isNaN(t) || t < now - 30 * 864e5) return;
+    var tk = catKey(r.title), best = null;
+    lics.forEach(function(l){
+      if (l.titles.some(function(x){ return gmKey(x) === gmKey(r.title); })) return;
+      var sc = 0;
+      if (tk === l.k || tk.indexOf(l.k) === 0) sc = 96; else if (l.k.length >= 5 && tk.indexOf(l.k) >= 0) sc = 88;
+      l.titles.forEach(function(x){ var v = Math.round(gmSim(r.title, x) * 100); if (v > sc) sc = Math.min(v, 95); });
+      if (sc >= 70 && (!best || sc > best.sc)) best = {lic:l.n, sc:sc};
+    });
+    if (!best) return; var key = gmKey(r.title) + '|' + licKey(best.lic); if (no[key]) return;
+    if (!out.some(function(o){ return o.key === key; })) out.push({key:key, r:r, lic:best.lic, sc:best.sc});
+  });
+  return out.sort(function(a, b){ return b.sc - a.sc; });
+}
+function lmDlg(){
+  return '<div class="dlg lm-dlg"><header><h2>👑 Nouveautés pour tes licences</h2><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body">'
+    + '<p class="gi-note">Ces jeux qui sortent semblent appartenir à une de tes collections par licence. Ajoute-les pour garder tes licences à jour (remake, remaster, portage, nouvel épisode…).</p>'
+    + '<div class="lm-list">' + LMATCH.map(function(m, i){ var d = new Date(Date.parse(m.r.date)), cv = m.r.cv || ''; return '<div class="lm-it" data-lmi="' + i + '">' + (cv ? '<img src="' + esc(cv) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : '<span class="lm-ph">🎮</span>') + '<div class="lm-b"><b>' + esc(m.r.title) + '</b><small>' + d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'}) + (list(m.r.platforms).length ? ' · ' + esc(list(m.r.platforms).slice(0, 3).join(', ')) : '') + '</small><span class="lm-m"><span class="lm-sc">' + m.sc + ' %</span> avec <span class="tag t-gold">' + esc(m.lic) + '</span></span></div><div class="lm-a"><button type="button" class="btn ghost small" data-lmno="' + i + '">Ignorer</button><button type="button" class="btn small" data-lmadd="' + i + '">Ajouter</button></div></div>'; }).join('') + '</div>'
+    + '</div><footer><span class="spacer"></span><button type="button" class="btn ghost" data-act="close">Plus tard</button></footer></div>';
+}
+function lmCheck(){
+  if (S.readOnly || S.view !== 'news' || dlg.open) return;
+  var ms = lmFind().filter(function(m){ return !LMATCH_SEEN[m.key]; }); if (!ms.length) return;
+  ms.forEach(function(m){ LMATCH_SEEN[m.key] = 1; }); LMATCH = ms; openDlg(lmDlg());
+}
+(function(){ var _r15 = render; render = function(){ var r = _r15.apply(this, arguments); if (S.view === 'news') { if (typeof relArchLoad === 'function') relArchLoad(); clearTimeout(lmCheck.t); lmCheck.t = setTimeout(lmCheck, 900); } return r; }; })();
+function lmRemoveRow(i){ var row = document.querySelector('.lm-it[data-lmi="' + i + '"]'); if (row) { row.classList.add('gone'); setTimeout(function(){ row.remove(); if (!document.querySelector('.lm-it')) closeDlg(); }, 260); } }
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-lmadd],[data-lmno]'); if (!t) return;
+  var m = LMATCH[+(t.getAttribute('data-lmadd') || t.getAttribute('data-lmno'))]; if (!m) return;
+  if (t.hasAttribute('data-lmno')) { lmDismiss(m.key); lmRemoveRow(LMATCH.indexOf(m)); return; }
+  t.disabled = true;
+  var lk = licKey(m.lic), cur = LICDB[lk] || {name:m.lic, games:[]}, games = (cur.games || []).slice(), pl = list(m.r.platforms).map(canonConsole), y = new Date(Date.parse(m.r.date)).getFullYear();
+  var cl = licTitleClean(m.r.title, pl[0] || '');
+  games.push({title:cl.title, platform:cl.platform || pl[0] || '', platforms:pl, year:y, lang:'', type:'Principal', cvu:m.r.cv || '', ig:m.r.ig ? String(m.r.ig) : ''});
+  try { var nd = Object.assign({}, cur, {name:cur.name || m.lic, games:games, updatedAt:Date.now()}); await withRetry(function(){ return db.collection('licences').doc(lk).set(nd); }); LICDB[lk] = nd; lmDismiss(m.key); toast('« ' + cl.title + ' » ajouté à « ' + nd.name + ' »'); lmRemoveRow(LMATCH.indexOf(m)); }
+  catch (x) { toast(failMsg(x)); t.disabled = false; }
+});
+
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
 function gdlgOpen(id){
