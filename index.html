@@ -7459,11 +7459,25 @@ function catOwnedMap(p){ var al = catAliases(p), m = {}; S.games.forEach(functio
 function catConsoleName(p){ var al = catAliases(p), c = S.consoles.filter(function(c){ return al.indexOf(norm(c.name)) >= 0 || (c.short && al.indexOf(norm(c.short)) >= 0); })[0]; return c ? c.name : p.name; }
 var CAT_RAW = {};
 function catLoad(p, key){
-  if (CAT_CACHE[key] || CAT_LOADING[key] || !db) return; CAT_LOADING[key] = true;
-  db.collection('catalog/' + p.id + '/chunks').get().then(function(s){
-    var rows = []; CAT_RAW[key] = {}; snapList(s).sort(function(a, b){ return (a.n || 0) - (b.n || 0); }).forEach(function(c){ CAT_RAW[key][c.id] = c.g || []; (c.g || []).forEach(function(x, ci){ rows.push({i:rows.length, ci:ci, t:String(x[0] || ''), y:String(x[1] || ''), d:String(x[2] || ''), p:String(x[3] || ''), r:list(x[4]), fr:String(x[5] || ''), jp:String(x[6] || ''), gn:String(x[7] || ''), u:safeUrl(x[8] || ''), mid:String(x[9] || ''), ck:String(c.id || ''), cv:String(x[10] || ''), cpf:'', cvu:String(x[13] || ''), art:String(x[14] || ''), ig:String(x[12] || ''), cf:x[11] || null}); }); });
+  if (CAT_CACHE[key] || CAT_LOADING[key] || !db) return; CAT_LOADING[key] = true; delete CAT_FAIL[key];
+  catFetchChunks('catalog/' + p.id + '/chunks').then(function(list0){
+    var rows = []; CAT_RAW[key] = {}; list0.sort(function(a, b){ return (a.n || 0) - (b.n || 0); }).forEach(function(c){ CAT_RAW[key][c.id] = c.g || []; (c.g || []).forEach(function(x, ci){ rows.push({i:rows.length, ci:ci, t:String(x[0] || ''), y:String(x[1] || ''), d:String(x[2] || ''), p:String(x[3] || ''), r:list(x[4]), fr:String(x[5] || ''), jp:String(x[6] || ''), gn:String(x[7] || ''), u:safeUrl(x[8] || ''), mid:String(x[9] || ''), ck:String(c.id || ''), cv:String(x[10] || ''), cpf:'', cvu:String(x[13] || ''), art:String(x[14] || ''), ig:String(x[12] || ''), cf:x[11] || null}); }); });
     CAT_CACHE[key] = rows; CAT_LOADING[key] = false; if (S.view === 'catalog' || S.view === 'game') renderSoon();
-  }).catch(function(){ CAT_LOADING[key] = false; CAT_CACHE[key] = []; if (S.view === 'catalog') render(); });
+  }).catch(function(err){ CAT_LOADING[key] = false; CAT_FAIL[key] = String(err && err.message || err || 'erreur'); console.warn('Base de jeux', p.name, err); if (S.view === 'catalog') render(); });
+}
+/* chargement robuste des gros catalogues : par petits paquets, avec nouvelles tentatives */
+var CAT_FAIL = {};
+async function catFetchChunks(path){
+  var sb = window.PS_SB;
+  if (!sb) return snapList(await db.collection(path).get());
+  var tries = async function(fn){ var last; for (var a = 0; a < 4; a++) { try { var r = await fn(); if (r.error) throw r.error; return r; } catch (x) { last = x; await new Promise(function(ok){ setTimeout(ok, 600 * (a + 1)); }); } } throw last; };
+  var ids = [], from = 0;
+  for (;;) { var r = await tries(function(){ return sb.from('docs').select('id').eq('col', path).order('id').range(from, from + 999); }); ids = ids.concat((r.data || []).map(function(x){ return x.id; })); if (!r.data || r.data.length < 1000) break; from += 1000; }
+  var out = [], B = 4, pos = 0;
+  var worker = async function(){ while (pos < ids.length) { var batch = ids.slice(pos, pos + B); pos += B; var r = await tries(function(){ return sb.from('docs').select('id,data').eq('col', path).in('id', batch); }); (r.data || []).forEach(function(x){ out.push(Object.assign({}, x.data || {}, {id:x.id})); }); } };
+  await Promise.all([worker(), worker(), worker()]);
+  if (ids.length && !out.length) throw new Error('aucune donnée reçue');
+  return out;
 }
 function catRows(){ var p = S.catP && catPlat(S.catP); return p ? CAT_CACHE[p.id + '@' + (p.updatedAt || 0)] || [] : []; }
 function catCv(r, has){ if (!has) return ''; var ok = /^data:image\/(webp|png|jpeg|gif);base64,/.test(r.cv); if (!ok && /^https:\/\/images\.igdb\.com\/|^https:\/\/cdn\.mobygames\.com\//.test(r.cvu || '')) return '<img class="cr-cv" src="' + esc(r.cvu) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" title="Jaquette">'; return ok ? '<img class="cr-cv" src="' + r.cv + '" alt="" loading="lazy" decoding="async" title="' + esc('Jaquette' + (r.cpf ? ' (' + r.cpf + ')' : '') + ' \u00b7 MobyGames') + '">' : r.cvNone ? '<img class="cr-cv cr-gen" src="' + genCover(r.t) + '" alt="" title="Jaquette générée (aucune trouvée)">' : '<span class="cr-cv cr-cv0" aria-hidden="true" data-cvi="' + r.i + '"></span>'; }
@@ -7498,7 +7512,7 @@ function viewCatHome(){
   return h;
 }
 function viewCatPlat(p){
-  var key = p.id + '@' + (p.updatedAt || 0); if (p.count && !CAT_CACHE[key]) catLoad(p, key);
+  var key = p.id + '@' + (p.updatedAt || 0); if (p.count && !CAT_CACHE[key] && !CAT_FAIL[key]) catLoad(p, key);
   var rows = CAT_CACHE[key], own = catOwnedMap(p), st = catStatus(p), cnt = function(f){ return rows ? crtPad(rows.filter(f).length) : '—'; };
   var isOwn = function(r){ return own[catKey(r.t)] || (r.fr && own[catKey(r.fr)]) || ''; };
   var h = crtPage({kick:'PLATEFORME · ' + String(p.maker || '').toUpperCase(), title:String(p.name).toUpperCase(), sub:(p.year ? 'Sortie en ' + p.year + ' · ' : '') + (p.count ? Number(p.count).toLocaleString('fr-FR') + ' jeux référencés' : 'Base à remplir') + (p.source ? ' · Source : ' + p.source : ''), blink:p.count ? 'PRESS START' : 'BASE À REMPLIR', sc:[['JEUX', crtPad(p.count || 0)], ['EUROPE', cnt(function(r){ return r.r.indexOf('EU') >= 0; })], ['AM. DU NORD', cnt(function(r){ return r.r.indexOf('NA') >= 0; })], ['JAPON', cnt(function(r){ return r.r.indexOf('JP') >= 0; })], ['DANS MA COLLECTION', cnt(function(r){ return isOwn(r) === 'own'; })]]});
@@ -7534,6 +7548,8 @@ function viewCatPlat(p){
         if (F.q) ch.push(['q', 'Recherche', F.q, FCOL.q]); if (F.reg) ch.push(['reg', 'Région', regL || F.reg, '#2A64B8']); if (F.own) ch.push(['own', 'Ma collection', ownL, '#16796A']); if (F.y) ch.push(['y', 'Année', F.y, FCOL.year]); if (F.gn) ch.push(['gn', 'Type', F.gn, FCOL.type]); if (F.ch) ch.push(['ch', 'Lettre', F.ch === '★' ? 'Autres' : F.ch, '#7A3FD1']);
         return ch.length ? '<div class="activef"><span class="af-label">Filtres actifs :</span>' + ch.map(function(c){ return '<button type="button" class="fchip" style="--fc:' + c[3] + '" data-catclr="' + c[0] + '"><span class="fk">' + esc(c[1]) + ' :</span><b>' + esc(c[2]) + '</b><span aria-hidden="true" class="fx">✕</span><span class="sr">Retirer ce filtre</span></button>'; }).join('') + '<button type="button" class="af-clear" data-catclr="all">Effacer tous les filtres</button></div>' : ''; })()
     + '<div class="cat-count">' + res.length.toLocaleString('fr-FR') + ' jeu' + (res.length > 1 ? 'x' : '') + (res.length !== rows.length ? ' sur ' + rows.length.toLocaleString('fr-FR') : '') + '</div>';
+  if (CAT_FAIL[key]) return h + '<div class="empty"><strong>Les jeux de cette plateforme n\u2019ont pas pu être chargés</strong><span>La liste est volumineuse et le serveur a mis trop de temps à répondre.</span><button type="button" class="btn small" data-catretry="' + esc(key) + '">↻ Réessayer</button></div></section>';
+  if (!res.length && !CAT_CACHE[key] && p.count) return h + '<div class="empty"><p class="gi-load"><span class="nimp-spin"></span> Chargement des ' + (p.count || 0).toLocaleString('fr-FR') + ' jeux…</p></div></section>';
   if (!res.length) return h + '<div class="empty"><strong>Aucun jeu ne correspond</strong><button type="button" class="btn ghost small" data-catreset>Réinitialiser les filtres</button></div></section>';
   h += '<div class="cat-list" role="table" aria-label="Jeux ' + esc(p.name) + '"><div class="cat-row cat-head" role="row"><span role="columnheader">Jeu</span><span role="columnheader">Année</span><span role="columnheader">Développeur · Éditeur</span><span role="columnheader">Régions</span><span role="columnheader"><button type="button" class="cr-sth" data-catown="' + (F.own === 'own' ? 'wish' : F.own === 'wish' ? 'not' : F.own === 'not' ? '' : 'own') + '" title="Filtrer : dans ma collection → wishlist → manquants → tous">Statut ' + (F.own === 'own' ? '· Collection' : F.own === 'wish' ? '· Wishlist' : F.own === 'not' ? '· Manquants' : '▾') + '</button></span><span role="columnheader"><span class="sr">Actions</span></span></div>'
     + res.slice(0, lim).map(function(r){ var o = isOwn(r);
@@ -10587,6 +10603,7 @@ document.addEventListener('click', function(e){
   if (t.hasAttribute('data-cmpreset')) { CMPA = null; render(); return; }
   if (CMPA && CMPA.phase === 'busy') return; compressOld();
 });
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-catretry]'); if (!t) return; var k = t.getAttribute('data-catretry'); delete CAT_FAIL[k]; render(); });
 /* ---------- Events ---------- */
 document.addEventListener('click', async function(e){
   var t = e.target.closest('[data-palette],[data-nav],[data-act],[data-hkind],[data-hbrand],[data-hconsole],[data-hclear],[data-ymode],[data-nmode],[data-htoggle],[data-brand],[data-brandtab],[data-toggle],[data-console],[data-sort],[data-game]');
