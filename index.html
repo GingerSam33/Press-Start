@@ -8890,7 +8890,11 @@ function licMatch(lic){
     var g = e.platform ? idx[licEntryKey(e.title, e.platform, lic)] : null; if (g && used[g.id]) g = null;
     if (!g) { var et = licStrip(e.title, lic), ep = e.platform ? norm(canonConsole(e.platform)) : '';
       var cands = pool.filter(function(x){ if (used[x.id]) return false; var xt = licStrip(x.name, lic), lc = licCore(e.title, lic); return gmKey(xt) === gmKey(et) || (lc && licCore(x.name, lic) === lc) || gmSim(xt, et) >= 0.9 || gmSim(x.name, e.title) >= 0.9; });
-      g = cands.filter(function(x){ return !ep || licConsolesOf(x).some(function(c){ return norm(canonConsole(c)) === ep; }); })[0] || cands[0] || null; }
+      var conK = function(c){ c = canonConsole(c || ''); return norm(consoleFullName(c) || c); }, epK = e.platform ? conK(e.platform) : '', ey = parseInt(e.year, 10) || 0;
+      var okYear = function(x){ var xy = parseInt(x.year, 10) || 0; return !ey || !xy || Math.abs(xy - ey) <= 1; };
+      var okCon = function(x){ var xc = licConsolesOf(x); return !epK || !xc.length || xc.some(function(c){ var k = conK(c); return k === epK || norm(canonConsole(c)) === ep; }); };
+      cands = cands.filter(function(x){ return okCon(x) && (epK && licConsolesOf(x).length ? true : okYear(x)); });
+      g = cands[0] || null; }
     if (g) used[g.id] = 1;
     return {e:e, ei:ei, g:g, owned:!!(g && g.kind !== 'wish'), wish:!!(g && g.kind === 'wish')};
   });
