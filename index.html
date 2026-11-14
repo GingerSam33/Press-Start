@@ -4563,6 +4563,12 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
 .psl-box input:focus{outline:0;border-color:#FF3EA5;box-shadow:0 0 0 3px rgba(255,62,165,.25)}
 .psl-box button{min-height:44px;border:0;border-radius:999px;background:linear-gradient(90deg,#FF3EA5,#9B5CFF);color:#fff;font:inherit;font-weight:700;letter-spacing:.08em;cursor:pointer}
 .psl-err{margin:0;font-size:12.5px;color:#FF9AB0}
+
+/* catégorie choisie bien visible */
+.lad-type .ned-ch{transition:background-color .15s,color .15s,border-color .15s,transform .2s cubic-bezier(.3,1.5,.5,1)}
+.lad-type .ned-ch:hover{transform:translateY(-2px)}
+.lad-type .ned-ch.on{background:var(--accent) !important;border-color:var(--accent) !important;color:#FFFFFF !important;box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 65%,#000),0 10px 18px -10px color-mix(in srgb,var(--accent) 80%,transparent) !important}
+.lad-type .ned-ch.on b{color:#FFFFFF !important}
 </style>
 <script>
 (function(){
@@ -10176,7 +10182,7 @@ function licAddDlg(name){
     + '<div class="ned-grid"><div class="field full"><label for="ladName">Nom du jeu</label><input type="text" id="ladName" maxlength="120" value="' + esc(name || '') + '" placeholder="Ex. Zelda: Oracle of Ages"></div>'
     + cfield('ladCon', 'Console', {key:'consoles', name:'ladCon', value:'', placeholder:'Choisir une console', clearable:true}, true)
     + '<div class="field"><label for="ladYear">Année de sortie</label><input type="number" id="ladYear" min="1970" max="2100" placeholder="Ex. 2001"></div>'
-    + '<div class="field full"><label>Catégorie</label><div class="ned-kind lad-type">' + [['Principal', '🎮 Jeu principal'], ['Remake', '✨ Remake / remaster'], ['Spin-off', '🧩 Spin-off']].map(function(t, i){ return '<button type="button" class="ned-ch' + (i === 0 ? ' on' : '') + '" data-ladtype="' + t[0] + '"><b>' + t[1] + '</b></button>'; }).join('') + '</div></div></div>'
+    + '<div class="field full"><label>Catégorie</label><div class="ned-kind lad-type">' + [['Principal', '🎮 Jeu principal'], ['Remake', '✨ Remake / remaster / édition'], ['Spin-off', '🧩 Spin-off']].map(function(t, i){ return '<button type="button" class="ned-ch' + (i === 0 ? ' on' : '') + '" data-ladtype="' + t[0] + '"><b>' + t[1] + '</b></button>'; }).join('') + '</div></div></div>'
     + '<p class="gi-note">Le jeu rejoint la liste de la saga. Si tu le possèdes déjà dans ta collection, il apparaîtra comme possédé.</p></div><footer><button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-ladsave="1">Ajouter à la collection</button></footer></div>';
 }
 document.addEventListener('click', async function(e){
