@@ -4597,6 +4597,17 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
 .gi-cvfile{cursor:pointer}.gi-cvfile.busy{opacity:.6;pointer-events:none}
 .gi-cvrow .cvl-m{margin-top:0}
 .gi-cvrow .spacer{flex:1}
+
+/* fiche découverte : bouton Jaquette en haut, jaquette au format 3:4 */
+.gi-head .gi-cvbtn{margin-left:auto;min-height:34px;padding:0 14px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.gi-head .gi-cvbtn+.gi-lang{margin-left:8px}
+.gi-head .gi-cvbtn[aria-pressed="true"]{background:rgba(255,255,255,.32)}
+.ic-cover{flex:none;vertical-align:-3px}
+.gi-cvh{display:inline-flex;align-items:center;gap:6px}
+.gi-dlg .gi-cover{aspect-ratio:3/4 !important;height:auto !important;max-height:none !important;object-fit:cover !important}
+.cvl-pop[popover]{border:1px solid var(--card-border);background:var(--card);color:inherit;overflow:visible}
+.gi-dlg .gi-head .gi-cvbtn{color:#FFFFFF !important;background:rgba(255,255,255,.16) !important;border:1px solid rgba(255,255,255,.3) !important;backdrop-filter:blur(6px);position:relative;z-index:3}
+.gi-dlg .gi-head .gi-cvbtn:hover{background:rgba(255,255,255,.26) !important}
 </style>
 <script>
 (function(){
@@ -5216,7 +5227,7 @@ function viewGame(){
     + fact('Langue', g.langue ? gotag('lang', g.langue, 'gray', 'en ' + g.langue, langFlag(g.langue) + esc(g.langue), ' ltag') : '')
     + fact('Wikipédia', w ? '<a class="tag t-lav gh-wiki" href="' + esc(w) + '" target="_blank" rel="noopener">Ouvrir ↗</a>' : '')
     + '</dl>';
-  var h = '<section class="ghero' + (gameBanner(g) ? ' has-banner' : '') + '"' + (gameBanner(g) ? ' style="background-image:url(' + gameBanner(g) + ')"' : '') + '>' + heroXTags(g.name, g.licence) + '<div class="gh-top"><button class="btn ghost gh-btn" data-nav="' + esc(S.prev) + '">← Retour</button><span class="gh-right">' + (S.readOnly ? '' : '<button class="btn ghost gh-btn" data-covopen="1" title="Chercher ou remplacer la jaquette et le fond">🖼 Jaquette</button>') + (metaBanners().length && !S.readOnly ? '<button class="btn ghost gh-btn" data-act="shuffleBanner" data-id="' + esc(g.id) + '" title="Choisir un autre fond au hasard">🎲 Changer le fond</button>' : '') + '<button class="btn ghost gh-btn" data-act="editGame" data-id="' + esc(g.id) + '"' + writeGuard() + '>Modifier les infos</button></span></div>'
+  var h = '<section class="ghero' + (gameBanner(g) ? ' has-banner' : '') + '"' + (gameBanner(g) ? ' style="background-image:url(' + gameBanner(g) + ')"' : '') + '>' + heroXTags(g.name, g.licence) + '<div class="gh-top"><button class="btn ghost gh-btn" data-nav="' + esc(S.prev) + '">← Retour</button><span class="gh-right">' + (S.readOnly ? '' : '<button class="btn ghost gh-btn" data-covopen="1" title="Chercher ou remplacer la jaquette et le fond">' + ICON_COVER + ' Jaquette</button>') + (metaBanners().length && !S.readOnly ? '<button class="btn ghost gh-btn" data-act="shuffleBanner" data-id="' + esc(g.id) + '" title="Choisir un autre fond au hasard">🎲 Changer le fond</button>' : '') + '<button class="btn ghost gh-btn" data-act="editGame" data-id="' + esc(g.id) + '"' + writeGuard() + '>Modifier les infos</button></span></div>'
     + '<div class="gh-body"><div class="gh-cover' + (cv ? ' has-img' : '') + '">' + (cv ? '<img src="' + cv + '" alt="Jaquette de ' + esc(g.name) + '">' : '<span>' + esc(g.name) + '</span>') + '</div>'
     + '<div class="gh-info"><h1>' + esc(g.name) + '</h1>' + meta + '</div>'
     + '<div class="gh-side"><div class="gh-card"><span>Statut</span>' + combo({key:'status', value:g.status || 'Pas commencé', save:g.id + '|status', id:'ghStatus', cell:true}) + '</div>'
@@ -8433,7 +8444,7 @@ function giHtml(){
     + (i.cf && i.cf.y ? fact('Désaccord d’année', 'MobyGames ' + esc(i.cf.y.moby) + ' · IGDB ' + esc(i.cf.y.igdb)) : '');
   var sec = function(t, c){ return '<section class="gi-sec"><h4>' + t + '</h4>' + c + '</section>'; };
   var trd = GITR[String(d.id || i.title)], fr = GI.lang === 'fr', sumTxt = fr && trd && trd.summary ? trd.summary : d.summary, stoTxt = fr && trd && trd.storyline ? trd.storyline : d.storyline;
-  return '<header class="gi-head"><h2 class="sr">' + esc(i.title) + '</h2>' + ((d.summary || d.storyline) ? '<div class="ch-switch gi-lang" role="group" aria-label="Langue"><button type="button" data-gilang="fr" aria-pressed="' + fr + '">FR</button><button type="button" data-gilang="en" aria-pressed="' + !fr + '">EN</button></div>' : '<span></span>') + '<button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
+  return '<header class="gi-head"><h2 class="sr">' + esc(i.title) + '</h2>' + (S.readOnly ? '' : '<button type="button" class="btn ghost gh-btn gi-cvbtn" data-gicvedit="' + (GI.cvEdit ? '0' : '1') + '" aria-pressed="' + !!GI.cvEdit + '" title="Ajouter ou remplacer la jaquette">' + ICON_COVER + ' Jaquette</button>') + ((d.summary || d.storyline) ? '<div class="ch-switch gi-lang" role="group" aria-label="Langue"><button type="button" data-gilang="fr" aria-pressed="' + fr + '">FR</button><button type="button" data-gilang="en" aria-pressed="' + !fr + '">EN</button></div>' : '<span></span>') + '<button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header>'
     + '<div class="body gi-body">'
     + '<div class="gi-hero"' + (art ? ' style="--gi-art:url(\'' + esc(art) + '\')"' : '') + '>' + heroXTags(i.title, '') + (cover ? '<img class="gi-cover" src="' + esc(cover) + '" alt="Jaquette de ' + esc(i.title) + '" referrerpolicy="no-referrer">' : '<span class="gi-cover gi-cover0">' + esc(initials(i.title)) + '</span>')
     + '<div class="gi-hd"><span class="gi-plat">' + esc(plats.length ? plats.slice(0, 4).join(' · ') + (plats.length > 4 ? ' +' + (plats.length - 4) : '') : (i.platform || '')) + '</span><h3 class="gi-title">' + esc(i.title) + '</h3><span class="gi-sub">' + esc([y, genres.split(', ')[0]].filter(Boolean).join(' · ')) + '</span>' + (rating ? '<span class="gi-rate"><b>' + rating[0] + '</b>/100 · ' + rating[1] + '</span>' : '') + '</div></div>'
@@ -10043,11 +10054,34 @@ document.addEventListener('click', function(e){
 });
 
 
+/* icône jaquette */
+var ICON_COVER = '<svg class="ic-cover" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2"></rect><path d="M7.5 2.5v19"></path><rect x="10" y="6" width="7" height="7" rx="1"></rect><path d="M10 11.5l2.2-2 1.6 1.5 1.2-1 2 1.6"></path><path d="M10.5 16.5h6M10.5 18.8h4"></path></svg>';
 /* ---------- Jaquettes personnalisées (jeux de la Base, licences, découverte, wishlist) ---------- */
 var COVFIX = {};
 (function covFixLoad(){ var tryLoad = function(){ if (!db) return setTimeout(tryLoad, 600); try { db.doc('meta/covfix').onSnapshot(function(d){ COVFIX = (d && d.exists && d.data().map) || {}; renderSoon(); }, function(){}); } catch (x) {} }; tryLoad(); })();
 function covFixGet(t){ var id = COVFIX[gmKey(t)]; return id && safeId(id) ? blob(id) : ''; }
 function covAbs(u){ try { return new URL(u, location.href).href; } catch (x) { return u; } }
+async function covNormalize(src){
+  /* recadre l'image au format jaquette 3:4 en retirant les bandes unies autour */
+  return new Promise(function(res){
+    var img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = function(){ try {
+      var W = img.naturalWidth, H = img.naturalHeight; if (!W || !H) return res(null);
+      var sc = Math.min(1, 900 / Math.max(W, H)), w = Math.round(W * sc), h = Math.round(H * sc), c = document.createElement('canvas'); c.width = w; c.height = h; var x = c.getContext('2d'); x.drawImage(img, 0, 0, w, h);
+      var px = x.getImageData(0, 0, w, h).data, at = function(X, Y){ var o = (Y * w + X) * 4; return [px[o], px[o + 1], px[o + 2], px[o + 3]]; };
+      var bg = at(0, 0), same = function(p){ return p[3] < 20 || (Math.abs(p[0] - bg[0]) + Math.abs(p[1] - bg[1]) + Math.abs(p[2] - bg[2]) < 60); };
+      var rowBlank = function(Y){ var n = 0; for (var X = 0; X < w; X += 2) if (!same(at(X, Y))) n++; return n < w / 2 * 0.02; }, colBlank = function(X, t, b){ var n = 0; for (var Y = t; Y < b; Y += 2) if (!same(at(X, Y))) n++; return n < (b - t) / 2 * 0.02; };
+      var t = 0, b = h - 1, l = 0, r = w - 1; while (t < b && rowBlank(t)) t++; while (b > t && rowBlank(b)) b--; while (l < r && colBlank(l, t, b)) l++; while (r > l && colBlank(r, t, b)) r--;
+      var bw = r - l + 1, bh = b - t + 1; if (bw < w * 0.2 || bh < h * 0.2) { l = 0; t = 0; bw = w; bh = h; }
+      var o = document.createElement('canvas'), OW = 600, OH = 800, ox = o.getContext('2d'); o.width = OW; o.height = OH;
+      ox.fillStyle = 'rgb(' + bg[0] + ',' + bg[1] + ',' + bg[2] + ')'; ox.fillRect(0, 0, OW, OH);
+      if (bw / bh > 0.75) { var tw = bh * 0.75; ox.drawImage(c, l + (bw - tw) / 2, t, tw, bh, 0, 0, OW, OH); }
+      else { var dw = OH * bw / bh; ox.drawImage(c, l, t, bw, bh, (OW - dw) / 2, 0, dw, OH); }
+      o.toBlob(function(bl){ res(bl ? new File([bl], 'jaquette.webp', {type:bl.type}) : null); }, 'image/webp', 0.9);
+    } catch (x) { res(null); } };
+    img.onerror = function(){ res(null); }; img.src = src;
+  });
+}
 async function covFixSet(id){
   if (!GI) return; var i = GI.info, k = gmKey(i.fr || i.title), u = id ? covAbs(blob(id)) : '';
   if (id) COVFIX[k] = id; else delete COVFIX[k];
@@ -10063,7 +10097,8 @@ async function covFixSet(id){
 }
 function giCovEditHtml(i){
   var has = !!covFixGet(i.fr || i.title);
-  return '<div class="gi-cvedit">' + (GI.cvEdit ? '<div class="gi-cvbox"><b>🖼 Choisir une jaquette</b>'
+  if (!GI.cvEdit) return '';
+  return '<div class="gi-cvedit">' + (GI.cvEdit ? '<div class="gi-cvbox"><b class="gi-cvh">' + ICON_COVER + ' Choisir une jaquette</b>'
     + '<div class="gi-cvrow"><label class="btn small gi-cvfile">📁 Image de mon ordinateur<input type="file" accept="image/*" class="sr" id="giCvFile"></label>' + (window.PS_SB ? '<span class="gi-cvor">ou</span><input type="url" id="giCvUrl" placeholder="Coller l’adresse d’une image trouvée sur Internet"><button type="button" class="btn ghost small" data-gicvurl="1">Utiliser</button>' : '') + '</div>'
     + '<div class="gi-cvrow">' + coverLinks(i.fr || i.title) + (has ? '<button type="button" class="link danger" data-gicvdel="1">Retirer ma jaquette</button>' : '') + '<span class="spacer"></span><button type="button" class="btn ghost small" data-gicvedit="0">Fermer</button></div></div>'
     : '<button type="button" class="btn ghost small" data-gicvedit="1">🖼 ' + (giRealCover(i) || has ? 'Changer la jaquette' : 'Ajouter une jaquette') + '</button>') + '</div>';
@@ -10075,13 +10110,13 @@ document.addEventListener('click', async function(e){
   if (t.hasAttribute('data-gicvdel')) { t.disabled = true; try { await covFixSet(''); toast('Jaquette retirée'); } catch (x) { toast(failMsg(x)); t.disabled = false; } return; }
   var u = ((document.getElementById('giCvUrl') || {}).value || '').trim(); if (!/^https?:\/\//i.test(u)) { toast('Colle l’adresse complète de l’image (https://…)'); return; }
   t.disabled = true; t.textContent = 'Import…';
-  try { var id = await igStore(u); if (!id) throw new Error('Image introuvable à cette adresse'); await covFixSet(id); toast('Jaquette enregistrée'); }
+  try { var id = await igStore(u); if (!id) throw new Error('Image introuvable à cette adresse'); var nf2 = await covNormalize(blob(id)); if (nf2) { var id2 = await uploadFile(nf2); if (id2) id = id2; } await covFixSet(id); toast('Jaquette enregistrée'); }
   catch (x) { toast(x && x.message ? x.message : 'Import impossible'); t.disabled = false; t.textContent = 'Utiliser'; }
 });
 document.addEventListener('change', async function(e){
   if (!e.target || e.target.id !== 'giCvFile' || !GI) return; var f = e.target.files && e.target.files[0]; if (!f) return;
   var lb = e.target.closest('label'); if (lb) lb.classList.add('busy');
-  try { var id = await uploadFile(f); if (!id) throw new Error('Envoi impossible'); await covFixSet(id); toast('Jaquette enregistrée'); }
+  try { var u0 = URL.createObjectURL(f), nf = await covNormalize(u0); URL.revokeObjectURL(u0); var id = await uploadFile(nf || f); if (!id) throw new Error('Envoi impossible'); await covFixSet(id); toast('Jaquette enregistrée'); }
   catch (x) { toast(failMsg(x)); if (lb) lb.classList.remove('busy'); }
 });
 document.addEventListener('keydown', function(e){ if (e.key === 'Enter' && e.target && e.target.id === 'giCvUrl') { e.preventDefault(); var b = document.querySelector('[data-gicvurl]'); if (b) b.click(); } });
@@ -10409,8 +10444,12 @@ function info_cv(i){ return i.cvu && i.cvu !== 'none' ? i.cvu : (/^data:image\//
 document.addEventListener('click', function(e){
   var t = e.target.closest && e.target.closest('[data-cvlmenu]'); var open = document.querySelector('.cvl-pop.on');
   if (!t) { if (open && !e.target.closest('.cvl-pop')) open.classList.remove('on'); return; }
-  e.preventDefault(); var pop = t.parentNode.querySelector('.cvl-pop'); if (pop) pop.classList.toggle('on');
+  e.preventDefault(); var pop = t.parentNode.querySelector('.cvl-pop'); if (!pop) return; var on = !pop.classList.contains('on'); pop.classList.toggle('on', on);
+  if (typeof pop.showPopover === 'function') { try { if (!pop.hasAttribute('popover')) pop.setAttribute('popover', 'manual'); if (on) pop.showPopover(); else pop.hidePopover(); } catch (x) {} }
+  if (on) { pop.style.position = 'fixed'; pop.style.margin = '0'; pop.style.inset = 'auto'; var r = t.getBoundingClientRect(), ph = pop.offsetHeight, pw = pop.offsetWidth, vh = innerHeight, vw = innerWidth; var top = (vh - r.bottom - 12 >= ph || vh - r.bottom >= r.top) ? r.bottom + 6 : r.top - ph - 6; pop.style.top = Math.max(8, Math.min(top, vh - ph - 8)) + 'px'; pop.style.left = Math.max(8, Math.min(r.left, vw - pw - 8)) + 'px'; }
 });
+document.addEventListener('click', function(e){ if (e.target.closest && (e.target.closest('[data-cvlmenu]') || e.target.closest('.cvl-pop'))) return; document.querySelectorAll('.cvl-pop[popover]').forEach(function(p){ try { if (p.matches(':popover-open')) p.hidePopover(); } catch (x) {} }); }, true);
+window.addEventListener('scroll', function(){ document.querySelectorAll('.cvl-pop.on').forEach(function(p){ p.classList.remove('on'); try { p.hidePopover(); } catch (x) {} }); }, true);
 
 /* ---------- Captures d'écran et vidéos sur la fiche de mes jeux ---------- */
 var GMEDIA = {};
