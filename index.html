@@ -4588,6 +4588,15 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
   .crt-frieze .crt-br:nth-child(3n){border-right:0}
   .crt-frieze .crt-br:nth-last-child(-n+3):nth-child(3n+1),.crt-frieze .crt-br:nth-last-child(-n+3):nth-child(3n+1)~.crt-br{border-bottom:0}
 }
+
+.gi-cvedit{padding:6px 0 0;display:flex}
+.gi-cvbox{width:100%;display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:14px;border:1px dashed color-mix(in srgb,var(--accent) 50%,transparent);background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+.gi-cvrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gi-cvrow input[type=url]{flex:1 1 240px;min-width:0;min-height:38px;padding:0 12px;border-radius:12px;border:1px solid var(--card-border);background:var(--card);color:var(--text);font:inherit;font-size:13px}
+.gi-cvor{font-size:12px;color:var(--muted)}
+.gi-cvfile{cursor:pointer}.gi-cvfile.busy{opacity:.6;pointer-events:none}
+.gi-cvrow .cvl-m{margin-top:0}
+.gi-cvrow .spacer{flex:1}
 </style>
 <script>
 (function(){
@@ -7296,7 +7305,7 @@ function viewDiscover(){
   discEnrich(rows);
   h += sortBar('disc', 'Par date de sortie');
   return h + '<div class="disc-grid">' + rows.map(function(d, i){ var t = Date.parse(d.date), when = isNaN(t) ? (d.year ? 'Sorti en ' + d.year : '') : (t > now ? 'Sort le ' : 'Sorti le ') + new Date(t).toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
-    return '<article class="lg-card is-click disc-card" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><div class="lg-cov">' + (function(u){ return '<img class="bgi" src="' + esc(u) + '" alt="" aria-hidden="true" referrerpolicy="no-referrer"><img class="fgi" src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'; })(d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0])) + '</div><div class="lg-b"><b class="lg-t">' + esc(d.title) + '</b>'
+    return '<article class="lg-card is-click disc-card" style="--i:' + i + '" data-dinfo="' + esc(d.id) + '"><div class="lg-cov">' + (function(u){ return '<img class="bgi" src="' + esc(u) + '" alt="" aria-hidden="true" referrerpolicy="no-referrer"><img class="fgi" src="' + esc(u) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'; })(covFixGet(d.title) || (d.cvu && d.cvu !== 'none' ? d.cvu : genCover(d.title, list(d.platforms)[0]))) + '</div><div class="lg-b"><b class="lg-t">' + esc(d.title) + '</b>'
       + '<div class="lg-m">' + list(d.platforms).map(function(x){ return ctag(x); }).join('') + (when ? '<span class="tag t-sky">' + esc(when) + '</span>' : '') + '</div>'
       + '<div class="d-acts"><a class="btn small ghost" href="' + esc(nRelUrl(d)) + '" target="_blank" rel="noopener">Voir sur internet ↗</a>'
       + (S.readOnly ? '' : '<button type="button" class="btn small" data-ndwish="' + esc(d.id) + '">' + ICON_HEART + ' Wishlist</button><span class="spacer"></span><button type="button" class="iconbtn" data-ndrm="' + esc(d.id) + '" aria-label="Retirer ' + esc(d.title) + '" title="Retirer de la liste"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg></button>')
@@ -7489,7 +7498,7 @@ async function catFetchChunks(path){
   return out;
 }
 function catRows(){ var p = S.catP && catPlat(S.catP); return p ? CAT_CACHE[p.id + '@' + (p.updatedAt || 0)] || [] : []; }
-function catCv(r, has){ if (!has) return ''; var ok = /^data:image\/(webp|png|jpeg|gif);base64,/.test(r.cv); if (!ok && /^https:\/\/images\.igdb\.com\/|^https:\/\/cdn\.mobygames\.com\//.test(r.cvu || '')) return '<img class="cr-cv" src="' + esc(r.cvu) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" title="Jaquette">'; return ok ? '<img class="cr-cv" src="' + r.cv + '" alt="" loading="lazy" decoding="async" title="' + esc('Jaquette' + (r.cpf ? ' (' + r.cpf + ')' : '') + ' \u00b7 MobyGames') + '">' : r.cvNone ? '<img class="cr-cv cr-gen" src="' + genCover(r.t) + '" alt="" title="Jaquette générée (aucune trouvée)">' : '<span class="cr-cv cr-cv0" aria-hidden="true" data-cvi="' + r.i + '"></span>'; }
+function catCv(r, has){ var fx0 = covFixGet(r.fr || r.t) || covFixGet(r.t); if (fx0) return '<img class="cr-cv" src="' + esc(fx0) + '" alt="" loading="lazy">'; if (!has) return ''; var ok = /^data:image\/(webp|png|jpeg|gif);base64,/.test(r.cv); if (!ok && /^https:\/\/images\.igdb\.com\/|^https:\/\/cdn\.mobygames\.com\//.test(r.cvu || '')) return '<img class="cr-cv" src="' + esc(r.cvu) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" title="Jaquette">'; return ok ? '<img class="cr-cv" src="' + r.cv + '" alt="" loading="lazy" decoding="async" title="' + esc('Jaquette' + (r.cpf ? ' (' + r.cpf + ')' : '') + ' \u00b7 MobyGames') + '">' : r.cvNone ? '<img class="cr-cv cr-gen" src="' + genCover(r.t) + '" alt="" title="Jaquette générée (aucune trouvée)">' : '<span class="cr-cv cr-cv0" aria-hidden="true" data-cvi="' + r.i + '"></span>'; }
 var CAT_CV = {};
 function catCvLoad(p, key, vis){
   if (!db) return; var need = {};
@@ -8173,7 +8182,7 @@ function licGroup(title, rs, lic){
     var act = r.owned ? '<button type="button" class="lg-own" data-game="' + esc(g.id) + '">★ Dans ma collection</button>' : r.wish ? '<button type="button" class="lg-wished" data-game="' + esc(g.id) + '">♥ En wishlist</button>' : (S.readOnly ? '' : '<button type="button" class="lg-add" data-licwish="' + esc(JSON.stringify({t:e.title, p:e.platform, y:e.year || ''})) + '">♥ Ajouter à la wishlist</button>');
     var ren = S.licEdit2 && !S.readOnly && r.ei != null ? '<button type="button" class="lg-ren" data-lgren="' + r.ei + '" title="Modifier le nom ou la console" aria-label="Modifier">' + ICON_PEN + '</button>' : '';
     var del = ren + (S.licEdit2 && !S.readOnly ? '<button type="button" class="lg-del" data-lgdel="' + (r.ei != null ? r.ei : 'g:' + (g && g.id)) + '" title="' + (r.ei != null ? 'Retirer de la liste de la saga' : 'Retirer ce jeu de la licence') + '" aria-label="Retirer">' + ICON_TRASH + '</button>' : '');
-    return '<article class="lg-card is-click' + (S.licEdit2 ? ' editing' : '') + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || '', r.ei != null ? r.ei : '', e.ig || ''].join('|').replace(/"/g, '')) + '"') + '>' + licTagsHtml(lic, e.title) + '<div class="lg-cov">' + del + (function(u){ return '<img class="bgi" src="' + u + '" alt="" aria-hidden="true"><img class="fgi" src="' + u + '" alt="">'; })(cv || (e.cvu && e.cvu !== 'none' ? e.cvu : '') || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + (r.owned ? '<span class="lg-rib">POSSÉDÉ</span><span class="lg-sheen" aria-hidden="true"></span>' : '') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
+    return '<article class="lg-card is-click' + (S.licEdit2 ? ' editing' : '') + (r.owned ? ' own' : ' miss') + '" style="--i:' + i + '"' + (r.owned ? ' data-game="' + esc(g.id) + '"' : ' data-lginfo="' + esc([e.title, e.platform || '', e.year || '', r.ei != null ? r.ei : '', e.ig || ''].join('|').replace(/"/g, '')) + '"') + '>' + licTagsHtml(lic, e.title) + '<div class="lg-cov">' + del + (function(u){ return '<img class="bgi" src="' + u + '" alt="" aria-hidden="true"><img class="fgi" src="' + u + '" alt="">'; })(cv || covFixGet(e.title) || (e.cvu && e.cvu !== 'none' ? e.cvu : '') || genCover(e.title, e.platform ? consoleFullName(e.platform) : '')) + (r.owned ? '<span class="lg-rib">POSSÉDÉ</span><span class="lg-sheen" aria-hidden="true"></span>' : '') + (r.owned ? '<i class="lg-chk" aria-hidden="true">✓</i>' : '') + '</div><div class="lg-b"><b class="lg-t">' + esc(e.title) + '</b><div class="lg-m">' + (e.platform ? ctag(e.platform) : '') + (e.year ? tag(e.year, 'sky') : '') + lang + '</div>' + act + '</div></article>';
   }).join('') + '</div></section>';
 }
 function licFlag(c){ try { var k = String(c).toLowerCase(); return typeof FLAGS !== 'undefined' && (FLAGS[k] || (k === 'gb' && (FLAGS.en || FLAGS.uk))) || ''; } catch (x) { return ''; } }
@@ -8396,7 +8405,7 @@ function giOpen(info){
     var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); }).catch(function(){ if (!GI) return; GI.loading = false; GI.err = 'Les infos détaillées ne sont pas disponibles pour le moment.'; var el = document.getElementById('giDlg'); if (el) el.innerHTML = giHtml(); });
 }
 function giHtml(){
-  var i = GI.info, d = GI.data || {}, cover = (d.cover && giImg(d.cover.image_id, 't_cover_big_2x')) || (i.cvu && i.cvu !== 'none' ? i.cvu : '') || i.cv || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_screenshot_med')) || (GI.loading ? '' : genCover(i.title, i.platform)), art = (d.artworks && d.artworks[0] && giImg(d.artworks[0].image_id, 't_1080p')) || i.art || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_1080p')) || '';
+  var i = GI.info, d = GI.data || {}, cover = covFixGet(i.fr || i.title) || covFixGet(i.title) || (d.cover && giImg(d.cover.image_id, 't_cover_big_2x')) || (i.cvu && i.cvu !== 'none' ? i.cvu : '') || i.cv || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_screenshot_med')) || (GI.loading ? '' : genCover(i.title, i.platform)), art = (d.artworks && d.artworks[0] && giImg(d.artworks[0].image_id, 't_1080p')) || i.art || (d.screenshots && d.screenshots[0] && giImg(d.screenshots[0].image_id, 't_1080p')) || '';
   var y = i.year || (d.first_release_date ? String(new Date(d.first_release_date * 1000).getUTCFullYear()) : '');
   var comp = function(f){ return (d.involved_companies || []).filter(function(c){ return c[f]; }).map(function(c){ return c.company && c.company.name; }).filter(Boolean).join(', '); };
   var devs = i.dev || comp('developer'), pubs = i.pub || comp('publisher');
@@ -8430,7 +8439,8 @@ function giHtml(){
     + '<div class="gi-hd"><span class="gi-plat">' + esc(plats.length ? plats.slice(0, 4).join(' · ') + (plats.length > 4 ? ' +' + (plats.length - 4) : '') : (i.platform || '')) + '</span><h3 class="gi-title">' + esc(i.title) + '</h3><span class="gi-sub">' + esc([y, genres.split(', ')[0]].filter(Boolean).join(' · ')) + '</span>' + (rating ? '<span class="gi-rate"><b>' + rating[0] + '</b>/100 · ' + rating[1] + '</span>' : '') + '</div></div>'
     + (GI.loading ? '<p class="gi-load"><span class="nimp-spin"></span> Chargement des infos détaillées…</p>' : '')
     + (GI.err ? '<p class="gi-note">' + esc(GI.err) + '</p>' : '')
-    + (!GI.loading && window.PS_SB && !giRealCover(i) && !(d.cover || (d.screenshots || []).length) ? '<p class="gi-note gi-refetch">Aucune jaquette trouvée pour l\u2019instant. <button type="button" class="btn ghost small" data-girefetch="1">↻ Rechercher à nouveau sur IGDB</button></p>' : '')
+    + (S.readOnly ? '' : giCovEditHtml(i))
+    + (!GI.cvEdit && !GI.loading && window.PS_SB && !giRealCover(i) && !covFixGet(i.fr || i.title) && !(d.cover || (d.screenshots || []).length) ? '<p class="gi-note gi-refetch">Aucune jaquette trouvée pour l\u2019instant. <button type="button" class="btn ghost small" data-girefetch="1">↻ Rechercher à nouveau sur IGDB</button></p>' : '')
     + (!window.PS_SB ? '<p class="gi-note">Résumé, captures et vidéos disponibles sur ton site hébergé.</p>' : '')
     + (facts ? '<div class="gi-facts">' + facts + '</div>' : '')
     + (GI.tr && fr ? '<p class="gi-load"><span class="nimp-spin"></span> Traduction en français…</p>' : '')
@@ -10031,6 +10041,50 @@ document.addEventListener('click', function(e){
   var m = LMATCH[+t.getAttribute('data-lmgo')]; if (!m) return; var pl = list(m.r.platforms)[0] ? canonConsole(list(m.r.platforms)[0]) : '';
   closeDlg(); setTimeout(function(){ giOpen({title:m.r.title, platform:consoleFullName(pl) || pl, pname:pl, year:Date.parse(m.r.date) ? new Date(m.r.date).getFullYear() : '', ig:m.r.ig || '', cvu:m.r.cv || LM_COV[m.key] || '', url:m.r.url || '', ctx:{t:'lmatch'}}); }, 220);
 });
+
+
+/* ---------- Jaquettes personnalisées (jeux de la Base, licences, découverte, wishlist) ---------- */
+var COVFIX = {};
+(function covFixLoad(){ var tryLoad = function(){ if (!db) return setTimeout(tryLoad, 600); try { db.doc('meta/covfix').onSnapshot(function(d){ COVFIX = (d && d.exists && d.data().map) || {}; renderSoon(); }, function(){}); } catch (x) {} }; tryLoad(); })();
+function covFixGet(t){ var id = COVFIX[gmKey(t)]; return id && safeId(id) ? blob(id) : ''; }
+function covAbs(u){ try { return new URL(u, location.href).href; } catch (x) { return u; } }
+async function covFixSet(id){
+  if (!GI) return; var i = GI.info, k = gmKey(i.fr || i.title), u = id ? covAbs(blob(id)) : '';
+  if (id) COVFIX[k] = id; else delete COVFIX[k];
+  if (i.title && gmKey(i.title) !== k) { if (id) COVFIX[gmKey(i.title)] = id; else delete COVFIX[gmKey(i.title)]; }
+  await withRetry(function(){ return db.doc('meta/covfix').set({map:COVFIX}); });
+  var c = i.ctx || {};
+  try {
+    if (c.t === 'wish' && c.id) await db.collection('games').doc(c.id).update({coverId:id || ''});
+    if (c.t === 'disc' && c.id) await db.collection('discover').doc(c.id).update({cvu:u || ''});
+    if (c.t === 'lic' && c.lk && LICDB[c.lk] && LICDB[c.lk].games && LICDB[c.lk].games[c.ei]) { var cur = LICDB[c.lk], gs = cur.games.slice(); gs[c.ei] = Object.assign({}, gs[c.ei], {cvu:u || ''}); var nd = Object.assign({}, cur, {games:gs, updatedAt:Date.now()}); LICDB[c.lk] = nd; await db.collection('licences').doc(c.lk).set(nd); }
+  } catch (x) {}
+  i.cvu = u || 'none'; i.cv = ''; if (GI.data && id) GI.data.cover = null; GI.cvEdit = false; giRedraw(); render();
+}
+function giCovEditHtml(i){
+  var has = !!covFixGet(i.fr || i.title);
+  return '<div class="gi-cvedit">' + (GI.cvEdit ? '<div class="gi-cvbox"><b>🖼 Choisir une jaquette</b>'
+    + '<div class="gi-cvrow"><label class="btn small gi-cvfile">📁 Image de mon ordinateur<input type="file" accept="image/*" class="sr" id="giCvFile"></label>' + (window.PS_SB ? '<span class="gi-cvor">ou</span><input type="url" id="giCvUrl" placeholder="Coller l’adresse d’une image trouvée sur Internet"><button type="button" class="btn ghost small" data-gicvurl="1">Utiliser</button>' : '') + '</div>'
+    + '<div class="gi-cvrow">' + coverLinks(i.fr || i.title) + (has ? '<button type="button" class="link danger" data-gicvdel="1">Retirer ma jaquette</button>' : '') + '<span class="spacer"></span><button type="button" class="btn ghost small" data-gicvedit="0">Fermer</button></div></div>'
+    : '<button type="button" class="btn ghost small" data-gicvedit="1">🖼 ' + (giRealCover(i) || has ? 'Changer la jaquette' : 'Ajouter une jaquette') + '</button>') + '</div>';
+}
+document.addEventListener('click', async function(e){
+  var t = e.target.closest && e.target.closest('[data-gicvedit],[data-gicvurl],[data-gicvdel]'); if (!t || !GI || S.readOnly) return;
+  e.preventDefault();
+  if (t.hasAttribute('data-gicvedit')) { GI.cvEdit = t.getAttribute('data-gicvedit') === '1'; giRedraw(); return; }
+  if (t.hasAttribute('data-gicvdel')) { t.disabled = true; try { await covFixSet(''); toast('Jaquette retirée'); } catch (x) { toast(failMsg(x)); t.disabled = false; } return; }
+  var u = ((document.getElementById('giCvUrl') || {}).value || '').trim(); if (!/^https?:\/\//i.test(u)) { toast('Colle l’adresse complète de l’image (https://…)'); return; }
+  t.disabled = true; t.textContent = 'Import…';
+  try { var id = await igStore(u); if (!id) throw new Error('Image introuvable à cette adresse'); await covFixSet(id); toast('Jaquette enregistrée'); }
+  catch (x) { toast(x && x.message ? x.message : 'Import impossible'); t.disabled = false; t.textContent = 'Utiliser'; }
+});
+document.addEventListener('change', async function(e){
+  if (!e.target || e.target.id !== 'giCvFile' || !GI) return; var f = e.target.files && e.target.files[0]; if (!f) return;
+  var lb = e.target.closest('label'); if (lb) lb.classList.add('busy');
+  try { var id = await uploadFile(f); if (!id) throw new Error('Envoi impossible'); await covFixSet(id); toast('Jaquette enregistrée'); }
+  catch (x) { toast(failMsg(x)); if (lb) lb.classList.remove('busy'); }
+});
+document.addEventListener('keydown', function(e){ if (e.key === 'Enter' && e.target && e.target.id === 'giCvUrl') { e.preventDefault(); var b = document.querySelector('[data-gicvurl]'); if (b) b.click(); } });
 
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
