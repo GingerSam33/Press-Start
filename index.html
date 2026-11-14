@@ -5294,10 +5294,11 @@ document.addEventListener('click', async function(e){
     } catch (x) { var m = aiErr(x && x.code); if (m) toast(m); }
     S.licBusy = false; render(); return;
   }
-  if (t.hasAttribute('data-licgo')) { if (S.licEdit) return; S.licOpen = t.getAttribute('data-licgo'); S.licF = 'all'; go('licence'); }
+  if (t.hasAttribute('data-licgo')) { if (S.licEdit) return; clearTimeout(LICST); S.licQ = ''; S.licOpen = t.getAttribute('data-licgo'); S.licF = 'all'; go('licence'); }
 });
 document.addEventListener('keydown', function(e){ if (e.target.id !== 'licTot') return; if (e.key === 'Enter') { e.preventDefault(); var b = document.querySelector('[data-licok]'); if (b) b.click(); } else if (e.key === 'Escape') { S.licEdit = null; render(); } });
-document.addEventListener('input', function(e){ if (e.target.id === 'licSearch') { S.licQ = e.target.value; render(); } });
+var LICST = null;
+document.addEventListener('input', function(e){ if (e.target.id !== 'licSearch') return; var v = e.target.value, pos = e.target.selectionStart; clearTimeout(LICST); LICST = setTimeout(function(){ S.licQ = v; render(); var i = document.getElementById('licSearch'); if (i && document.activeElement !== i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} } }, 120); });
 
 function viewQuick(v){
   if (v === 'decouvrir') return viewDiscover();
@@ -8880,7 +8881,15 @@ function licConsolesOf(g){ return list(g.consoles).concat(getVersions(g).map(fun
 var LIC_STOP = ['the','le','la','les','l','a','an','un','une','of','de','du','des','and','et'];
 function licToks(t){ return norm(String(t || '')).replace(/&/g, ' and ').replace(/[’'`´]/g, '').split(/[^a-z0-9]+/).filter(function(w){ return w && LIC_STOP.indexOf(w) < 0; }); }
 function licCore(t, lic){ var lw = licToks(lic); return licToks(t).filter(function(w){ return lw.indexOf(w) < 0; }).join(' '); }
+var LICM_CACHE = {};
 function licMatch(lic){
+  var L0 = LICDB[licKey(lic)], c = LICM_CACHE[lic];
+  if (c && c.games === S.games && c.n === S.games.length && c.L === L0) return c.res;
+  var res = licMatchRaw(lic); LICM_CACHE[lic] = {games:S.games, n:S.games.length, L:L0, res:res}; return res;
+}
+var LICCORE_C = {};
+function licCoreC(t, lic){ var k = lic + '\u0001' + t; return LICCORE_C[k] !== undefined ? LICCORE_C[k] : (LICCORE_C[k] = licCore(t, lic)); }
+function licMatchRaw(lic){
   var L = LICDB[licKey(lic)], own = S.games.filter(function(g){ return licKey((g.licence || '').trim()) === licKey(lic); });
   var pool = own.concat(S.games.filter(function(g){ return own.indexOf(g) < 0; }));
   var mine = own.filter(function(g){ return g.kind !== 'wish'; }), wish = own.filter(function(g){ return g.kind === 'wish'; });
@@ -8889,7 +8898,7 @@ function licMatch(lic){
   var rows = entries.map(function(e, ei){
     var g = e.platform ? idx[licEntryKey(e.title, e.platform, lic)] : null; if (g && used[g.id]) g = null;
     if (!g) { var et = licStrip(e.title, lic), ep = e.platform ? norm(canonConsole(e.platform)) : '';
-      var cands = pool.filter(function(x){ if (used[x.id]) return false; var xt = licStrip(x.name, lic), lc = licCore(e.title, lic); return gmKey(xt) === gmKey(et) || (lc && licCore(x.name, lic) === lc) || gmSim(xt, et) >= 0.9 || gmSim(x.name, e.title) >= 0.9; });
+      var cands = pool.filter(function(x){ if (used[x.id]) return false; var lc = licCoreC(e.title, lic); if (lc && licCoreC(x.name, lic) === lc) return true; var xt = licStrip(x.name, lic); if (gmKey(xt) === gmKey(et)) return true; if (own.indexOf(x) < 0) return false; return gmSim(xt, et) >= 0.9 || gmSim(x.name, e.title) >= 0.9; });
       var conK = function(c){ c = canonConsole(c || ''); return norm(consoleFullName(c) || c); }, epK = e.platform ? conK(e.platform) : '', ey = parseInt(e.year, 10) || 0;
       var okYear = function(x){ var xy = parseInt(x.year, 10) || 0; return !ey || !xy || Math.abs(xy - ey) <= 1; };
       var okCon = function(x){ var xc = licConsolesOf(x); return !epK || !xc.length || xc.some(function(c){ var k = conK(c); return k === epK || norm(canonConsole(c)) === ep; }); };
