@@ -4466,7 +4466,30 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
   window.PS_HOSTED = true; window.PS_SB = sb; window.PS_SB_URL = SB_URL;
   var clone = function(o){ return o == null ? o : JSON.parse(JSON.stringify(o)); };
   var genId = function(){ var a = new Uint8Array(10); crypto.getRandomValues(a); return Array.from(a, function(b){ return b.toString(36).padStart(2, '0'); }).join('').slice(0, 20); };
-  var cache = {}, loading = {}, colSubs = {}, docSubs = {};
+  var cache = {}, loading = {}, colSubs = {}, docSubs = {}, stamps = {};
+  /* ---- cache local (IndexedDB) : on ne retélécharge que ce qui a changé ---- */
+  var IDB = (function(){ var pr = null; function open(){ if (!pr) pr = new Promise(function(res){ try { var r = indexedDB.open('ps-cache', 1); r.onupgradeneeded = function(){ r.result.createObjectStore('kv'); }; r.onsuccess = function(){ res(r.result); }; r.onerror = function(){ res(null); }; r.onblocked = function(){ res(null); }; } catch (x) { res(null); } }); return pr; }
+    return {get:async function(k){ var d = await open(); if (!d) return null; return new Promise(function(res){ try { var q = d.transaction('kv').objectStore('kv').get(k); q.onsuccess = function(){ res(q.result || null); }; q.onerror = function(){ res(null); }; } catch (x) { res(null); } }); },
+      set:async function(k, v){ var d = await open(); if (!d) return; try { d.transaction('kv', 'readwrite').objectStore('kv').put(v, k); } catch (x) {} }}; })();
+  var ckey = function(col){ return 'docs:' + SB_URL + ':' + col; }, saveT = {};
+  function persist(col){ clearTimeout(saveT[col]); saveT[col] = setTimeout(function(){ if (cache[col]) IDB.set(ckey(col), {rows:cache[col], ts:stamps[col] || {}}); }, 1500); }
+  async function tries(fn){ var last; for (var a = 0; a < 4; a++) { try { var r = await fn(); if (r.error) throw r.error; return r; } catch (x) { last = x; await new Promise(function(ok){ setTimeout(ok, 600 * (a + 1)); }); } } throw last; }
+  /* charge une collection : depuis le cache local + seulement les documents modifiés depuis */
+  async function deltaLoad(col, batch){
+    var c = await IDB.get(ckey(col)), rows = (c && c.rows) || {}, ts = (c && c.ts) || {};
+    var meta = [], from = 0;
+    for (;;) { var r = await tries(function(){ return sb.from('docs').select('id,updated_at').eq('col', col).order('id').range(from, from + 999); }); meta = meta.concat(r.data || []); if (!r.data || r.data.length < 1000) break; from += 1000; }
+    var need = meta.filter(function(m){ return !Object.prototype.hasOwnProperty.call(rows, m.id) || ts[m.id] !== m.updated_at; }).map(function(m){ return m.id; });
+    var got = {}, B = batch || 100, pos = 0;
+    var worker = async function(){ while (pos < need.length) { var ids = need.slice(pos, pos + B); pos += B; var r = await tries(function(){ return sb.from('docs').select('id,data,updated_at').eq('col', col).in('id', ids); }); (r.data || []).forEach(function(x){ got[x.id] = x; }); } };
+    await Promise.all([worker(), worker(), worker()]);
+    var m2 = {}, ts2 = {};
+    meta.forEach(function(m){ if (got[m.id]) { m2[m.id] = got[m.id].data || {}; ts2[m.id] = got[m.id].updated_at; } else if (Object.prototype.hasOwnProperty.call(rows, m.id)) { m2[m.id] = rows[m.id]; ts2[m.id] = ts[m.id]; } });
+    if (meta.length && !Object.keys(m2).length) throw new Error('aucune donnée reçue');
+    IDB.set(ckey(col), {rows:m2, ts:ts2});
+    return {rows:m2, ts:ts2, fetched:need.length, total:meta.length};
+  }
+  window.PS_DELTA = deltaLoad;
   function snapOf(col){ var m = cache[col] || {}; return {docs:Object.keys(m).map(function(id){ return {id:id, exists:true, data:function(){ return clone(m[id]); }}; })}; }
   function docSnap(col, id){ var m = cache[col] || {}, has = Object.prototype.hasOwnProperty.call(m, id); return {id:id, exists:has, data:function(){ return has ? clone(m[id]) : undefined; }}; }
   function notify(col, id){
@@ -4474,21 +4497,21 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
     if (id != null) (docSubs[col + '/' + id] || []).forEach(function(cb){ try { cb(docSnap(col, id)); } catch (e) { console.error(e); } });
   }
   async function loadCol(col){
-    var rows = [], from = 0, step = 1000;
-    for (;;) { var r = await sb.from('docs').select('id,data').eq('col', col).range(from, from + step - 1); if (r.error) throw r.error; rows = rows.concat(r.data || []); if (!r.data || r.data.length < step) break; from += step; }
-    var m = {}; rows.forEach(function(x){ m[x.id] = x.data || {}; }); cache[col] = m;
+    var d = await deltaLoad(col, 100); cache[col] = d.rows; stamps[col] = d.ts;
   }
   function ensure(col){ if (cache[col]) return Promise.resolve(); if (!loading[col]) loading[col] = loadCol(col).finally(function(){ delete loading[col]; }); return loading[col]; }
   async function write(col, id, data){
     await ensure(col); var prev = cache[col][id];
     cache[col][id] = data; notify(col, id);
     var r = await sb.from('docs').upsert({col:col, id:id, data:data, updated_at:new Date().toISOString()});
+    if (!r.error) { (stamps[col] = stamps[col] || {})[id] = null; persist(col); }
     if (r.error) { if (prev === undefined) delete cache[col][id]; else cache[col][id] = prev; notify(col, id); var e = new Error(r.error.message); e.code = 'write_failed'; throw e; }
   }
   async function del(col, id){
     await ensure(col); var prev = cache[col][id]; delete cache[col][id]; notify(col, id);
     var r = await sb.from('docs').delete().eq('col', col).eq('id', id);
     if (r.error) { if (prev !== undefined) cache[col][id] = prev; notify(col, id); throw new Error(r.error.message); }
+    if (stamps[col]) delete stamps[col][id]; persist(col);
   }
   function docRef(col, id){
     return {id:id,
@@ -4512,8 +4535,8 @@ dialog:has(.lm-dlg){width:min(680px,calc(100vw - 24px)) !important;max-width:680
   function realtime(){
     sb.channel('ps-docs').on('postgres_changes', {event:'*', schema:'public', table:'docs'}, function(p){
       var row = p.new && p.new.col ? p.new : p.old; if (!row || !cache[row.col]) return;
-      if (p.eventType === 'DELETE') delete cache[row.col][row.id]; else cache[row.col][row.id] = p.new.data || {};
-      notify(row.col, row.id);
+      if (p.eventType === 'DELETE') { delete cache[row.col][row.id]; if (stamps[row.col]) delete stamps[row.col][row.id]; } else { cache[row.col][row.id] = p.new.data || {}; (stamps[row.col] = stamps[row.col] || {})[row.id] = p.new.updated_at || null; }
+      notify(row.col, row.id); persist(row.col);
     }).subscribe();
   }
   var assets = {
@@ -7581,6 +7604,7 @@ var CAT_FAIL = {};
 async function catFetchChunks(path){
   var sb = window.PS_SB;
   if (!sb) return snapList(await db.collection(path).get());
+  if (window.PS_DELTA) { var dl = await window.PS_DELTA(path, 4); return Object.keys(dl.rows).sort().map(function(id){ return Object.assign({}, dl.rows[id] || {}, {id:id}); }); }
   var tries = async function(fn){ var last; for (var a = 0; a < 4; a++) { try { var r = await fn(); if (r.error) throw r.error; return r; } catch (x) { last = x; await new Promise(function(ok){ setTimeout(ok, 600 * (a + 1)); }); } } throw last; };
   var ids = [], from = 0;
   for (;;) { var r = await tries(function(){ return sb.from('docs').select('id').eq('col', path).order('id').range(from, from + 999); }); ids = ids.concat((r.data || []).map(function(x){ return x.id; })); if (!r.data || r.data.length < 1000) break; from += 1000; }
