@@ -5114,7 +5114,8 @@ function render(){
     if (cur) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
   });
   var counts = {
-    physique: gamesOf('physique').reduce(function(n, g){ return n + gameCopies(g).n; }, 0), demat: gamesOf('demat').reduce(function(n, g){ return n + gameCopies(g).n; }, 0), wish: gamesOf('wish').length,
+    physique: gamesOf('physique').concat((S.compils || []).filter(function(g){ return (g.kind || 'physique') === 'physique'; })).reduce(function(n, g){ return n + gameCopies(g).n; }, 0), demat: gamesOf('demat').concat((S.compils || []).filter(function(g){ return g.kind === 'demat'; })).reduce(function(n, g){ return n + gameCopies(g).n; }, 0), wish: gamesOf('wish').length,
+    allg: S.games.filter(function(g){ return g.kind !== 'wish'; }).reduce(function(n, g){ return n + gameCopies(g, '', true).n; }, 0),
     consoles: S.consoles.filter(function(c){ return c.owned; }).length,
     decouvrir: DISC.length,
     suivi: S.games.filter(function(g){ return g.kind !== 'wish' && g.status === 'En cours'; }).length,
@@ -5159,16 +5160,19 @@ function sortGames(res){
   });
 }
 function homeBase(){
-  var H = S.home;
-  return S.games.filter(function(g){
+  var H = S.home, src = H.all ? S.games : S.games.filter(function(g){ return !boxOnly(g); }).concat((S.compils || []).filter(function(g){ return g.kind !== 'wish'; }));
+  return src.filter(function(g){
     if (H.kind !== 'wish' && g.kind === 'wish') return false;
     if (H.kind && (g.kind || 'physique') !== H.kind) return false;
     if (H.brand && !list(g.consoles).some(function(c){ return brandOfConsole(c) === H.brand; })) return false;
     return true;
   });
 }
-function gameCopies(g, brand){
+/* jeu présent uniquement dans une compilation */
+function boxOnly(g){ var vs = Array.isArray(g.versions) && g.versions.length ? getVersions(g) : null; return !!(vs && vs.length && vs.every(function(v){ return v.box; })); }
+function gameCopies(g, brand, withBox){
   var vs = Array.isArray(g.versions) && g.versions.length ? getVersions(g) : null, gcs = list(g.consoles);
+  if (vs && !withBox) { vs = vs.filter(function(v){ return !v.box; }); if (!vs.length) return {n:0, cons:[], boxes:0}; }
   if (vs) {
     var used = {}, out2 = [], boxes = 0;
     vs.forEach(function(v){ if (v.console && v.kind !== 'box') used[norm(v.console)] = (used[norm(v.console)] || 0) + 1; });
@@ -5202,7 +5206,7 @@ function viewHome(counts){
   var cp = {copies:0, dup:0, multi:0};
   cp.boxes = 0;
   base.forEach(function(g){
-    var gc = gameCopies(g, H.brand), uniq = {}; cp.boxes += gc.boxes || 0;
+    var gc = gameCopies(g, H.brand, H.all), uniq = {}; cp.boxes += gc.boxes || 0;
     gc.cons.forEach(function(c){ if (c) { byC[c] = (byC[c] || 0) + 1; uniq[norm(c)] = 1; } });
     var nu = Math.max(1, Object.keys(uniq).length);
     cp.copies += gc.n; cp.dup += Math.max(0, gc.n - nu); cp.multi += nu - 1;
@@ -5244,6 +5248,7 @@ function viewHome(counts){
     + statToggle('Jeux physiques', counts.physique, 'Collection', 'lav', 'physique')
     + statToggle('Jeux dématérialisés', counts.demat, 'Numérique', 'sky', 'demat')
     + statToggle('Wishlist', counts.wish, 'Envies', 'sky', 'wish')
+    + '<button class="stat stat-all' + (H.all ? ' on' : '') + '" style="--fc:#0E7C86" data-hall="1" aria-pressed="' + !!H.all + '" title="Chaque jeu d\u2019une compilation compte pour un jeu"><span>Tous mes jeux</span><strong>' + counts.allg + '</strong>' + tag('Avec compilations', 'teal') + '</button>'
     + '</section>';
   h += '<section class="grid2"><div class="card chart-card"><div class="ch-head"><div><h2>Répartition des jeux</h2><div class="sub">Clique sur une console pour filtrer</div></div>' + chartSwitch() + '</div>';
   if (total) {
@@ -5510,7 +5515,7 @@ function licCard(x, games, i){
   if (!covers.length && LDc) licCovEnrich(x.k);
   var stack = '<div class="lic-stack" aria-hidden="true">' + (covers.length ? covers.map(function(g, k){ return '<img src="' + blob(g.coverId) + '" alt="" style="--k:' + k + '">'; }).join('') : ecov.length ? ecov.map(function(u, k){ return '<img src="' + esc(u) + '" alt="" style="--k:' + k + '" referrerpolicy="no-referrer">'; }).join('') : gs.slice(0, 3).map(function(g, k){ return '<span style="--k:' + k + '">' + esc(initials(g.name)) + '</span>'; }).join('')) + '</div>';
   var edit = S.licEdit === x.k, ro = S.readOnly;
-  var total = edit ? '<span class="lic-edit"><label class="sr" for="licTot">Nombre total de jeux de la licence</label><input id="licTot" type="number" min="' + x.o + '" max="999" inputmode="numeric" value="' + (x.t || '') + '" placeholder="Total"><button type="button" class="opt-ic ok" data-licok="' + esc(x.k) + '" aria-label="Valider">' + ICON_CHECK + '</button>' + (sampleFn ? '<button type="button" class="ai-btn mini" data-licai="' + esc(x.k) + '"' + (S.licBusy ? ' disabled' : '') + '>' + ICON_SPARK + (S.licBusy ? '…' : 'Claude') + '</button>' : '') + '</span>'
+  var total = edit ? '<span class="lic-edit"><label class="sr" for="licTot">Nombre total de jeux de la licence</label><input id="licTot" type="number" min="' + x.o + '" max="999" inputmode="numeric" value="' + (x.t || '') + '" placeholder="Total"><button type="button" class="opt-ic ok" data-licok="' + esc(x.k) + '" aria-label="Valider">' + ICON_CHECK + '</button>' + '</span>'
     : '<button type="button" class="tag t-sky lic-tot" data-licedit="' + esc(x.k) + '"' + (ro ? ' disabled' : '') + ' title="Modifier le nombre total de jeux">' + (x.t ? x.t + ' jeux' : 'Total ?') + (ro ? '' : ' ✎') + '</button>';
   var sel = S.licSel && S.licSel.indexOf(x.k) >= 0;
   return '<article class="card lic-card' + (sel ? ' picked' : '') + '" style="--i:' + i + '">' + (S.licSel ? '<button type="button" class="lic-open" data-licpick="' + esc(x.k) + '" aria-pressed="' + sel + '" aria-label="Sélectionner ' + esc(x.k) + '"></button><span class="lic-check" aria-hidden="true">' + (sel ? '✓' : '') + '</span>' : '<button type="button" class="lic-open" data-licgo="' + esc(x.k) + '" aria-label="Voir les jeux ' + esc(x.k) + '"></button>') + '<div class="lic-top">' + stack + licRing(x.p) + '</div><h3>' + esc(x.k) + '</h3>'
@@ -6995,7 +7000,7 @@ document.addEventListener('keydown', function(e){ if (e.key === 'Enter' && e.tar
 var sampleFn = null;
 var ICON_SPARK = '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z"></path><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z" opacity=".7"></path></svg>';
 var aiCtl = null, aiData = null;
-function aiFillBtn(){ return '<button type="button" class="ai-btn" data-act="aiFill"' + (sampleFn ? '' : ' hidden') + '>' + ICON_SPARK + 'Compléter avec Claude</button>'; }
+function aiFillBtn(){ return ''; }
 function aiErr(code){
   return code === 'not_granted' ? 'L\u2019accès à Claude n\u2019a pas été autorisé pour cette page.'
     : code === 'rate_limited' || code === 'queue_overflow' ? 'Trop de demandes en même temps, réessaie dans un instant.'
@@ -9873,7 +9878,7 @@ function gfCmpHtml(g){
     + '<label class="gf2-cq' + (on ? ' on' : '') + '"><input type="radio" name="compil" value="1"' + (on ? ' checked' : '') + '>' + IC.box + 'Oui, une boîte avec plusieurs jeux</label></div>'
     + '<div class="gf2-cmpbox"' + (on ? '' : ' hidden') + '><p class="hint">La boîte ne sera pas comptée dans ta collection : ce sont les jeux qu’elle contient qui le seront. Elle reste visible dans tes licences.</p>'
     + '<div class="cmp-list" id="cmpList">' + cmpListHtml(items) + '</div>'
-    + '<div class="cmp-add"><input id="cmpIn" type="text" placeholder="Cherche un jeu de ta collection ou tape son nom" autocomplete="off" aria-label="Ajouter un jeu à la compilation"><button type="button" class="btn small" data-cmpadd="1">Ajouter</button><button type="button" class="btn ghost small" data-cmpclaude="1">' + IC.spark + 'Trouver avec Claude</button></div>'
+    + '<div class="cmp-add"><input id="cmpIn" type="text" placeholder="Cherche un jeu de ta collection ou tape son nom" autocomplete="off" aria-label="Ajouter un jeu à la compilation"><button type="button" class="btn small" data-cmpadd="1">Ajouter</button></div>'
     + '<div class="cmp-sug" id="cmpSug" hidden></div>'
     + '<input type="hidden" name="compilGames" id="cmpVal" value="' + esc(JSON.stringify(items)) + '"></div></div>';
 }
@@ -11245,10 +11250,11 @@ document.addEventListener('click', function(e){
 document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-catretry]'); if (!t) return; var k = t.getAttribute('data-catretry'); delete CAT_FAIL[k]; render(); });
 /* ---------- Events ---------- */
 document.addEventListener('click', async function(e){
-  var t = e.target.closest('[data-palette],[data-nav],[data-act],[data-hkind],[data-hbrand],[data-hconsole],[data-hclear],[data-ymode],[data-nmode],[data-htoggle],[data-brand],[data-brandtab],[data-toggle],[data-console],[data-sort],[data-game]');
+  var t = e.target.closest('[data-palette],[data-nav],[data-act],[data-hall],[data-hkind],[data-hbrand],[data-hconsole],[data-hclear],[data-ymode],[data-nmode],[data-htoggle],[data-brand],[data-brandtab],[data-toggle],[data-console],[data-sort],[data-game]');
   if (!t || t.disabled) return;
   if (t.hasAttribute('data-palette')) { palette = t.getAttribute('data-palette'); try { localStorage.setItem('ps-palette', palette); } catch (x) {} applyPalette(); return; }
   if (t.hasAttribute('data-nav')) { go(t.getAttribute('data-nav')); return; }
+  if (t.hasAttribute('data-hall')) { S.home.all = !S.home.all; if (S.home.all && S.home.kind === 'wish') S.home.kind = ''; S.home.swap = true; render(); return; }
   if (t.hasAttribute('data-hkind')) { var hk = t.getAttribute('data-hkind'); S.home.kind = S.home.kind === hk ? '' : hk; S.home.swap = true; render(); return; }
   if (t.hasAttribute('data-hbrand')) { var hb = t.getAttribute('data-hbrand'); S.home.brand = S.home.brand === hb ? '' : hb; if (S.home.brand) S.home.console = S.home.console.filter(function(x){ return x !== '__autres__' && brandOfConsole(x) === S.home.brand; }); else S.home.console = S.home.console.filter(function(x){ return x !== '__autres__'; }); S.home.swap = true; render(); return; }
   if (t.hasAttribute('data-hconsole')) { var hc = t.getAttribute('data-hconsole'), hcs = S.home.console.slice(), hci = hcs.indexOf(hc); if (hci >= 0) hcs.splice(hci, 1); else hcs.push(hc); S.home.console = hcs; S.home.swap = true; render(); var hl = document.getElementById('homeList'); if (hl && hl.getBoundingClientRect().top > window.innerHeight - 120) hl.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'}); return; }
