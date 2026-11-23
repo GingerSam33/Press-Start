@@ -4803,6 +4803,27 @@ dialog.ask-dlg::backdrop{background:rgba(10,8,30,.5)}
 .wl-eta{display:block;margin-top:6px;font-size:12px;font-weight:600;color:#1E5FD6}
 .gi-onway{color:#1E5FD6 !important;display:inline-flex;align-items:center;gap:6px}
 .gi-onway .ic{width:18px;height:18px;margin:0}
+
+/* ---- fenêtre « Mon exemplaire » : défile à l'intérieur, enregistrement auto ---- */
+dialog:has(.ned-dlg){max-height:calc(100dvh - 32px) !important;overflow:hidden !important}
+.ned-dlg{display:flex !important;flex-direction:column;max-height:calc(100dvh - 32px)}
+.ned-dlg > header,.ned-dlg > footer{flex:none}
+.ned-dlg > .body{flex:1 1 auto;min-height:0;overflow-y:auto !important;overscroll-behavior:contain;padding-bottom:20px}
+.ned-phg{padding:4px}
+.ned-saved{font-size:12.5px;color:var(--muted);margin-right:6px}
+.ned-saved.ok{color:#1F8A4C;font-weight:600}
+@media (max-width:640px){.ned-saved{display:none}}
+/* ---- graphique : physiques / démat / tous ---- */
+.ch-tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center}
+.ch-kind button[disabled]{opacity:.45;cursor:not-allowed}
+.c-solo{border:0;font:inherit;cursor:pointer}
+/* ---- découverte du jour : texte et flèches séparés ---- */
+.dc-sub{margin-right:14px}
+.dc-head>div:first-child .dc-hist{margin-top:8px}
+/* ---- retour vers la compilation ---- */
+.gdlg-xw{justify-content:space-between !important;align-items:flex-start}
+.gdlg-xw .gdlg-x{margin-left:auto}
+.gdlg-back{min-height:40px;padding:0 16px;font-size:13.5px;box-shadow:0 8px 20px -10px rgba(20,16,60,.5);max-width:min(60vw,420px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 <script>
 var IC = {truck:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5h11v9h-11z"/><path d="M13.5 9.5h4l3 3.2v2.8h-7"/><circle cx="7" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>', crop:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5V18h15.5"/><path d="M2.5 6H18v15.5"/></svg>', pad:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a5 5 0 0 1 4.9 5.9l-.6 3a2.6 2.6 0 0 1-4.6 1.1L15 16H9l-1.7 2a2.6 2.6 0 0 1-4.6-1.1l-.6-3A5 5 0 0 1 7 8z"/><path d="M7.5 11v3M6 12.5h3"/><circle cx="15.5" cy="11.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="13.5" r=".6" fill="currentColor"/></svg>', stick:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="3"/><path d="M12 9v6"/><path d="M5 17.5h14l-1 3.5H6z"/><circle cx="17" cy="15.5" r=".7" fill="currentColor"/></svg>', spark:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 15.6l-1.7-4.6L6 9.3l4.3-1.7z"/><path d="M18.5 15l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/><path d="M5.5 15.5l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z"/></svg>', box:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5l9-4.5 9 4.5v9l-9 4.5-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/><path d="M7.5 5.3l9 4.5"/></svg>', crown:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z"/><path d="M5 21h14"/></svg>', search:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.6-4.6"/></svg>', cal:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h.5M8 17.5h2M12 17.5h2"/></svg>', folder:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 10.5h18"/></svg>', hourglass:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h11M6.5 21h11"/><path d="M7.5 3c0 4.5 4.5 5.5 4.5 9s-4.5 4.5-4.5 9M16.5 3c0 4.5-4.5 5.5-4.5 9s4.5 4.5 4.5 9"/></svg>', puzzle:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h4a2.3 2.3 0 1 1 4.6 0h4.4v4.2a2.3 2.3 0 1 1 0 4.6V20h-13z"/></svg>', dice:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.3" cy="8.3" r="1.1" fill="currentColor"/><circle cx="15.7" cy="8.3" r="1.1" fill="currentColor"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/><circle cx="8.3" cy="15.7" r="1.1" fill="currentColor"/><circle cx="15.7" cy="15.7" r="1.1" fill="currentColor"/></svg>', tag:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12.5V4a1 1 0 0 1 1-1h8.5L21 11.5 12.5 20z"/><circle cx="7.8" cy="7.8" r="1.5"/></svg>', wheel:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="1.8"/><path d="M12 3.5v6.7M12 13.8v6.7M3.5 12h6.7M13.8 12h6.7M6 6l4.7 4.7M13.3 13.3L18 18M18 6l-4.7 4.7M10.7 13.3L6 18"/></svg>', slot:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="15" height="15" rx="2.5"/><path d="M6 9.5h9v6H6zM9 9.5v6M12 9.5v6"/><path d="M18 11h2V5.5"/><circle cx="20" cy="4.3" r="1.3"/></svg>', camera:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5a2 2 0 0 1 2-2h2.3L9 4h6l1.7 2.5H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.8"/></svg>', help:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.3a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4"/><circle cx="12" cy="17.6" r=".6" fill="currentColor"/></svg>', trophy:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5a3 3 0 0 0 3 4M16.5 6h3a3 3 0 0 1-3 4"/><path d="M12 13.5V17M8.5 20.5h7M9.5 17h5l.8 3.5h-6.6z"/></svg>', globe:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg>', bell:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>', gift:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.5V20h14v-7.5M12 8.5V20"/><path d="M12 8.5C10.5 5 7 4.5 7 6.5S10 8.5 12 8.5zM12 8.5c1.5-3.5 5-4 5-2s-3 2-5 2z"/></svg>', news:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v13.5a1.5 1.5 0 0 0 3 0V9h-3"/><path d="M4 5v13.5A1.5 1.5 0 0 0 5.5 20h13"/><path d="M7 8.5h7M7 12h7M7 15.5h4"/></svg>', warn:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>', checksq:'<svg class="ic" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="M8 12.3l2.8 2.8L16.3 9.2"/></svg>'};
@@ -5201,11 +5222,12 @@ function dupUnclear(g){
 
 function viewHome(counts){
   var H = S.home, base = homeBase(), swap = H.swap; H.swap = false;
+  var ck = H.kind || S.chartKind || 'physique', cbase = H.kind || ck === 'all' ? base : base.filter(function(g){ return (g.kind || 'physique') === ck; });
   // répartition par console
   var byC = {};
   var cp = {copies:0, dup:0, multi:0};
   cp.boxes = 0;
-  base.forEach(function(g){
+  cbase.forEach(function(g){
     var gc = gameCopies(g, H.brand, H.all), uniq = {}; cp.boxes += gc.boxes || 0;
     gc.cons.forEach(function(c){ if (c) { byC[c] = (byC[c] || 0) + 1; uniq[norm(c)] = 1; } });
     var nu = Math.max(1, Object.keys(uniq).length);
@@ -5224,6 +5246,7 @@ function viewHome(counts){
   var rows = sortGames(base.filter(function(g){
     var cs = list(g.consoles);
     if (H.dup && !isDup(g, groups)) return false;
+    if (H.solo && (isDup(g, groups) || isMulti(g, groups))) return false;
     if (H.multi && !isMulti(g, groups)) return false;
     if (H.console.length && !cs.some(function(c){ return H.console.indexOf(c) >= 0 || H.console.some(function(hc){ return hc !== '__autres__' && norm(consoleFullName(canonConsole(hc)) || hc) === norm(consoleFullName(canonConsole(c)) || c); }) || (H.console.indexOf('__autres__') >= 0 && H.otherList.indexOf(c) >= 0); })) return false;
     if (H.lic === '__none__') { if ((g.licence || '').trim()) return false; } else if (H.lic && norm(g.licence) !== norm(H.lic)) return false;
@@ -5250,7 +5273,7 @@ function viewHome(counts){
     + statToggle('Wishlist', counts.wish, 'Envies', 'sky', 'wish')
     + '<button class="stat stat-all' + (H.all ? ' on' : '') + '" style="--fc:#0E7C86" data-hall="1" aria-pressed="' + !!H.all + '" title="Chaque jeu d\u2019une compilation compte pour un jeu"><span>Tous mes jeux</span><strong>' + counts.allg + '</strong>' + tag('Avec compilations', 'teal') + '</button>'
     + '</section>';
-  h += '<section class="grid2"><div class="card chart-card"><div class="ch-head"><div><h2>Répartition des jeux</h2><div class="sub">Clique sur une console pour filtrer</div></div>' + chartSwitch() + '</div>';
+  h += '<section class="grid2"><div class="card chart-card"><div class="ch-head"><div><h2>Répartition des jeux</h2><div class="sub">Clique sur une console pour filtrer</div></div><div class="ch-tools">' + chartKindSwitch() + chartSwitch() + '</div></div>';
   if (total) {
     var C = 2 * Math.PI * 74, acc = 0, circles = '', legend = '', brandIdx = {};
     var SHADES = ['', 'white 28%', 'black 22%', 'white 50%', 'black 38%', 'white 66%', 'black 52%'];
@@ -5258,7 +5281,7 @@ function viewHome(counts){
     var items = top.filter(function(d){ return d[1] > 0 || H.console.indexOf(d[0]) >= 0; }).map(function(d, i){ return {k:d[0], v:d[1], lab:d[2], col:segColor(d[0], i)}; });
     items = items.filter(function(d){ return CHART_HIDE_BRANDS.indexOf(brandOfConsole(d.k)) < 0; });
     h += (S.chartView === 'bars' ? chartBars(items, total, H) : chartRing(items.filter(function(d){ return d.v > 0; }), total, cNum, cLab, H))
-      + '<div class="copies" aria-label="Détail du total"><span class="cpi"><b>' + base.length + '</b> jeu' + (base.length > 1 ? 'x' : '') + '</span><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-dup cpf' + (H.dup ? ' on' : '') + '" data-htoggle="dup" aria-pressed="' + !!H.dup + '" title="Afficher uniquement mes jeux en doublon (' + (H.dupN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.dup + '</b> en doublon</button><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-multi cpf' + (H.multi ? ' on' : '') + '" data-htoggle="multi" aria-pressed="' + !!H.multi + '" title="Afficher uniquement mes jeux multi-plateformes (' + (H.multiN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.multi + '</b> multi-plateforme' + (cp.multi > 1 ? 's' : '') + '</button><span class="cpo" aria-hidden="true">=</span><span class="cpi c-tot"><b>' + cp.copies + '</b> exemplaire' + (cp.copies > 1 ? 's' : '') + '</span>' + (cp.boxes ? '<span class="cpi c-box" title="Boîtes en plus (steelbook, sleeve…) sans jeu supplémentaire">+ <b>' + cp.boxes + '</b> boîte' + (cp.boxes > 1 ? 's' : '') + ' en plus</span>' : '') + '</div>' + (function(){ var unc = S.games.filter(function(g){ return dupUnclear(g); }).length; return unc && !S.readOnly ? '<button type="button" class="dupq-btn" data-dupq="1">' + IC.help + '' + unc + ' jeu' + (unc > 1 ? 'x' : '') + ' à vérifier : vrai doublon ou boîte en plus ?</button>' : ''; })() + '<p class="cp-hint">Clique sur « en doublon » ou « multi-plateforme » pour n\u2019afficher que ces jeux.</p>';
+      + '<div class="copies" aria-label="Détail du total"><button type="button" class="cpi c-solo cpf' + (H.solo ? ' on' : '') + '" data-htoggle="solo" aria-pressed="' + !!H.solo + '" title="Afficher uniquement mes jeux sans doublon ni multi-plateforme"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cbase.length + '</b> jeu' + (cbase.length > 1 ? 'x' : '') + '</button><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-dup cpf' + (H.dup ? ' on' : '') + '" data-htoggle="dup" aria-pressed="' + !!H.dup + '" title="Afficher uniquement mes jeux en doublon (' + (H.dupN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.dup + '</b> en doublon</button><span class="cpo" aria-hidden="true">+</span><button type="button" class="cpi c-multi cpf' + (H.multi ? ' on' : '') + '" data-htoggle="multi" aria-pressed="' + !!H.multi + '" title="Afficher uniquement mes jeux multi-plateformes (' + (H.multiN || 0) + ')"><svg class="cp-chk" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><b>' + cp.multi + '</b> multi-plateforme' + (cp.multi > 1 ? 's' : '') + '</button><span class="cpo" aria-hidden="true">=</span><span class="cpi c-tot"><b>' + cp.copies + '</b> exemplaire' + (cp.copies > 1 ? 's' : '') + '</span>' + (cp.boxes ? '<span class="cpi c-box" title="Boîtes en plus (steelbook, sleeve…) sans jeu supplémentaire">+ <b>' + cp.boxes + '</b> boîte' + (cp.boxes > 1 ? 's' : '') + ' en plus</span>' : '') + '</div>' + (function(){ var unc = S.games.filter(function(g){ return dupUnclear(g); }).length; return unc && !S.readOnly ? '<button type="button" class="dupq-btn" data-dupq="1">' + IC.help + '' + unc + ' jeu' + (unc > 1 ? 'x' : '') + ' à vérifier : vrai doublon ou boîte en plus ?</button>' : ''; })() + '<p class="cp-hint">Clique sur « jeux », « en doublon » ou « multi-plateforme » pour n\u2019afficher que ces jeux.</p>';
   } else h += '<div class="empty"><span>Ajoute des jeux pour voir la répartition.</span></div>';
   h += '</div>' + discCard() + '</section>';
   var chips = [];
@@ -5276,6 +5299,7 @@ function viewHome(counts){
   var yl = H.yMode === 'year' ? H.year : (H.yFrom && H.yTo ? H.yFrom + ' – ' + H.yTo : H.yFrom ? 'dès ' + H.yFrom : H.yTo ? 'jusqu\u2019à ' + H.yTo : '');
   if (yl) chips.push(['year', H.yMode === 'year' ? 'Année' : 'Années', yl, FCOL.year]);
   if (H.dup) chips.push(['dup', 'Affichage', 'Doublons', FCOL.dup]);
+  if (H.solo) chips.push(['solo', 'Affichage', 'Sans doublon ni multi-plateforme', FCOL.q]);
   if (H.multi) chips.push(['multi', 'Affichage', 'Multi-plateformes', FCOL.multi]);
   if (H.q) chips.push(['q', 'Recherche', H.q, FCOL.q]);
   h += '<section class="card' + (swap ? ' swap' : '') + '" id="homeList" style="display:flex;flex-direction:column;gap:14px"><div class="rowhead"><div><h2>' + (chips.length ? 'Jeux filtrés' : 'Tous les jeux') + '</h2><div class="sub" role="status">' + rows.length + ' jeu' + (rows.length > 1 ? 'x' : '') + (chips.length ? ' sur ' + S.games.length : '') + '</div></div>'
@@ -8186,6 +8210,12 @@ document.addEventListener('click', function(e){
 /* ---------- Répartition : anneau annoté / barres par constructeur ---------- */
 S.chartView = (function(){ try { return localStorage.getItem('ps-chart') || 'ring'; } catch (x) { return 'ring'; } })();
 var CHART_HIDE_BRANDS = ['Anbernic', 'Analogue', 'FunKey'];
+function chartKindSwitch(){
+  var H = S.home, ck = H.kind || S.chartKind || 'physique';
+  return '<div class="ch-switch ch-kind" role="group" aria-label="Jeux comptés dans le graphique">' + [['physique', 'Physiques'], ['demat', 'Démat'], ['all', 'Tous']].map(function(v){ var dis = !!H.kind && H.kind !== v[0]; return '<button type="button" data-chartkind="' + v[0] + '" aria-pressed="' + (ck === v[0]) + '"' + (dis ? ' disabled title="Retire le filtre « ' + (H.kind === 'wish' ? 'Wishlist' : H.kind === 'demat' ? 'Jeux dématérialisés' : 'Jeux physiques') + ' » pour changer"' : '') + '>' + v[1] + '</button>'; }).join('') + '</div>';
+}
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-chartkind]'); if (!t || t.disabled) return; S.chartKind = t.getAttribute('data-chartkind'); try { localStorage.setItem('ps-chartkind', S.chartKind); } catch (x) {} render(); var b = document.querySelector('[data-chartkind="' + S.chartKind + '"]'); if (b) b.focus(); });
+try { S.chartKind = localStorage.getItem('ps-chartkind') || 'physique'; } catch (x) {}
 function chartSwitch(){
   return '<div class="ch-switch" role="group" aria-label="Vue du graphique">' + [['ring', '◔ Anneau'], ['bars', '▤ Barres']].map(function(v){ return '<button type="button" data-chartview="' + v[0] + '" aria-pressed="' + (S.chartView === v[0]) + '">' + v[1] + '</button>'; }).join('') + '</div>';
 }
@@ -10014,6 +10044,7 @@ var NED = null;
 function nedDlg(g, v){
   var cur = v ? v.console : (list(g.consoles)[0] || ''), cv = v ? exFront(g, v).src : (g.coverId ? blob(g.coverId) : genCover(g.name, cur));
   NED = {gid:g.id, vid:v ? v.id : '', photos:v ? v.photos.slice() : [], files:[], kind:v ? (v.kind || 'copy') : 'copy', cats:Object.assign({}, v && v.photoCats || {}), newFront:-1};
+  if (v) setTimeout(function(){ if (NED && NED.vid === v.id) NED.lastKey = JSON.stringify(nedState()); }, 0);
   return '<div class="dlg ned-dlg"><header class="ned-h"><img src="' + esc(cv) + '" alt=""><div><span class="ned-k">' + (v ? 'Mon exemplaire' : 'Nouvel exemplaire') + '</span><h2>' + esc(g.name) + '</h2></div><button type="button" class="iconbtn" data-act="close" aria-label="Fermer">✕</button></header><div class="body" id="nedForm">'
     + '<div class="ned-kind" role="radiogroup" aria-label="Type d\u2019ajout"><button type="button" class="ned-ch' + (NED.kind !== 'box' ? ' on' : '') + '" data-nedkind="copy" role="radio" aria-checked="' + (NED.kind !== 'box') + '"><span>' + IC.pad + '</span><b>Une version / un doublon</b><small>J\u2019ai un jeu de plus (un autre disque ou une autre cartouche). Compte comme un doublon.</small></button><button type="button" class="ned-ch' + (NED.kind === 'box' ? ' on' : '') + '" data-nedkind="box" role="radio" aria-checked="' + (NED.kind === 'box') + '"><span>' + IC.box + '</span><b>Une boîte en plus</b><small>Même jeu, rangé dans une autre boîte (steelbook, sleeve…). Ne compte pas comme un doublon.</small></button></div>'
     + '<div class="ned-grid"><div class="field full"><label for="nedName">Nom de l\u2019édition</label><input type="text" id="nedName" maxlength="60" value="' + esc(v && v.edition || '') + '" placeholder="Ex. Édition collector, Director\u2019s Cut, édition japonaise…"></div>'
@@ -10021,12 +10052,35 @@ function nedDlg(g, v){
     + cfield('nedFmt', 'Format', {key:'format', name:'nedFmt', value:v ? v.format : '', placeholder:'Choisir un format'})
     + cfield('nedEtat', 'État', {key:'etat', name:'nedEtat', value:v ? v.etat : [], multi:true, placeholder:'Choisir'})
     + '</div><div class="ned-ph"><span class="ned-lbl">Photos de cet exemplaire</span><small class="ned-phh">L\u2019étoile choisit la photo de face, celle mise en avant sur la carte.</small><div class="ned-phg" id="nedPh">' + nedPhHtml() + '</div></div>'
-    + '</div><footer>' + (v ? '<button type="button" class="btn danger ghost" data-neddel="1">Supprimer cet exemplaire</button><span class="spacer"></span>' : '') + '<button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-nedsave="1">' + (v ? 'Enregistrer' : 'Ajouter cet exemplaire') + '</button></footer></div>';
+    + '</div><footer>' + (v ? '<button type="button" class="btn danger ghost" data-neddel="1">Supprimer cet exemplaire</button><span class="spacer"></span><span class="ned-saved" id="nedSaved" role="status" aria-live="polite">Les changements sont enregistrés automatiquement</span><button type="button" class="btn" data-act="close">Fermer</button>' : '<button type="button" class="btn ghost" data-act="close">Annuler</button><button type="button" class="btn" data-nedsave="1">Ajouter cet exemplaire</button>') + '</footer></div>';
 }
 function nedFrontBtn(key, on){ return '<button type="button" class="ned-star' + (on ? ' on' : '') + '" data-nedfront="' + key + '" aria-pressed="' + on + '" aria-label="' + (on ? 'Photo de face' : 'Choisir comme photo de face') + '" title="' + (on ? 'Photo de face' : 'Choisir comme photo de face') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.6l-5.3 3 1.2-6-4.5-4.1 6-.7z"></path></svg></button>'; }
 function nedHasFront(){ return NED.newFront >= 0 || NED.photos.some(function(id){ return NED.cats[id] === 'box-front'; }); }
 function nedPhHtml(){ return NED.photos.map(function(id, k){ return '<span class="ned-p"><img src="' + esc(blob(id)) + '" alt="">' + nedFrontBtn('o' + k, NED.newFront < 0 && NED.cats[id] === 'box-front') + '<button type="button" data-nedphx="o' + k + '" aria-label="Retirer">✕</button></span>'; }).join('') + NED.files.map(function(f, k){ return '<span class="ned-p"><img src="' + esc(f.url) + '" alt="">' + nedFrontBtn('n' + k, NED.newFront === k) + '<button type="button" data-nedphx="n' + k + '" aria-label="Retirer">✕</button></span>'; }).join('') + '<label class="ned-p add"><input type="file" accept="image/*" multiple hidden id="nedFiles">＋<small>Photo</small></label>'; }
 document.addEventListener('change', function(e){ if (e.target.id !== 'nedFiles' || !NED) return; Array.prototype.forEach.call(e.target.files, function(f){ NED.files.push({file:f, url:URL.createObjectURL(f)}); }); var p = document.getElementById('nedPh'); if (p) p.innerHTML = nedPhHtml(); });
+/* enregistrement automatique d'un exemplaire existant */
+var NED_T = null, NED_BUSY = false, NED_AGAIN = false;
+function nedState(){ var f = document.getElementById('nedForm'); if (!f || !NED) return null; var hv = function(n){ var el = f.querySelector('input[name="' + n + '"]'); return el ? el.value : ''; };
+  return {name:((document.getElementById('nedName') || {}).value || '').trim(), con:hv('nedCon'), fmt:hv('nedFmt'), etat:parseMulti(hv('nedEtat')), kind:NED.kind, photos:NED.photos.slice(), cats:JSON.stringify(NED.cats), files:NED.files.length, front:NED.newFront}; }
+function nedAutoSoon(){ if (!NED || !NED.vid || S.readOnly) return; clearTimeout(NED_T); NED_T = setTimeout(nedAutoSave, 450); }
+async function nedAutoSave(){
+  if (!NED || !NED.vid) return; if (NED_BUSY) { NED_AGAIN = true; return; }
+  var st = nedState(); if (!st) return; var key = JSON.stringify(st); if (key === NED.lastKey) return;
+  NED_BUSY = true; var N = NED, lab = document.getElementById('nedSaved'); if (lab) { lab.textContent = N.files.length ? 'Envoi des photos…' : 'Enregistrement…'; lab.classList.remove('ok'); }
+  try {
+    for (var i = 0; i < N.files.length; i++) { var id = await uploadFile(N.files[i].file); if (id) { N.photos.push(id); if (i === N.newFront) { N.photos.forEach(function(x){ if (N.cats[x] === 'box-front') delete N.cats[x]; }); N.cats[id] = 'box-front'; } } }
+    if (N.files.length) { N.files = []; N.newFront = -1; var ph = document.getElementById('nedPh'); if (ph) ph.innerHTML = nedPhHtml(); }
+    var cats = {}; N.photos.forEach(function(x){ if (N.cats[x]) cats[x] = N.cats[x]; });
+    var ids = N.photos.slice();
+    await saveVersions(N.gid, function(vs){ var v = vs.find(function(x){ return x.id === N.vid; }); if (!v) return false; v.edition = st.name; v.console = st.con; v.format = st.fmt; v.etat = st.etat; v.photos = ids; v.photoCats = cats; v.kind = N.kind; }, true);
+    N.lastKey = JSON.stringify(nedState() || st);
+    if (lab) { lab.textContent = '✓ Enregistré'; lab.classList.add('ok'); }
+  } catch (x) { if (lab) lab.textContent = 'Échec de l\u2019enregistrement'; toast(failMsg(x)); }
+  NED_BUSY = false; if (NED_AGAIN) { NED_AGAIN = false; nedAutoSoon(); }
+}
+document.addEventListener('input', function(e){ if (e.target.closest && e.target.closest('#nedForm')) nedAutoSoon(); });
+document.addEventListener('change', function(e){ if (e.target.closest && e.target.closest('#nedForm')) nedAutoSoon(); });
+document.addEventListener('click', function(e){ if (!NED || !NED.vid) return; if ((e.target.closest && e.target.closest('#nedForm')) || (e.target.closest && e.target.closest('.combo-pop'))) setTimeout(nedAutoSoon, 60); }, true);
 document.addEventListener('click', async function(e){
   var kb = e.target.closest && e.target.closest('[data-nedkind]'); if (kb && NED) { e.preventDefault(); NED.kind = kb.getAttribute('data-nedkind'); kb.parentNode.querySelectorAll('.ned-ch').forEach(function(x){ var on = x === kb; x.classList.toggle('on', on); x.setAttribute('aria-checked', on); }); return; }
   var fb = e.target.closest && e.target.closest('[data-nedfront]'); if (fb && NED) { e.preventDefault(); e.stopImmediatePropagation(); var fk = fb.getAttribute('data-nedfront'), on = fb.getAttribute('aria-pressed') === 'true';
@@ -10140,10 +10194,10 @@ var ROUL = {mode:(function(){ try { return localStorage.getItem('ps-roul') || 'w
 function roulPool(){
   return S.games.filter(function(g){
     if (g.kind === 'wish') return false;
-    if (ROUL.kind && g.kind !== ROUL.kind) return false;
+    if (ROUL.kind && (g.kind || 'physique') !== ROUL.kind) return false;
     var st = g.status || 'Pas commencé';
     if (ROUL.st === 'todo' && st !== 'Pas commencé') return false;
-    if (ROUL.st === 'cur' && st !== 'En cours') return false;
+
     if (ROUL.con && !list(g.consoles).some(function(c){ return norm(c) === norm(ROUL.con); })) return false;
     return true;
   });
@@ -10154,7 +10208,7 @@ function roulSwitch(){ return '<div class="ch-switch roul-sw" role="group" aria-
 function roulFilters(){
   var cons = {}; S.games.forEach(function(g){ if (g.kind !== 'wish') list(g.consoles).forEach(function(c){ cons[c] = 1; }); });
   var chip = function(grp, val, lab, on){ return '<button type="button" class="chip roul-chip' + (on ? ' on' : '') + '" data-roulf="' + grp + '|' + esc(val) + '">' + lab + '</button>'; };
-  return '<div class="roul-f"><div class="roul-fg"><span>Statut</span>' + chip('st', 'all', 'Tous', ROUL.st === 'all') + chip('st', 'todo', 'Pas commencés', ROUL.st === 'todo') + chip('st', 'cur', 'En cours', ROUL.st === 'cur') + '</div>'
+  return '<div class="roul-f"><div class="roul-fg"><span>Statut</span>' + chip('st', 'all', 'Tous', ROUL.st === 'all') + chip('st', 'todo', 'Pas commencés', ROUL.st === 'todo') + '</div>'
     + '<div class="roul-fg"><span>Type</span>' + chip('kind', '', 'Tous', !ROUL.kind) + chip('kind', 'physique', 'Physiques', ROUL.kind === 'physique') + chip('kind', 'demat', 'Démat', ROUL.kind === 'demat') + '</div>'
     + '<div class="roul-fg roul-con"><span>Console</span>' + combo({key:'consoles', value:ROUL.con, compact:true, clearable:true, placeholder:'Toutes les consoles', id:'roulConC', label:'Console du tirage'}) + '</div></div>';
 }
@@ -10653,11 +10707,13 @@ document.addEventListener('click', async function(e){
 
 /* ---------- Fiches de mes jeux en fenêtre (par-dessus la page) ---------- */
 var GDLG = null, GDLG_VIEWS = ['home', 'physique', 'demat', 'suivi', 'licence', 'licences', 'roulette', 'wishlist'];
-function gdlgOpen(id){
+var GDLG_STACK = [];
+function gdlgOpen(id, fromBack){
+  if (!fromBack) { if (GDLG && GDLG.open && S.gdlgId && S.gdlgId !== id) GDLG_STACK.push(S.gdlgId); else if (!(GDLG && GDLG.open)) GDLG_STACK = []; }
   S.gdlgId = id; S.gameId = id;
   if (!GDLG) { GDLG = document.createElement('dialog'); GDLG.id = 'gdlg'; GDLG.className = 'gdlg'; GDLG.setAttribute('aria-label', 'Fiche du jeu'); document.body.appendChild(GDLG);
     GDLG.addEventListener('click', function(e){ if (e.target === GDLG) gdlgClose(); });
-    GDLG.addEventListener('close', function(){ S.gdlgId = null; if (S.view !== 'game') S.gameId = null; GDLG.innerHTML = ''; }); }
+    GDLG.addEventListener('close', function(){ GDLG_STACK = []; S.gdlgId = null; if (S.view !== 'game') S.gameId = null; GDLG.innerHTML = ''; }); }
   gdlgDraw(true); if (!GDLG.open) GDLG.showModal();
 }
 function gdlgClose(){ if (GDLG && GDLG.open) GDLG.close(); }
@@ -10667,13 +10723,15 @@ function gdlgDraw(top){
   var a = document.activeElement; if (!top && a && GDLG.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
   var inn = GDLG.querySelector('.gdlg-in'), sc = inn && !top ? inn.scrollTop : 0;
   S.gameId = S.gdlgId;
-  GDLG.innerHTML = '<div class="gdlg-in"><div class="gdlg-xw"><button type="button" class="iconbtn gdlg-x" data-gdlgx="1" aria-label="Fermer la fiche">✕</button></div><div class="main gdlg-main">' + viewGame() + '</div></div>';
+  var prevG = GDLG_STACK.length ? ALLG().find(function(x){ return x.id === GDLG_STACK[GDLG_STACK.length - 1]; }) : null;
+  GDLG.innerHTML = '<div class="gdlg-in"><div class="gdlg-xw">' + (prevG ? '<button type="button" class="btn gdlg-back" data-gdlgback="1">← Retour à « ' + esc(prevG.name) + ' »</button>' : '') + '<button type="button" class="iconbtn gdlg-x" data-gdlgx="1" aria-label="Fermer la fiche">✕</button></div><div class="main gdlg-main">' + viewGame() + '</div></div>';
   var in2 = GDLG.querySelector('.gdlg-in'); if (in2) in2.scrollTop = sc;
   try { shelfFit(); } catch (x) {}
   gdlgSbSync(); if (in2) in2.addEventListener('scroll', gdlgSbSync, {passive:true});
   setTimeout(function(){ try { shelfFit(); } catch (x) {} try { thumbsProcess(); } catch (x) {} gdlgSbSync(); }, 0);
 }
 document.addEventListener('click', function(e){
+  var bk = e.target.closest && e.target.closest('[data-gdlgback]'); if (bk && GDLG_STACK.length) { e.preventDefault(); e.stopImmediatePropagation(); gdlgOpen(GDLG_STACK.pop(), true); return; }
   var t = e.target.closest && e.target.closest('[data-game],[data-gdlgx],.gh-top [data-nav]'); if (!t) return;
   var inG = GDLG && GDLG.open && GDLG.contains(t);
   if (t.hasAttribute('data-gdlgx') || (inG && t.matches('.gh-top [data-nav]'))) { e.preventDefault(); e.stopImmediatePropagation(); gdlgClose(); return; }
